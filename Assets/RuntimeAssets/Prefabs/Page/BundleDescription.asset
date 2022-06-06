@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92a250dffe8675642addd9af24ba60fc, type: 3}
+  m_Name: BundleDescription
+  m_EditorClassIdentifier: 
+  m_generateMode: 3
+  m_bundleDescExplain: "\u666E\u901ABundle"
+  m_outputBundleName: prefabs_page
+  m_assetList:
+  - Assets/RuntimeAssets/Prefabs/Page/Test/TestPage4.prefab
+  - Assets/RuntimeAssets/Prefabs/Page/Test2DPage.prefab
+  - Assets/RuntimeAssets/Prefabs/Page/Test3DPage.prefab
+  - Assets/RuntimeAssets/Prefabs/Page/TestPage1.prefab
+  - Assets/RuntimeAssets/Prefabs/Page/TownPage.prefab
+  - Assets/RuntimeAssets/Prefabs/Page/TownPage2.prefab
+  - Assets/RuntimeAssets/Prefabs/Page/TownPage3.prefab
+  m_childBundleDescs:
+  - {fileID: 11400000, guid: 787b20d53eab62f4b8679aa512b13a49, type: 2}
+  - {fileID: 11400000, guid: 33b57b7ef11155e4c8f71e5f1e699905, type: 2}
+  m_searchAssetTypes: 4159

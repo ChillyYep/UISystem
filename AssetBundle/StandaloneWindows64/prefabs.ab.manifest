@@ -1,0 +1,64 @@
+ManifestFileVersion: 0
+CRC: 1949719570
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 237afccf8cee85242746ec6fa0ae4ade
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: e6e5b42d1553b7590ad1bed5c7dddb5b
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 20
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 81
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 5edf0a6751bf7ae49aa3bef34813633d, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 865a1369d3d844f49997f58ddc98d71a, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 5342ad3f75b503b42bf00d2018525ba2, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 4f231c4fb786f3946a6b90b886c48677, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+- Class: 128
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+- Class: 222
+  Script: {instanceID: 0}
+- Class: 223
+  Script: {instanceID: 0}
+- Class: 224
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/RuntimeAssets/Prefabs/CameraManager.prefab
+- Assets/RuntimeAssets/Prefabs/TestPage3.prefab
+- Assets/RuntimeAssets/Prefabs/UIRoot.prefab
+Dependencies:
+- J:/unity/UISystem/Assets/../AssetBundle/StandaloneWindows64/common.ab

@@ -1,0 +1,27 @@
+ManifestFileVersion: 0
+CRC: 1264970348
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: prefabs_page_childpage_childpage.ab
+      Dependencies:
+        Dependency_0: prefabs_page_childpage.ab
+        Dependency_1: common.ab
+    Info_1:
+      Name: prefabs_page_childpage.ab
+      Dependencies:
+        Dependency_0: prefabs_page_childpage_childpage.ab
+        Dependency_1: prefabs_page.ab
+        Dependency_2: common.ab
+    Info_2:
+      Name: prefabs_page.ab
+      Dependencies:
+        Dependency_0: prefabs_page_childpage_childpage.ab
+        Dependency_1: common.ab
+    Info_3:
+      Name: prefabs.ab
+      Dependencies:
+        Dependency_0: common.ab
+    Info_4:
+      Name: common.ab
+      Dependencies: {}

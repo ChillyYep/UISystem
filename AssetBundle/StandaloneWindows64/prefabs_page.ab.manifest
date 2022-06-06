@@ -1,0 +1,59 @@
+ManifestFileVersion: 0
+CRC: 1852423465
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 6bef352899c0364435413a6b3ab7a0ee
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 3a6a369f72a021e619a45c97567df043
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 7a7db356e3eb1e14b85c820c54dcbf63, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 59f8146938fff824cb5fd77236b75775, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: b758c60b273aaee4fad5f00b79e329f2, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 5342ad3f75b503b42bf00d2018525ba2, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+- Class: 128
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+- Class: 222
+  Script: {instanceID: 0}
+- Class: 223
+  Script: {instanceID: 0}
+- Class: 224
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/RuntimeAssets/Prefabs/Page/Test2DPage.prefab
+- Assets/RuntimeAssets/Prefabs/Page/Test3DPage.prefab
+- Assets/RuntimeAssets/Prefabs/Page/TownPage2.prefab
+- Assets/RuntimeAssets/Prefabs/Page/TestPage1.prefab
+- Assets/RuntimeAssets/Prefabs/Page/Test/TestPage4.prefab
+- Assets/RuntimeAssets/Prefabs/Page/TownPage.prefab
+- Assets/RuntimeAssets/Prefabs/Page/TownPage3.prefab
+Dependencies:
+- J:/unity/UISystem/Assets/../AssetBundle/StandaloneWindows64/common.ab
+- J:/unity/UISystem/Assets/../AssetBundle/StandaloneWindows64/prefabs_page_childpage_childpage.ab

@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e0eaac12cec32af45b4213e62e9878a9, type: 3}
+  m_Name: GameClientSetting
+  m_EditorClassIdentifier: 
+  m_logSetting:
+    IsNeedFileLog: 1
+    IsNeedEngineLog: 1
+    IsInPersistentDir: 1
+    LogNameRule: 3
+    LogFileDir: ../GameRunningLog
+  m_resPathSettings:
+    EditorBundleDirectoryRelativeToAssets: ../AssetBundle
+    StreamingAssetsRelativeToAssets: StreamingAssets
+    ResourcesDir: Assets/Resources
+    AssetBundleMapPathRelativeResources: Settings/AssetBundleMap
+    StreamingAssetsAssetBundleMapPathRelativeResources: Settings/StreamingAssetsAssetBundleMap
+    RuntimeReadBundleInStreamingAssets: 1
+    PageResPath: Assets/RuntimeAssets/Prefabs/Page
+    PrefabPath: Assets/RuntimeAssets/Prefabs
+    StartUnloadUnusedAssetTimer: 0
+    UnloadUnusedAssetInverval: 60
+    MaxBundleWorkers: 1
+  m_bundleBuildSettings:
+    m_bundleBuildMode: 367
+    m_bundleSuffix: .ab
+    m_versionStep: 1
+    m_useAssetBundleManifestCollectDependencies: 0
+    m_runtimeAssetsDir: Assets/RuntimeAssets
+    m_defaultAbName: runtimeassets
+    m_buildCachePath: Assets/Editor/Cache/BundleBuildCache.asset
