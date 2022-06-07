@@ -64,6 +64,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CodeExpoter.cs" />
     <Compile Include="ConfigClassMetaData.cs" />
     <Compile Include="ConfigEnumMetaData.cs" />
     <Compile Include="ConfigFieldMetaData.cs" />
@@ -75,6 +76,7 @@
     <Compile Include="DataExpoterForm.Designer.cs">
       <DependentUpon>DataExpoterForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="FileExporter.cs" />
     <Compile Include="ParseExcelProcess.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

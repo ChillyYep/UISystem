@@ -35,12 +35,11 @@ namespace ConfigDataExpoter
 
     class ParseExcelProcess
     {
-        /// <summary>
-        /// Excel路径/名称为key
-        /// </summary>
-        public Dictionary<string, List<ConfigSheetData>> m_configSheetDict = new Dictionary<string, List<ConfigSheetData>>();
-
-        public string m_mainDirectory;
+        public ParseExcelProcess(string mainDirecotry, string exportCodeDiretory, string exportCodeFileName)
+        {
+            m_mainDirectory = mainDirecotry;
+            m_exportCodePath = Path.Combine(exportCodeDiretory, exportCodeFileName);
+        }
 
         /// <summary>
         /// 解析一个Excel
@@ -124,11 +123,15 @@ namespace ConfigDataExpoter
                     const char seperator = ConfigFieldMetaData.ForeignKeySeperator;
                     foreach (var fieldInfo in classMetaData.m_fieldsInfo)
                     {
+                        if (fieldInfo.m_foreignKey.Equals(ConfigFieldMetaData.None))
+                        {
+                            continue;
+                        }
                         var foreignKeys = fieldInfo.m_foreignKey.Split(seperator);
                         if (foreignKeys.Length == 2)
                         {
                             var foreignClass = foreignKeys[0];
-                            var foreignField = foreignClass[1];
+                            var foreignField = foreignKeys[1];
                             if (foreignClass.Equals(classMetaData.m_name))
                             {
                                 throw new ParseExcelException($"外键名不能与当前所属类型名相同,ClassName:{classMetaData.m_name},Field:{fieldInfo.m_name}");
@@ -137,7 +140,7 @@ namespace ConfigDataExpoter
                             {
                                 if (foreignMetaData.m_sheetType == SheetType.Enum)
                                 {
-                                    if (!foreignField.Equals(ConfigEnumMetaData.IDPrimaryKey) && !foreignField.Equals(ConfigEnumMetaData.ValuePrimaryKey))
+                                    if (!foreignField.Equals(ConfigEnumMetaData.IDPrimaryKey, StringComparison.OrdinalIgnoreCase) && !foreignField.Equals(ConfigEnumMetaData.ValuePrimaryKey, StringComparison.OrdinalIgnoreCase))
                                     {
                                         throw new ParseExcelException($"枚举不存在列名为{foreignField}的数据");
                                     }
@@ -168,6 +171,7 @@ namespace ConfigDataExpoter
         public void ParseDataBody()
         {
         }
+
         public void CheckDataBodySafety()
         {
             // 1、数据能否正确转换成对应类型(包含定长数组和不定长数组)
@@ -176,15 +180,20 @@ namespace ConfigDataExpoter
         public void ParseAllExcel()
         {
             m_configSheetDict.Clear();
+            List<ConfigSheetData> sheetDatas = new List<ConfigSheetData>();
             // 1、从一个文件夹读取所有Excel文件，挨个解析ConfigSheetData列表
-            var files = Directory.GetFiles(m_mainDirectory, "*.xlsx|*.xls", SearchOption.AllDirectories);
+            var files = Directory.GetFiles(m_mainDirectory, "*.xlsx", SearchOption.AllDirectories);
             foreach (var file in files)
             {
                 m_configSheetDict[file] = ParseMetaData(file);
+                sheetDatas.AddRange(m_configSheetDict[file]);
             }
             // 2、验证头信息安全性
             CheckMetaDataSafety();
             // 3、导出代码
+            CodeExpoter codeExporter = new CodeExpoter();
+            codeExporter.SetConfigSheetData(sheetDatas);
+            codeExporter.ExportCode(m_exportCodePath);
             // 4、编译代码
             // 5、读取数据体，序列化
         }
@@ -281,7 +290,7 @@ namespace ConfigDataExpoter
 
         private void ParseEnumValues(ISheet sheet, ConfigEnumMetaData enumMetaData)
         {
-            for (int i = ConfigSheetData.EnumBodyIndex; i < sheet.LastRowNum; ++i)
+            for (int i = ConfigSheetData.EnumBodyIndex; i <= sheet.LastRowNum; ++i)
             {
                 var row = sheet.GetRow(i);
                 var idCell = row.GetCell(ConfigSheetData.EnumFlagIDCellIndex);
@@ -298,11 +307,13 @@ namespace ConfigDataExpoter
                 {
                     if (nameCell != null && !string.IsNullOrEmpty(nameCell.StringCellValue))
                     {
-                        var sameNameData = enumMetaData.m_enumNameValue.Values.First(enumData => enumData.m_name.Equals(nameCell.StringCellValue));
-
-                        if (sameNameData != null)
+                        // 同名检测
+                        foreach (var enumData in enumMetaData.m_enumNameValue.Values)
                         {
-                            throw new ParseExcelException($"Enum 不能有同名枚举 {nameCell.StringCellValue}");
+                            if (enumData.m_name.Equals(nameCell.StringCellValue))
+                            {
+                                throw new ParseExcelException($"Enum 不能有同名枚举 {nameCell.StringCellValue}");
+                            }
                         }
 
                         flagData = new ConfigEnumMetaData.EnumData()
@@ -354,7 +365,7 @@ namespace ConfigDataExpoter
         /// <param name="sheet"></param>
         /// <param name="classMetaData"></param>
         /// <returns></returns>
-        private List<ConfigFieldMetaData> ParseClassFields(ISheet sheet, ConfigClassMetaData classMetaData)
+        private void ParseClassFields(ISheet sheet, ConfigClassMetaData classMetaData)
         {
             var fieldsDict = new Dictionary<string, ConfigFieldMetaData>();
             var fieldNameRow = sheet.GetRow((int)ConfigClassFieldHeader.ClassFieldName);
@@ -372,7 +383,7 @@ namespace ConfigDataExpoter
             {
                 var fieldNameCell = fieldNameRow.GetCell(i);
                 var fieldTypeCell = fieldTypeRow.GetCell(i);
-                var fieldDataType = classMetaData.ParseEnum(fieldTypeCell.StringCellValue, DataType.Invalid);
+                var tempFieldDataType = classMetaData.ParseEnum(fieldTypeCell.StringCellValue, DataType.None);
 
                 if (fieldNameCell != null && !string.IsNullOrEmpty(fieldNameCell.StringCellValue))
                 {
@@ -380,10 +391,11 @@ namespace ConfigDataExpoter
                     {
                         var fieldMetaData = new ConfigFieldMetaData()
                         {
-                            m_name = fieldNameCell.StringCellValue
+                            m_belongClassName = classMetaData.m_name,
+                            m_name = fieldNameCell.StringCellValue.ToLower(),
                         };
                         fieldsDict[fieldMetaData.m_name] = fieldMetaData;
-                        // 解析内嵌类，可以为None
+                        // 解析内嵌类，如果不是内嵌类，则这四个单元格的数据应当也是None的
                         var nestedClassNamesCell = sheet.GetRow((int)ConfigClassFieldHeader.ClassNestedClassFieldNames).GetCell(i);
                         var nestedClassTypesCell = sheet.GetRow((int)ConfigClassFieldHeader.ClassNestedClassFieldTypes).GetCell(i);
                         var nestedClassCommentsCell = sheet.GetRow((int)ConfigClassFieldHeader.ClassNestedClassFieldComments).GetCell(i);
@@ -394,8 +406,17 @@ namespace ConfigDataExpoter
                             nestedClassCommentsCell != null && !string.IsNullOrEmpty(nestedClassCommentsCell.StringCellValue) &&
                             nestedClassIsListCell != null && !string.IsNullOrEmpty(nestedClassIsListCell.StringCellValue))
                         {
-                            fieldMetaData.ParseNestedClass(fieldDataType, nestedClassNamesCell.StringCellValue, nestedClassTypesCell.StringCellValue,
+                            bool isNestedClass = fieldMetaData.ParseNestedClass(tempFieldDataType, nestedClassNamesCell.StringCellValue, nestedClassTypesCell.StringCellValue,
                                 nestedClassCommentsCell.StringCellValue, nestedClassIsListCell.StringCellValue);
+                            if (isNestedClass)
+                            {
+                                fieldMetaData.m_dataType = DataType.NestedClass;
+                                fieldMetaData.m_nestedClassMetaData.m_className = fieldTypeCell.StringCellValue;
+                            }
+                            else
+                            {
+                                fieldMetaData.m_dataType = tempFieldDataType;
+                            }
                         }
                         else
                         {
@@ -414,6 +435,8 @@ namespace ConfigDataExpoter
                                 throw new ParseExcelException($"域信息解析异常，域名:{fieldNameCell.StringCellValue}，域信息类型：{header}");
                             }
                         }
+                        // 域的实际类名
+                        fieldMetaData.m_realTypeName = fieldMetaData.GetType(fieldMetaData.m_dataType, fieldMetaData.m_listType);
                     }
                     else
                     {
@@ -427,9 +450,21 @@ namespace ConfigDataExpoter
             }
 
             var fieldList = fieldsDict.Values.ToList();
-            fieldList.Sort();
-            return fieldList;
-
+            classMetaData.m_fieldsInfo.Clear();
+            classMetaData.m_fieldsInfo.AddRange(fieldList);
         }
+
+        /// <summary>
+        /// Excel路径/名称为key
+        /// </summary>
+        public Dictionary<string, List<ConfigSheetData>> m_configSheetDict = new Dictionary<string, List<ConfigSheetData>>();
+        /// <summary>
+        /// Excel文件所在目录
+        /// </summary>
+        private string m_mainDirectory;
+        /// <summary>
+        /// 代码导出位置
+        /// </summary>
+        private string m_exportCodePath;
     }
 }

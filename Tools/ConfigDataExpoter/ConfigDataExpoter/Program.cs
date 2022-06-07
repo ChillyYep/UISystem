@@ -19,9 +19,17 @@ namespace ConfigDataExpoter
         [STAThread]
         static void Main()
         {
+            //try
+            //{
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new DataExpoterForm());
+            //}
+            //catch(Exception e)
+            //{
+            //    Application.Exit();
+            //}
+
         }
     }
 }
