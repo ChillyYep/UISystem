@@ -76,6 +76,11 @@ namespace ConfigDataExpoter
         public const char ForeignKeySeperator = '.';
 
         /// <summary>
+        /// 数据开始行
+        /// </summary>
+        public const int DataBeginRow = (int)ConfigClassFieldHeader.ClassNestedClassFieldIsList + 1;
+
+        /// <summary>
         /// 所属类的类名
         /// </summary>
         public string m_belongClassName;
@@ -114,6 +119,11 @@ namespace ConfigDataExpoter
         /// 是否是数组，None,List[0],List[1]……,List[x]可变长数组
         /// </summary>
         public string m_listType;
+
+        /// <summary>
+        /// 表中第几列
+        /// </summary>
+        public int m_columnIndex;
 
         /// <summary>
         /// 内嵌类额外信息
@@ -162,7 +172,7 @@ namespace ConfigDataExpoter
             return ListType.None;
         }
 
-        public string GetType(DataType dataType, string listTypeStr, bool isNestedClass = false)
+        public string GetTypeName(DataType dataType, string listTypeStr, bool isNestedClass = false)
         {
             var listType = GetListType(listTypeStr);
             string elementType = string.Empty;
@@ -230,6 +240,80 @@ namespace ConfigDataExpoter
             else
             {
                 return $"List<{elementType}>";
+            }
+        }
+        public string GetFullTypeName(DataType dataType, string listTypeStr, bool isNestedClass = false)
+        {
+            var listType = GetListType(listTypeStr);
+            string elementType = string.Empty;
+            switch (dataType)
+            {
+                case DataType.None:
+                    throw new ParseExcelException($"{m_belongClassName}中{m_name}字段类型无效");
+                case DataType.Enum:
+                    {
+                        if (isNestedClass)
+                        {
+                            throw new ParseExcelException($"{m_belongClassName}中字段{m_name}为内嵌类，该内嵌类中不能使用枚举字段");
+                        }
+                        if (string.IsNullOrEmpty(m_foreignKey))
+                        {
+                            throw new ParseExcelException($"{m_belongClassName}中字段{m_name}为Enum类型，必须指定好枚举外键");
+                        }
+                        var keys = m_foreignKey.Split(ForeignKeySeperator);
+                        if (keys.Length != 2)
+                        {
+                            throw new ParseExcelException($"{m_belongClassName}中字段{m_name}为枚举外键格式不正确，必须是[EnumKey].ID或[EnumValue].Value");
+                        }
+                        elementType = $"ConfigData.{keys[0]}";
+                        break;
+                    }
+                case DataType.Int8:
+                    elementType = typeof(byte).FullName;
+                    break;
+                case DataType.Int16:
+                    elementType = typeof(Int16).FullName;
+                    break;
+                case DataType.Int32:
+                    elementType = typeof(Int32).FullName;
+                    break;
+                case DataType.Int64:
+                    elementType = typeof(Int64).FullName;
+                    break;
+                case DataType.Float:
+                    elementType = typeof(float).FullName;
+                    break;
+                case DataType.Double:
+                    elementType = typeof(double).FullName;
+                    break;
+                case DataType.String:
+                case DataType.Text:
+                    elementType = typeof(string).FullName;
+                    break;
+                default:
+                    // 内嵌类
+                    if (isNestedClass)
+                    {
+                        throw new ParseExcelException($"{m_belongClassName}中字段{m_name}为内嵌类，其中不能再嵌套一个类");
+                    }
+                    if (m_nestedClassMetaData.m_fieldsInfo.Count <= 0)
+                    {
+                        throw new ParseExcelException($"{m_belongClassName}中字段{m_name}为内嵌类，但该列并没有定义内嵌类");
+                    }
+                    elementType = $"ConfigData.{m_belongClassName}.{m_nestedClassMetaData.m_className}";
+                    break;
+            }
+            if (listType == ListType.None)
+            {
+                return elementType;
+            }
+            else if (listType == ListType.FixedLengthList)
+            {
+                return $"{elementType}[]";
+            }
+            else
+            {
+                return $"System.Collections.Generic.List<{elementType}>";
             }
         }
 
@@ -316,7 +400,7 @@ namespace ConfigDataExpoter
                     {
                         m_nestedClassMetaData.m_fieldsInfo[nameArr[i]] = new NestClassFieldInfo()
                         {
-                            m_realTypeName = GetType(typeArr[i], isListArr[i], true),
+                            m_realTypeName = GetTypeName(typeArr[i], isListArr[i], true),
                             m_fieldName = nameArr[i].ToLower(),
                             m_comment = commentArr[i],
                             m_listType = isListArr[i],

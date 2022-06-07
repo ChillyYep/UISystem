@@ -51,7 +51,6 @@ namespace ConfigDataExpoter
         public void SetConfigSheetData(IEnumerable<ConfigSheetData> configSheetDatas)
         {
             m_configSheetDatas = configSheetDatas;
-
         }
 
         public void ExportCode(string filePath)
@@ -153,7 +152,7 @@ namespace ConfigDataExpoter
             classCode = classCode.Replace(CLASS_NAME, className);
 
             // 3、构造函数
-            classCode = classCode.Replace(CONSTRUCTOR_PARAMS, string.Join(",", fieldsInfo.Select(fieldInfo =>
+            classCode = classCode.Replace(CONSTRUCTOR_PARAMS, string.Join(", ", fieldsInfo.Select(fieldInfo =>
               {
                   return string.Format(CodeParam, fieldInfo.m_realTypeName, string.Format(CodeParamName, fieldInfo.m_name));
               })));
@@ -207,7 +206,7 @@ namespace ConfigDataExpoter
             classCode = classCode.Replace(CLASS_NAME, className);
 
             // 3、构造函数
-            classCode = classCode.Replace(CONSTRUCTOR_PARAMS, string.Join(",", fieldsInfo.Select(fieldInfo =>
+            classCode = classCode.Replace(CONSTRUCTOR_PARAMS, string.Join(", ", fieldsInfo.Select(fieldInfo =>
               {
                   return string.Format(CodeParam, fieldInfo.m_realTypeName, string.Format(CodeParamName, fieldInfo.m_fieldName));
               })));
@@ -243,11 +242,12 @@ namespace ConfigDataExpoter
         private const string COMMENT = "#COMMENT#";
         private const string COMMENT_PREFIX = "//";
         private const string NESTEDCLASS_LIST = "#NESTEDCLASS_LIST#";
+        private const string NameSpace = "ConfigData";
         private const string CodeNamespace =
 @"using System;
 using System.Collections.Generic;
 // 程序自动生成的配置代码
-namespace ConfigData
+namespace " + NameSpace + @"
 {
 #CLASS_LIST#
 }";
@@ -267,7 +267,7 @@ namespace ConfigData
         /// 只支持内嵌一层
         /// </summary>
         private const string CodeNestedClass =
-@"        #COMMENT#
+    @"        #COMMENT#
         public partial class #CLASS_NAME#
         {
             public #CLASS_NAME#(#CONSTRUCTOR_PARAMS#)
@@ -282,18 +282,25 @@ namespace ConfigData
         private const string CodeEquality = "{0} = {1};";
 
         private const string CodeEnumEquality =
-@"        #COMMENT#
+    @"        #COMMENT#
         {0}={1},";
 
         private const string CodeProperty =
-@"        #COMMENT#
+    @"        #COMMENT#
+        private #TYPE_NAME# _#VARAINT_NAME#;
         public #TYPE_NAME# #VARAINT_NAME#
         {
-            get;
-            private set;
+            get
+            {
+                return _#VARAINT_NAME#;
+            }
+            private set
+            {
+                _#VARAINT_NAME# = value;
+            }
         }";
         private const string CodeNestedClassProperty =
-@"            #COMMENT#
+    @"            #COMMENT#
             public #TYPE_NAME# #VARAINT_NAME#
             {
                 get;
@@ -301,7 +308,7 @@ namespace ConfigData
             }";
 
         private const string CodeEnum =
-@"    #COMMENT#
+    @"    #COMMENT#
     public enum #ENUM_NAME#
     {
 #ENUM_EQUALITY_LIST#

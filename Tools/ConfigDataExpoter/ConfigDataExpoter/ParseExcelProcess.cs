@@ -3,9 +3,12 @@ using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -32,12 +35,12 @@ namespace ConfigDataExpoter
         {
         }
     }
-
     class ParseExcelProcess
     {
         public ParseExcelProcess(string mainDirecotry, string exportCodeDiretory, string exportCodeFileName)
         {
             m_mainDirectory = mainDirecotry;
+            m_exportCodeDirectory = exportCodeDiretory;
             m_exportCodePath = Path.Combine(exportCodeDiretory, exportCodeFileName);
         }
 
@@ -168,13 +171,70 @@ namespace ConfigDataExpoter
             }
         }
 
-        public void ParseDataBody()
+        public void ParseRealData(Assembly configDataAssembly, string path)
         {
+            //var tables = new List<DataTable>();
+            //if (!m_configSheetDict.TryGetValue(path, out var sheetDatas))
+            //{
+            //    throw new ParseExcelException("找不到目标文件的类型信息!");
+            //}
+            //using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read))
+            //{
+            //    IWorkbook workbook = null;
+            //    if (path.EndsWith(".xlsx"))
+            //    {
+            //        workbook = new XSSFWorkbook(fs);
+            //    }
+            //    else if (path.EndsWith(".xls"))
+            //    {
+            //        workbook = new HSSFWorkbook(fs);
+            //    }
+            //    if (workbook != null)
+            //    {
+            //        // 解析多个Sheet
+            //        for (int i = 0; i < workbook.NumberOfSheets; ++i)
+            //        {
+            //            var sheet = workbook.GetSheetAt(i);
+            //            var sheetData = sheetDatas.Find(element => element.m_sheetName == sheet.SheetName);
+            //            if (sheetData == null)
+            //            {
+            //                continue;
+            //            }
+            //            var dataTable = ReadDataTable(configDataAssembly, sheet, sheetData);
+            //            SerializeDataTable(configDataAssembly, dataTable);
+            //        }
+            //    }
+            //}
         }
 
-        public void CheckDataBodySafety()
+        public void SerializeDataTable(Assembly configDataAssembly, DataTable dataTable)
         {
             // 1、数据能否正确转换成对应类型(包含定长数组和不定长数组)
+            //string classFormat = "ConfigData.{0}";
+            //string nestedClassFormat = "ConfigData.{0}.{1}";
+            //BinaryFormatter binaryFormatter = new BinaryFormatter();
+            //foreach (var sheetDatas in m_configSheetDict)
+            //{
+            //    foreach (var sheetData in sheetDatas.Value)
+            //    {
+            //        if (sheetData.m_sheetType == SheetType.Class && sheetData.m_configMetaData is ConfigClassMetaData classMetaData)
+            //        {
+            //            using (MemoryStream ms = new MemoryStream())
+            //            {
+            //                var fullName = string.Format(classFormat, classMetaData.m_name);
+            //                var type = configDataAssembly.GetType(fullName);
+            //                if (type == null)
+            //                {
+            //                    throw new ParseExcelException($"ParseDataBody：类型解析错误,{fullName}");
+            //                }
+            //                //var instance = Activator.CreateInstance(type,);
+            //                //instance
+            //                binaryFormatter.Serialize(ms,)
+
+            //            }
+            //        }
+            //    }
+            //}
         }
 
         public void ParseAllExcel()
@@ -195,7 +255,16 @@ namespace ConfigDataExpoter
             codeExporter.SetConfigSheetData(sheetDatas);
             codeExporter.ExportCode(m_exportCodePath);
             // 4、编译代码
+            var assembly = codeExporter.Compile(m_exportCodeDirectory);
+            if (assembly == null)
+            {
+                throw new ParseExcelException("导出代码编译出错！");
+            }
             // 5、读取数据体，序列化
+            foreach (var file in files)
+            {
+                ParseRealData(assembly, file);
+            }
         }
 
         /// <summary>
@@ -236,6 +305,82 @@ namespace ConfigDataExpoter
             };
 
         }
+
+        //private List<object> ReadDataTable(Assembly assembly, ISheet sheet, ConfigSheetData configSheetData)
+        //{
+        //    List<object> dataTable = new List<object>();
+        //    if (configSheetData.m_sheetType != SheetType.Class || !(configSheetData.m_configMetaData is ConfigClassMetaData classMetaData))
+        //    {
+        //        return dataTable;
+        //    }
+        //    var type = assembly.GetType($"ConfigData.{classMetaData.m_name}");
+        //    var fieldTypes = new Dictionary<int, Type>();
+        //    var fieldsDict = new Dictionary<int, ConfigFieldMetaData>();
+        //    foreach (var fieldInfo in classMetaData.m_fieldsInfo)
+        //    {
+        //        if (fieldTypes.TryGetValue(fieldInfo.m_columnIndex, out var fieldType))
+        //        {
+        //            throw new ParseExcelException($"字段名称重复,Class:{classMetaData.m_name},Field:{fieldInfo.m_name}");
+        //        }
+        //        if (fieldInfo.m_dataType == DataType.NestedClass)
+        //        {
+        //            fieldType = assembly.GetType(fieldInfo.GetFullTypeName(fieldInfo.m_dataType, fieldInfo.m_listType, true));
+        //        }
+        //        else
+        //        {
+        //            fieldType = Type.GetType(fieldInfo.GetFullTypeName(fieldInfo.m_dataType, fieldInfo.m_listType));
+        //        }
+
+        //        if (fieldType == null)
+        //        {
+        //            throw new ParseExcelException($"字段类型解析失败,Class:{classMetaData.m_name},Field:{fieldInfo.m_name}");
+        //        }
+
+        //        fieldTypes[fieldInfo.m_columnIndex] = fieldType;
+        //        fieldsDict[fieldInfo.m_columnIndex] = fieldInfo;
+        //    }
+
+        //    for (int i = ConfigFieldMetaData.DataBeginRow; i <= sheet.LastRowNum; ++i)
+        //    {
+        //        var row = sheet.GetRow(i);
+        //        object[] args = new object[row.LastCellNum];
+        //        for (int j = 0; j < row.LastCellNum; ++j)
+        //        {
+        //            var cell = row.GetCell(j);
+        //            if (cell == null)
+        //            {
+        //                args[j] = null;
+        //                continue;
+        //            }
+        //            if (fieldTypes.TryGetValue(j, out var fieldType) && fieldsDict.TryGetValue(j, out var fieldInfo))
+        //            {
+        //                if (fieldInfo.m_dataType >= DataType.Int8 && fieldInfo.m_dataType <= DataType.Double)
+        //                {
+        //                    args[i] = cell.NumericCellValue;
+        //                }
+        //                else if (fieldInfo.m_dataType == DataType.String || fieldInfo.m_dataType == DataType.Text)
+        //                {
+        //                    args[i] = cell.StringCellValue;
+        //                }
+        //                else if (fieldInfo.m_dataType == DataType.NestedClass)
+        //                {
+        //                    var nestMetaData = fieldInfo.m_nestedClassMetaData;
+        //                    var values = cell.StringCellValue.Split(ConfigFieldMetaData.NestedClassMetaData.seperator);
+        //                    // Todo
+        //                    //for (int i = 0; i < values.Length; ++i)
+        //                    //{
+
+        //                    //}
+        //                }
+        //            }
+        //            else
+        //            {
+        //                throw new ParseExcelException($"字段列号不匹配,Class:{classMetaData.m_name}");
+        //            }
+        //        }
+        //    }
+        //}
+
         /// <summary>
         /// 解析表类型
         /// </summary>
@@ -436,7 +581,9 @@ namespace ConfigDataExpoter
                             }
                         }
                         // 域的实际类名
-                        fieldMetaData.m_realTypeName = fieldMetaData.GetType(fieldMetaData.m_dataType, fieldMetaData.m_listType);
+                        fieldMetaData.m_realTypeName = fieldMetaData.GetTypeName(fieldMetaData.m_dataType, fieldMetaData.m_listType);
+                        // 表中第几列
+                        fieldMetaData.m_columnIndex = i;
                     }
                     else
                     {
@@ -450,6 +597,14 @@ namespace ConfigDataExpoter
             }
 
             var fieldList = fieldsDict.Values.ToList();
+            fieldList.Sort((a, b) =>
+            {
+                if (a.m_name.Length != b.m_name.Length)
+                {
+                    return a.m_name.Length.CompareTo(b.m_name.Length);
+                }
+                return a.m_name.CompareTo(b.m_name);
+            });
             classMetaData.m_fieldsInfo.Clear();
             classMetaData.m_fieldsInfo.AddRange(fieldList);
         }
@@ -466,5 +621,10 @@ namespace ConfigDataExpoter
         /// 代码导出位置
         /// </summary>
         private string m_exportCodePath;
+
+        /// <summary>
+        /// 代码导出目录
+        /// </summary>
+        private string m_exportCodeDirectory;
     }
 }

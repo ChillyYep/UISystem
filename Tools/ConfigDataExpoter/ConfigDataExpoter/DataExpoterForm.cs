@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,7 +16,9 @@ namespace ConfigDataExpoter
         public DataExpoterForm()
         {
             InitializeComponent();
-            m_parseProcess = new ParseExcelProcess("D:/ChillyYep/UISystem/Design", "D:/ChillyYep/UISystem/Design/Code", "ConfigData.cs");
+            string directory = AppDomain.CurrentDomain.BaseDirectory;
+            directory = Path.Combine(directory, "../../../Design");
+            m_parseProcess = new ParseExcelProcess(directory, Path.Combine(directory, "Code"), "ConfigData.cs");
         }
 
         private void button1_Click(object sender, EventArgs e)
