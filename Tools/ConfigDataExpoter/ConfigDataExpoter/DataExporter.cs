@@ -1,19 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ConfigDataExpoter
 {
     class DataExporter : FileExporter
     {
-        public void Setup(Dictionary<Type, List<object>> allTableDatas)
+        public void Setup(Dictionary<Type, List<object>> allTableDatas, FormatterType formatterType)
         {
             m_allTableDatas = allTableDatas;
+            formatter = new Formatter(formatterType);
         }
 
         public void ExportData(string directory)
@@ -32,26 +28,19 @@ namespace ConfigDataExpoter
             }
             foreach (var item in m_allTableDatas)
             {
-                var bytes = SerializeDataTable(item.Value, item.Key);
-                ExportFile(Path.Combine(directory, item.Key.Name + ".txt"), System.Text.Encoding.Default.GetString(bytes));
+                var str = SerializeDataTable(item.Value, item.Key);
+                ExportFile(Path.Combine(directory, item.Key.Name + ".txt"), str);
             }
 
         }
-        public byte[] SerializeDataTable(List<object> dataTable, Type classType)
+
+        public string SerializeDataTable(List<object> dataTable, Type classType)
         {
-            byte[] bytes = new byte[0];
-            BinaryFormatter binaryFormatter = new BinaryFormatter();
-            using (MemoryStream ms = new MemoryStream())
-            {
-                foreach (var item in dataTable)
-                {
-                    binaryFormatter.Serialize(ms, item);
-                }
-                bytes = ms.GetBuffer();
-            }
-            return bytes;
+            return formatter.SerializeDataTable(dataTable, classType);
         }
 
         public Dictionary<Type, List<object>> m_allTableDatas;
+
+        private Formatter formatter;
     }
 }

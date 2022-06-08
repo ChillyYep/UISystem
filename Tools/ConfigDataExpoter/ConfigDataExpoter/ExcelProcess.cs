@@ -146,7 +146,7 @@ namespace ConfigDataExpoter
 
             // 6、导出数据
             DataExporter dataExporter = new DataExporter();
-            dataExporter.Setup(allTableDatas);
+            dataExporter.Setup(allTableDatas, FormatterType.Binary);
             dataExporter.ExportData(m_exportDataDirectory);
         }
 
