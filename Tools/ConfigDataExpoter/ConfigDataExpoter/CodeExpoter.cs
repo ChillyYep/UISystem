@@ -101,6 +101,15 @@ namespace ConfigDataExpoter
             parameters.TreatWarningsAsErrors = true;
 
             CompilerResults results = codeProvider.CompileAssemblyFromSource(parameters, codes);
+            if (results.Errors.HasErrors)
+            {
+                StringBuilder sb = new StringBuilder();
+                foreach (var err in results.Errors)
+                {
+                    sb.AppendLine(err.ToString());
+                }
+                throw new ParseExcelException($"编译ConfigData代码出错，出错信息:{sb.ToString()}");
+            }
             return results.CompiledAssembly;
         }
 
@@ -154,7 +163,7 @@ namespace ConfigDataExpoter
             // 3、构造函数
             classCode = classCode.Replace(CONSTRUCTOR_PARAMS, string.Join(", ", fieldsInfo.Select(fieldInfo =>
               {
-                  return string.Format(CodeParam, fieldInfo.m_realTypeName, string.Format(CodeParamName, fieldInfo.m_name));
+                  return string.Format(CodeParam, fieldInfo.m_realTypeName, fieldInfo.m_name);
               })));
             var codeEquality = "\t\t\t" + CodeEquality;
             classCode = classCode.Replace(EQAULITY_LIST, string.Join(Environment.NewLine, fieldsInfo.Select(fieldInfo =>
@@ -208,7 +217,7 @@ namespace ConfigDataExpoter
             // 3、构造函数
             classCode = classCode.Replace(CONSTRUCTOR_PARAMS, string.Join(", ", fieldsInfo.Select(fieldInfo =>
               {
-                  return string.Format(CodeParam, fieldInfo.m_realTypeName, string.Format(CodeParamName, fieldInfo.m_fieldName));
+                  return string.Format(CodeParam, fieldInfo.m_realTypeName, fieldInfo.m_fieldName);
               })));
             string codeEquality = "\t\t\t\t" + CodeEquality;
             classCode = classCode.Replace(EQAULITY_LIST, string.Join(Environment.NewLine, fieldsInfo.Select(fieldInfo =>
@@ -254,9 +263,13 @@ namespace " + NameSpace + @"
 
         private const string CodeClass =
 @"    #COMMENT#
+    [Serializable]
     public partial class #CLASS_NAME#
     {
 #NESTEDCLASS_LIST#
+        public #CLASS_NAME#()
+        {
+        }
         public #CLASS_NAME#(#CONSTRUCTOR_PARAMS#)
         {
 #EQAULITY_LIST#
@@ -268,8 +281,12 @@ namespace " + NameSpace + @"
         /// </summary>
         private const string CodeNestedClass =
     @"        #COMMENT#
-        public partial class #CLASS_NAME#
+        [Serializable]
+        public class #CLASS_NAME#
         {
+            public #CLASS_NAME#()
+            {
+            }
             public #CLASS_NAME#(#CONSTRUCTOR_PARAMS#)
             {
 #EQAULITY_LIST#
@@ -279,14 +296,15 @@ namespace " + NameSpace + @"
         private const string CodeParamName = "@{0}";
         private const string CodeParam = "{0} {1}";
 
-        private const string CodeEquality = "{0} = {1};";
+        private const string CodeEquality = "this.{0} = {1};";
 
         private const string CodeEnumEquality =
     @"        #COMMENT#
-        {0}={1},";
+        {0} = {1},";
 
         private const string CodeProperty =
     @"        #COMMENT#
+        
         private #TYPE_NAME# _#VARAINT_NAME#;
         public #TYPE_NAME# #VARAINT_NAME#
         {
@@ -300,11 +318,18 @@ namespace " + NameSpace + @"
             }
         }";
         private const string CodeNestedClassProperty =
-    @"            #COMMENT#
+@"            #COMMENT#
+            private #TYPE_NAME# _#VARAINT_NAME#;
             public #TYPE_NAME# #VARAINT_NAME#
             {
-                get;
-                private set;
+                get
+                {
+                    return _#VARAINT_NAME#;
+                }
+                private set
+                {
+                    _#VARAINT_NAME# = value;
+                }
             }";
 
         private const string CodeEnum =

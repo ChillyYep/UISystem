@@ -37,10 +37,11 @@ namespace ConfigDataExpoter
     }
     class ParseExcelProcess
     {
-        public ParseExcelProcess(string mainDirecotry, string exportCodeDiretory, string exportCodeFileName)
+        public ParseExcelProcess(string mainDirecotry, string exportCodeDiretory, string exportDataDirecotry, string exportCodeFileName)
         {
             m_mainDirectory = mainDirecotry;
             m_exportCodeDirectory = exportCodeDiretory;
+            m_exportDataDirectory = exportDataDirecotry;
             m_exportCodePath = Path.Combine(exportCodeDiretory, exportCodeFileName);
         }
 
@@ -117,53 +118,52 @@ namespace ConfigDataExpoter
 
                 }
             }
-            //2、外键关联正确，即能够查询到正确的外键;
+            //2、外键关联正确，即能够查询到正确的外键,枚举不能数组化;
             foreach (var sheetData in className2SheetData)
             {
                 if (sheetData.Value.m_sheetType == SheetType.Class)
                 {
                     var classMetaData = sheetData.Value.m_configMetaData as ConfigClassMetaData;
-                    const char seperator = ConfigFieldMetaData.ForeignKeySeperator;
                     foreach (var fieldInfo in classMetaData.m_fieldsInfo)
                     {
-                        if (fieldInfo.m_foreignKey.Equals(ConfigFieldMetaData.None))
+                        if (!ConfigFieldMetaData.ParseForeignKey(fieldInfo.m_foreignKey, out var foreignClass, out var foreignField))
                         {
                             continue;
+
                         }
-                        var foreignKeys = fieldInfo.m_foreignKey.Split(seperator);
-                        if (foreignKeys.Length == 2)
+                        if (foreignClass.Equals(classMetaData.m_name))
                         {
-                            var foreignClass = foreignKeys[0];
-                            var foreignField = foreignKeys[1];
-                            if (foreignClass.Equals(classMetaData.m_name))
+                            throw new ParseExcelException($"外键名不能与当前所属类型名相同,ClassName:{classMetaData.m_name},Field:{fieldInfo.m_name}");
+                        }
+
+                        if (fieldInfo.m_dataType == DataType.Enum)
+                        {
+                            var listType = ConfigFieldMetaData.GetListType(fieldInfo.m_listType);
+                            if (listType != ListType.None)
                             {
-                                throw new ParseExcelException($"外键名不能与当前所属类型名相同,ClassName:{classMetaData.m_name},Field:{fieldInfo.m_name}");
+                                throw new ParseExcelException($"Enum不能数组化");
                             }
-                            if (className2SheetData.TryGetValue(foreignClass, out var foreignMetaData))
+                        }
+                        if (className2SheetData.TryGetValue(foreignClass, out var foreignMetaData))
+                        {
+                            if (foreignMetaData.m_sheetType == SheetType.Enum)
                             {
-                                if (foreignMetaData.m_sheetType == SheetType.Enum)
+                                if (!foreignField.Equals(ConfigEnumMetaData.IDPrimaryKey, StringComparison.OrdinalIgnoreCase) && !foreignField.Equals(ConfigEnumMetaData.ValuePrimaryKey, StringComparison.OrdinalIgnoreCase))
                                 {
-                                    if (!foreignField.Equals(ConfigEnumMetaData.IDPrimaryKey, StringComparison.OrdinalIgnoreCase) && !foreignField.Equals(ConfigEnumMetaData.ValuePrimaryKey, StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        throw new ParseExcelException($"枚举不存在列名为{foreignField}的数据");
-                                    }
-                                }
-                                else if (foreignMetaData.m_sheetType == SheetType.Class)
-                                {
-                                    if (!foreignField.Equals(ConfigClassMetaData.IDPrimaryKey))
-                                    {
-                                        throw new ParseExcelException($"只能以{foreignClass}的ID列为外键");
-                                    }
+                                    throw new ParseExcelException($"枚举不存在列名为{foreignField}的数据");
                                 }
                             }
-                            else
+                            else if (foreignMetaData.m_sheetType == SheetType.Class)
                             {
-                                throw new ParseExcelException($"不存在该外键类型，ForeignClass:{foreignClass},ClassName:{classMetaData.m_name},FieldName:{fieldInfo.m_name}");
+                                if (!foreignField.Equals(ConfigClassMetaData.IDPrimaryKey))
+                                {
+                                    throw new ParseExcelException($"只能以{foreignClass}的ID列为外键");
+                                }
                             }
                         }
                         else
                         {
-                            throw new ParseExcelException($"外键格式不正确,ClassName:{classMetaData.m_name},FieldName:{fieldInfo.m_name}");
+                            throw new ParseExcelException($"不存在该外键类型，ForeignClass:{foreignClass},ClassName:{classMetaData.m_name},FieldName:{fieldInfo.m_name}");
                         }
                     }
 
@@ -173,68 +173,74 @@ namespace ConfigDataExpoter
 
         public void ParseRealData(Assembly configDataAssembly, string path)
         {
-            //var tables = new List<DataTable>();
-            //if (!m_configSheetDict.TryGetValue(path, out var sheetDatas))
-            //{
-            //    throw new ParseExcelException("找不到目标文件的类型信息!");
-            //}
-            //using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read))
-            //{
-            //    IWorkbook workbook = null;
-            //    if (path.EndsWith(".xlsx"))
-            //    {
-            //        workbook = new XSSFWorkbook(fs);
-            //    }
-            //    else if (path.EndsWith(".xls"))
-            //    {
-            //        workbook = new HSSFWorkbook(fs);
-            //    }
-            //    if (workbook != null)
-            //    {
-            //        // 解析多个Sheet
-            //        for (int i = 0; i < workbook.NumberOfSheets; ++i)
-            //        {
-            //            var sheet = workbook.GetSheetAt(i);
-            //            var sheetData = sheetDatas.Find(element => element.m_sheetName == sheet.SheetName);
-            //            if (sheetData == null)
-            //            {
-            //                continue;
-            //            }
-            //            var dataTable = ReadDataTable(configDataAssembly, sheet, sheetData);
-            //            SerializeDataTable(configDataAssembly, dataTable);
-            //        }
-            //    }
-            //}
+            var tables = new List<DataTable>();
+            if (!m_configSheetDict.TryGetValue(path, out var sheetDatas))
+            {
+                throw new ParseExcelException("找不到目标文件的类型信息!");
+            }
+            try
+            {
+                if (Directory.Exists(m_exportDataDirectory))
+                {
+                    Directory.Delete(m_exportDataDirectory, true);
+                }
+                Directory.CreateDirectory(m_exportDataDirectory);
+            }
+            catch (Exception e)
+            {
+                throw new ParseExcelException(e.Message);
+            }
+            using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read))
+            {
+                IWorkbook workbook = null;
+                if (path.EndsWith(".xlsx"))
+                {
+                    workbook = new XSSFWorkbook(fs);
+                }
+                else if (path.EndsWith(".xls"))
+                {
+                    workbook = new HSSFWorkbook(fs);
+                }
+                if (workbook != null)
+                {
+                    // 解析多个Sheet
+                    for (int i = 0; i < workbook.NumberOfSheets; ++i)
+                    {
+                        var sheet = workbook.GetSheetAt(i);
+                        var sheetData = sheetDatas.Find(element => element.m_sheetName == sheet.SheetName);
+                        if (sheetData == null)
+                        {
+                            continue;
+                        }
+                        if (sheetData.m_sheetType != SheetType.Class)
+                        {
+                            continue;
+                        }
+                        var dataTable = ReadDataTable(configDataAssembly, sheet, sheetData, out var classType);
+                        var bytes = SerializeDataTable(configDataAssembly, dataTable, classType);
+                        var streamWriter = File.CreateText(Path.Combine(m_exportDataDirectory, classType.Name + ".txt"));
+                        streamWriter.Write(System.Text.Encoding.Default.GetString(bytes));
+                        streamWriter.Flush();
+                        streamWriter.Close();
+                    }
+                }
+            }
         }
 
-        public void SerializeDataTable(Assembly configDataAssembly, DataTable dataTable)
+        public byte[] SerializeDataTable(Assembly configDataAssembly, List<object> dataTable, Type classType)
         {
             // 1、数据能否正确转换成对应类型(包含定长数组和不定长数组)
-            //string classFormat = "ConfigData.{0}";
-            //string nestedClassFormat = "ConfigData.{0}.{1}";
-            //BinaryFormatter binaryFormatter = new BinaryFormatter();
-            //foreach (var sheetDatas in m_configSheetDict)
-            //{
-            //    foreach (var sheetData in sheetDatas.Value)
-            //    {
-            //        if (sheetData.m_sheetType == SheetType.Class && sheetData.m_configMetaData is ConfigClassMetaData classMetaData)
-            //        {
-            //            using (MemoryStream ms = new MemoryStream())
-            //            {
-            //                var fullName = string.Format(classFormat, classMetaData.m_name);
-            //                var type = configDataAssembly.GetType(fullName);
-            //                if (type == null)
-            //                {
-            //                    throw new ParseExcelException($"ParseDataBody：类型解析错误,{fullName}");
-            //                }
-            //                //var instance = Activator.CreateInstance(type,);
-            //                //instance
-            //                binaryFormatter.Serialize(ms,)
-
-            //            }
-            //        }
-            //    }
-            //}
+            byte[] bytes = new byte[0];
+            BinaryFormatter binaryFormatter = new BinaryFormatter();
+            using (MemoryStream ms = new MemoryStream())
+            {
+                foreach (var item in dataTable)
+                {
+                    binaryFormatter.Serialize(ms, item);
+                }
+                bytes = ms.GetBuffer();
+            }
+            return bytes;
         }
 
         public void ParseAllExcel()
@@ -305,81 +311,319 @@ namespace ConfigDataExpoter
             };
 
         }
+        public class TypeInfo
+        {
+            public DataType m_dataType;
+            public FieldInfo m_fieldInfo;
+            public string m_fieldName;
+            public bool m_isList;
+        }
 
-        //private List<object> ReadDataTable(Assembly assembly, ISheet sheet, ConfigSheetData configSheetData)
-        //{
-        //    List<object> dataTable = new List<object>();
-        //    if (configSheetData.m_sheetType != SheetType.Class || !(configSheetData.m_configMetaData is ConfigClassMetaData classMetaData))
-        //    {
-        //        return dataTable;
-        //    }
-        //    var type = assembly.GetType($"ConfigData.{classMetaData.m_name}");
-        //    var fieldTypes = new Dictionary<int, Type>();
-        //    var fieldsDict = new Dictionary<int, ConfigFieldMetaData>();
-        //    foreach (var fieldInfo in classMetaData.m_fieldsInfo)
-        //    {
-        //        if (fieldTypes.TryGetValue(fieldInfo.m_columnIndex, out var fieldType))
-        //        {
-        //            throw new ParseExcelException($"字段名称重复,Class:{classMetaData.m_name},Field:{fieldInfo.m_name}");
-        //        }
-        //        if (fieldInfo.m_dataType == DataType.NestedClass)
-        //        {
-        //            fieldType = assembly.GetType(fieldInfo.GetFullTypeName(fieldInfo.m_dataType, fieldInfo.m_listType, true));
-        //        }
-        //        else
-        //        {
-        //            fieldType = Type.GetType(fieldInfo.GetFullTypeName(fieldInfo.m_dataType, fieldInfo.m_listType));
-        //        }
+        private void SetFieldValue(FieldInfo fieldInfo, object instance, string value, DataType dataType, bool isList = false, string foreignKeys = "")
+        {
+            const char seperator = ConfigFieldMetaData.ListSeperator;
+            string[] values = null;
+            if (isList)
+            {
+                values = value.Split(seperator);
+            }
+            switch (dataType)
+            {
+                case DataType.Enum:
+                    var fieldType = fieldInfo.FieldType;
+                    if (ConfigFieldMetaData.ParseForeignKey(foreignKeys, out var foreignClass, out var foreignKey))
+                    {
+                        if (foreignKey == ConfigEnumMetaData.IDPrimaryKey)
+                        {
+                            //if (values != null)
+                            //{
+                            //    List<int> realValues = new List<int>(values.Length);
+                            //    foreach (var v in values)
+                            //    {
+                            //        realValues.Add(int.Parse(v));
+                            //    }
+                            //    fieldInfo.SetValue(instance, realValues);
+                            //}
+                            //else
+                            //{
+                            //    fieldInfo.SetValue(instance, Enum.Parse(fieldType, value));
+                            //}
+                            if (values != null)
+                            {
+                                throw new ParseExcelException("Enum类型不支持数组化");
+                            }
+                            fieldInfo.SetValue(instance, Enum.Parse(fieldType, value));
+                        }
+                    }
+                    break;
+                case DataType.Int8:
+                    if (values != null)
+                    {
+                        List<byte> realValues = new List<byte>(values.Length);
+                        foreach (var v in values)
+                        {
+                            realValues.Add(byte.Parse(v));
+                        }
+                        fieldInfo.SetValue(instance, realValues);
+                    }
+                    else
+                    {
+                        fieldInfo.SetValue(instance, byte.Parse(value));
+                    }
+                    break;
+                case DataType.Int16:
+                    if (values != null)
+                    {
+                        List<Int16> realValues = new List<Int16>(values.Length);
+                        foreach (var v in values)
+                        {
+                            realValues.Add(Int16.Parse(v));
+                        }
+                        fieldInfo.SetValue(instance, realValues);
+                    }
+                    else
+                    {
+                        fieldInfo.SetValue(instance, Int16.Parse(value));
+                    }
+                    break;
+                case DataType.Int32:
+                    if (values != null)
+                    {
+                        List<Int32> realValues = new List<Int32>(values.Length);
+                        foreach (var v in values)
+                        {
+                            realValues.Add(Int32.Parse(v));
+                        }
+                        fieldInfo.SetValue(instance, realValues);
+                    }
+                    else
+                    {
+                        fieldInfo.SetValue(instance, Int32.Parse(value));
+                    }
+                    break;
+                case DataType.Int64:
+                    if (values != null)
+                    {
+                        List<Int64> realValues = new List<Int64>(values.Length);
+                        foreach (var v in values)
+                        {
+                            realValues.Add(Int64.Parse(v));
+                        }
+                        fieldInfo.SetValue(instance, realValues);
+                    }
+                    else
+                    {
+                        fieldInfo.SetValue(instance, Int64.Parse(value));
+                    }
+                    break;
+                case DataType.Boolean:
+                    if (values != null)
+                    {
+                        List<Boolean> realValues = new List<Boolean>(values.Length);
+                        foreach (var v in values)
+                        {
+                            realValues.Add(Boolean.Parse(v));
+                        }
+                        fieldInfo.SetValue(instance, realValues);
+                    }
+                    else
+                    {
+                        fieldInfo.SetValue(instance, Boolean.Parse(value));
+                    }
+                    break;
+                case DataType.Float:
+                    if (values != null)
+                    {
+                        List<float> realValues = new List<float>(values.Length);
+                        foreach (var v in values)
+                        {
+                            realValues.Add(float.Parse(v));
+                        }
+                        fieldInfo.SetValue(instance, realValues);
+                    }
+                    else
+                    {
+                        fieldInfo.SetValue(instance, float.Parse(value));
+                    }
+                    break;
+                case DataType.Double:
+                    if (values != null)
+                    {
+                        List<Double> realValues = new List<Double>(values.Length);
+                        foreach (var v in values)
+                        {
+                            realValues.Add(Double.Parse(v));
+                        }
+                        fieldInfo.SetValue(instance, realValues);
+                    }
+                    else
+                    {
+                        fieldInfo.SetValue(instance, Double.Parse(value));
+                    }
+                    break;
+                case DataType.String:
+                case DataType.Text:
+                    if (values != null)
+                    {
+                        List<string> realValues = new List<string>(values.Length);
+                        foreach (var v in values)
+                        {
+                            realValues.Add(v);
+                        }
+                        fieldInfo.SetValue(instance, realValues);
+                    }
+                    else
+                    {
+                        fieldInfo.SetValue(instance, value);
+                    }
+                    break;
+                case DataType.NestedClass:
+                    throw new ParseExcelException("无法直接解析内嵌类");
+            }
+        }
+        private string ChangeCell2String(ICell cell)
+        {
+            switch (cell.CellType)
+            {
+                case CellType.Boolean:
+                    return cell.BooleanCellValue.ToString();
+                case CellType.Numeric:
+                    return cell.NumericCellValue.ToString();
+                case CellType.String:
+                    return cell.StringCellValue;
+                default:
+                    return "None";
+            }
+        }
+        private List<object> ReadDataTable(Assembly assembly, ISheet sheet, ConfigSheetData configSheetData, out Type classType)
+        {
+            List<object> dataTable = new List<object>(Math.Max(sheet.LastRowNum + 1 - ConfigFieldMetaData.DataBeginRow, 0));
+            classType = null;
+            if (configSheetData.m_sheetType != SheetType.Class || !(configSheetData.m_configMetaData is ConfigClassMetaData classMetaData))
+            {
+                return dataTable;
+            }
+            var classFullName = $"ConfigData.{classMetaData.m_name}";
+            classType = assembly.GetType(classFullName);
+            if (classType == null)
+            {
+                throw new ParseExcelException($"不存在类型为{classFullName}的配置类");
+            }
+            var fieldTypeInfos = new Dictionary<int, TypeInfo>();
 
-        //        if (fieldType == null)
-        //        {
-        //            throw new ParseExcelException($"字段类型解析失败,Class:{classMetaData.m_name},Field:{fieldInfo.m_name}");
-        //        }
+            var fieldMetaInfos = new Dictionary<int, ConfigFieldMetaData>();
 
-        //        fieldTypes[fieldInfo.m_columnIndex] = fieldType;
-        //        fieldsDict[fieldInfo.m_columnIndex] = fieldInfo;
-        //    }
+            var nestedClassFieldTypeInfos = new Dictionary<string, List<TypeInfo>>();
 
-        //    for (int i = ConfigFieldMetaData.DataBeginRow; i <= sheet.LastRowNum; ++i)
-        //    {
-        //        var row = sheet.GetRow(i);
-        //        object[] args = new object[row.LastCellNum];
-        //        for (int j = 0; j < row.LastCellNum; ++j)
-        //        {
-        //            var cell = row.GetCell(j);
-        //            if (cell == null)
-        //            {
-        //                args[j] = null;
-        //                continue;
-        //            }
-        //            if (fieldTypes.TryGetValue(j, out var fieldType) && fieldsDict.TryGetValue(j, out var fieldInfo))
-        //            {
-        //                if (fieldInfo.m_dataType >= DataType.Int8 && fieldInfo.m_dataType <= DataType.Double)
-        //                {
-        //                    args[i] = cell.NumericCellValue;
-        //                }
-        //                else if (fieldInfo.m_dataType == DataType.String || fieldInfo.m_dataType == DataType.Text)
-        //                {
-        //                    args[i] = cell.StringCellValue;
-        //                }
-        //                else if (fieldInfo.m_dataType == DataType.NestedClass)
-        //                {
-        //                    var nestMetaData = fieldInfo.m_nestedClassMetaData;
-        //                    var values = cell.StringCellValue.Split(ConfigFieldMetaData.NestedClassMetaData.seperator);
-        //                    // Todo
-        //                    //for (int i = 0; i < values.Length; ++i)
-        //                    //{
+            var nestedClassTypes = new Dictionary<string, Type>();
 
-        //                    //}
-        //                }
-        //            }
-        //            else
-        //            {
-        //                throw new ParseExcelException($"字段列号不匹配,Class:{classMetaData.m_name}");
-        //            }
-        //        }
-        //    }
-        //}
+            foreach (var fieldMetaData in classMetaData.m_fieldsInfo)
+            {
+                if (fieldTypeInfos.TryGetValue(fieldMetaData.m_columnIndex, out var fieldTypeInfo))
+                {
+                    throw new ParseExcelException($"字段名称重复,Class:{classMetaData.m_name},Field:{fieldMetaData.m_name}");
+                }
+                fieldTypeInfo = new TypeInfo();
+                fieldTypeInfo.m_isList = ConfigFieldMetaData.GetListType(fieldMetaData.m_listType) != ListType.None;
+                fieldTypeInfo.m_dataType = fieldMetaData.m_dataType;
+                fieldTypeInfo.m_fieldName = "_" + fieldMetaData.m_name;
+                fieldTypeInfo.m_fieldInfo = classType.GetField(fieldTypeInfo.m_fieldName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+                if (fieldTypeInfo.m_fieldInfo == null)
+                {
+                    throw new ParseExcelException($"字段类型解析失败,Class:{classMetaData.m_name},Field:{fieldMetaData.m_name}");
+                }
+                if (fieldMetaData.m_dataType == DataType.NestedClass)
+                {
+                    var fullTypeName = ConfigFieldMetaData.GetFullTypeName(fieldMetaData, fieldMetaData.m_dataType, fieldMetaData.m_listType);
+                    var nestedClassType = assembly.GetType(fullTypeName);
+                    if (nestedClassType == null)
+                    {
+                        throw new ParseExcelException("内嵌类解析失败");
+                    }
+                    nestedClassFieldTypeInfos[fieldMetaData.m_name] = new List<TypeInfo>();
+                    var fieldList = fieldMetaData.m_nestedClassMetaData.m_fieldsInfo.Values.ToList();
+
+                    foreach (var nestedClassFieldTypeInfo in fieldList)
+                    {
+                        var typeinfo = new TypeInfo()
+                        {
+                            m_fieldName = "_" + nestedClassFieldTypeInfo.m_fieldName,
+                            m_dataType = nestedClassFieldTypeInfo.m_dataType
+                        };
+                        typeinfo.m_isList = ConfigFieldMetaData.GetListType(nestedClassFieldTypeInfo.m_listType) != ListType.None;
+                        typeinfo.m_fieldInfo = nestedClassType.GetField(typeinfo.m_fieldName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+                        nestedClassFieldTypeInfos[fieldMetaData.m_name].Add(typeinfo);
+                    }
+                    nestedClassTypes[fieldTypeInfo.m_fieldName] = nestedClassType;
+                }
+                fieldTypeInfos[fieldMetaData.m_columnIndex] = fieldTypeInfo;
+                fieldMetaInfos[fieldMetaData.m_columnIndex] = fieldMetaData;
+            }
+
+            for (int i = ConfigFieldMetaData.DataBeginRow; i <= sheet.LastRowNum; ++i)
+            {
+                var instance = Activator.CreateInstance(classType);
+                if (instance == null)
+                {
+                    throw new ParseExcelException("创建数据实例出错");
+                }
+                var row = sheet.GetRow(i);
+                for (int j = 0; j < row.LastCellNum; ++j)
+                {
+                    var cell = row.GetCell(j);
+                    if (cell == null)
+                    {
+                        continue;
+                    }
+                    if (fieldTypeInfos.TryGetValue(j, out var fieldTypeInfo))
+                    {
+                        var fieldInfo = fieldMetaInfos[j];
+                        var fieldType = fieldTypeInfo.m_fieldInfo;
+                        var fieldName = fieldTypeInfo.m_fieldName;
+                        if (fieldInfo.m_dataType == DataType.NestedClass)
+                        {
+                            if (fieldTypeInfo.m_isList)
+                            {
+                                throw new ParseExcelException($"内嵌类不支持数组化");
+                            }
+                            if (!nestedClassTypes.TryGetValue(fieldName, out var nestedFieldType))
+                            {
+                                throw new ParseExcelException($"不存在该内嵌类{fieldInfo.m_name}");
+                            }
+                            var nestedClassInstance = Activator.CreateInstance(nestedFieldType);
+                            if (nestedClassInstance == null)
+                            {
+                                throw new ParseExcelException($"创建内嵌类{fieldInfo.m_name}实例失败");
+                            }
+                            var nestMetaData = fieldInfo.m_nestedClassMetaData;
+                            var values = cell.StringCellValue.Split(ConfigFieldMetaData.NestedClassMetaData.seperator);
+                            if (!nestedClassFieldTypeInfos.TryGetValue(fieldInfo.m_name, out var nestedClassFieldInfos))
+                            {
+                                throw new ParseExcelException($"内嵌类{fieldInfo.m_name}获取域信息失败");
+                            }
+                            for (int x = 0; x < nestedClassFieldInfos.Count; ++x)
+                            {
+                                var nestedFieldInfo = nestedClassFieldInfos[x].m_fieldInfo;
+                                var dataType = nestedClassFieldInfos[x].m_dataType;
+                                var nestedFieldName = nestedClassFieldInfos[x].m_fieldName;
+                                SetFieldValue(nestedFieldInfo, nestedClassInstance, values[x], dataType);
+                            }
+                            fieldType.SetValue(instance, nestedClassInstance);
+                        }
+                        else
+                        {
+                            SetFieldValue(fieldType, instance, ChangeCell2String(cell), fieldInfo.m_dataType, fieldTypeInfo.m_isList, fieldInfo.m_foreignKey);
+                        }
+                    }
+                    else
+                    {
+                        throw new ParseExcelException($"字段列号不匹配,Class:{classMetaData.m_name}");
+                    }
+                }
+                dataTable.Add(instance);
+            }
+            return dataTable;
+        }
 
         /// <summary>
         /// 解析表类型
@@ -581,7 +825,7 @@ namespace ConfigDataExpoter
                             }
                         }
                         // 域的实际类名
-                        fieldMetaData.m_realTypeName = fieldMetaData.GetTypeName(fieldMetaData.m_dataType, fieldMetaData.m_listType);
+                        fieldMetaData.m_realTypeName = ConfigFieldMetaData.GetTypeName(fieldMetaData, fieldMetaData.m_dataType, fieldMetaData.m_listType);
                         // 表中第几列
                         fieldMetaData.m_columnIndex = i;
                     }
@@ -626,5 +870,10 @@ namespace ConfigDataExpoter
         /// 代码导出目录
         /// </summary>
         private string m_exportCodeDirectory;
+
+        /// <summary>
+        /// 数据导出目录
+        /// </summary>
+        private string m_exportDataDirectory;
     }
 }

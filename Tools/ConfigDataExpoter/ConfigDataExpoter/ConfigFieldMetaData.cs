@@ -17,6 +17,7 @@ namespace ConfigDataExpoter
         Int16,
         Int32,
         Int64,
+        Boolean,
         Float,
         Double,
         /// <summary>
@@ -74,6 +75,8 @@ namespace ConfigDataExpoter
         public const string None = "None";
 
         public const char ForeignKeySeperator = '.';
+
+        public const char ListSeperator = ',';
 
         /// <summary>
         /// 数据开始行
@@ -153,7 +156,7 @@ namespace ConfigDataExpoter
             public Dictionary<string, NestClassFieldInfo> m_fieldsInfo = new Dictionary<string, NestClassFieldInfo>();
         }
 
-        public ListType GetListType(string listType)
+        public static ListType GetListType(string listType)
         {
             if (listType == None)
             {
@@ -172,28 +175,32 @@ namespace ConfigDataExpoter
             return ListType.None;
         }
 
-        public string GetTypeName(DataType dataType, string listTypeStr, bool isNestedClass = false)
+        public static string GetTypeName(ConfigFieldMetaData metaData, DataType dataType, string listTypeStr, bool isNestedClass = false)
         {
+            var belongClassName = metaData == null ? "" : metaData.m_belongClassName;
+            var name = metaData == null ? "" : metaData.m_name;
+            var foreignKey = metaData == null ? "" : metaData.m_foreignKey;
+            var nestedClassMetaData = metaData == null ? null : metaData.m_nestedClassMetaData;
             var listType = GetListType(listTypeStr);
             string elementType = string.Empty;
             switch (dataType)
             {
                 case DataType.None:
-                    throw new ParseExcelException($"{m_belongClassName}中{m_name}字段类型无效");
+                    throw new ParseExcelException($"{belongClassName}中{name}字段类型无效");
                 case DataType.Enum:
                     {
                         if (isNestedClass)
                         {
-                            throw new ParseExcelException($"{m_belongClassName}中字段{m_name}为内嵌类，该内嵌类中不能使用枚举字段");
+                            throw new ParseExcelException($"{belongClassName}中字段{name}为内嵌类，该内嵌类中不能使用枚举字段");
                         }
-                        if (string.IsNullOrEmpty(m_foreignKey))
+                        if (string.IsNullOrEmpty(foreignKey))
                         {
-                            throw new ParseExcelException($"{m_belongClassName}中字段{m_name}为Enum类型，必须指定好枚举外键");
+                            throw new ParseExcelException($"{belongClassName}中字段{name}为Enum类型，必须指定好枚举外键");
                         }
-                        var keys = m_foreignKey.Split(ForeignKeySeperator);
+                        var keys = foreignKey.Split(ForeignKeySeperator);
                         if (keys.Length != 2)
                         {
-                            throw new ParseExcelException($"{m_belongClassName}中字段{m_name}为枚举外键格式不正确，必须是[EnumKey].ID或[EnumValue].Value");
+                            throw new ParseExcelException($"{belongClassName}中字段{name}为枚举外键格式不正确，必须是[EnumKey].ID或[EnumValue].Value");
                         }
                         elementType = keys[0];
                         break;
@@ -204,6 +211,7 @@ namespace ConfigDataExpoter
                 case DataType.Int16:
                 case DataType.Int32:
                 case DataType.Int64:
+                case DataType.Boolean:
                     elementType = dataType.ToString();
                     break;
                 case DataType.Float:
@@ -220,50 +228,55 @@ namespace ConfigDataExpoter
                     // 内嵌类
                     if (isNestedClass)
                     {
-                        throw new ParseExcelException($"{m_belongClassName}中字段{m_name}为内嵌类，其中不能再嵌套一个类");
+                        throw new ParseExcelException($"{belongClassName}中字段{name}为内嵌类，其中不能再嵌套一个类");
                     }
-                    if (m_nestedClassMetaData.m_fieldsInfo.Count <= 0)
+                    if (nestedClassMetaData.m_fieldsInfo.Count <= 0)
                     {
-                        throw new ParseExcelException($"{m_belongClassName}中字段{m_name}为内嵌类，但该列并没有定义内嵌类");
+                        throw new ParseExcelException($"{belongClassName}中字段{name}为内嵌类，但该列并没有定义内嵌类");
                     }
-                    elementType = m_nestedClassMetaData.m_className;
+                    elementType = nestedClassMetaData.m_className;
                     break;
             }
             if (listType == ListType.None)
             {
                 return elementType;
             }
-            else if (listType == ListType.FixedLengthList)
-            {
-                return $"{elementType}[]";
-            }
+            //else if (listType == ListType.FixedLengthList)
+            //{
+            //    return $"{elementType}[]";
+            //}
             else
             {
                 return $"List<{elementType}>";
             }
         }
-        public string GetFullTypeName(DataType dataType, string listTypeStr, bool isNestedClass = false)
+
+        public static string GetFullTypeName(ConfigFieldMetaData metaData, DataType dataType, string listTypeStr, bool isNestedClass = false)
         {
+            var belongClassName = metaData.m_belongClassName;
+            var name = metaData.m_name;
+            var foreignKey = metaData.m_foreignKey;
+            var nestedClassMetaData = metaData.m_nestedClassMetaData;
             var listType = GetListType(listTypeStr);
             string elementType = string.Empty;
             switch (dataType)
             {
                 case DataType.None:
-                    throw new ParseExcelException($"{m_belongClassName}中{m_name}字段类型无效");
+                    throw new ParseExcelException($"{belongClassName}中{name}字段类型无效");
                 case DataType.Enum:
                     {
                         if (isNestedClass)
                         {
-                            throw new ParseExcelException($"{m_belongClassName}中字段{m_name}为内嵌类，该内嵌类中不能使用枚举字段");
+                            throw new ParseExcelException($"{belongClassName}中字段{name}为内嵌类，该内嵌类中不能使用枚举字段");
                         }
-                        if (string.IsNullOrEmpty(m_foreignKey))
+                        if (string.IsNullOrEmpty(foreignKey))
                         {
-                            throw new ParseExcelException($"{m_belongClassName}中字段{m_name}为Enum类型，必须指定好枚举外键");
+                            throw new ParseExcelException($"{belongClassName}中字段{name}为Enum类型，必须指定好枚举外键");
                         }
-                        var keys = m_foreignKey.Split(ForeignKeySeperator);
+                        var keys = foreignKey.Split(ForeignKeySeperator);
                         if (keys.Length != 2)
                         {
-                            throw new ParseExcelException($"{m_belongClassName}中字段{m_name}为枚举外键格式不正确，必须是[EnumKey].ID或[EnumValue].Value");
+                            throw new ParseExcelException($"{belongClassName}中字段{name}为枚举外键格式不正确，必须是[EnumKey].ID或[EnumValue].Value");
                         }
                         elementType = $"ConfigData.{keys[0]}";
                         break;
@@ -280,6 +293,9 @@ namespace ConfigDataExpoter
                 case DataType.Int64:
                     elementType = typeof(Int64).FullName;
                     break;
+                case DataType.Boolean:
+                    elementType = typeof(Boolean).FullName;
+                    break;
                 case DataType.Float:
                     elementType = typeof(float).FullName;
                     break;
@@ -294,23 +310,23 @@ namespace ConfigDataExpoter
                     // 内嵌类
                     if (isNestedClass)
                     {
-                        throw new ParseExcelException($"{m_belongClassName}中字段{m_name}为内嵌类，其中不能再嵌套一个类");
+                        throw new ParseExcelException($"{belongClassName}中字段{name}为内嵌类，其中不能再嵌套一个类");
                     }
-                    if (m_nestedClassMetaData.m_fieldsInfo.Count <= 0)
+                    if (nestedClassMetaData.m_fieldsInfo.Count <= 0)
                     {
-                        throw new ParseExcelException($"{m_belongClassName}中字段{m_name}为内嵌类，但该列并没有定义内嵌类");
+                        throw new ParseExcelException($"{belongClassName}中字段{name}为内嵌类，但该列并没有定义内嵌类");
                     }
-                    elementType = $"ConfigData.{m_belongClassName}.{m_nestedClassMetaData.m_className}";
+                    elementType = $"ConfigData.{belongClassName}+{nestedClassMetaData.m_className}";
                     break;
             }
             if (listType == ListType.None)
             {
                 return elementType;
             }
-            else if (listType == ListType.FixedLengthList)
-            {
-                return $"{elementType}[]";
-            }
+            //else if (listType == ListType.FixedLengthList)
+            //{
+            //    return $"{elementType}[]";
+            //}
             else
             {
                 return $"System.Collections.Generic.List<{elementType}>";
@@ -400,7 +416,7 @@ namespace ConfigDataExpoter
                     {
                         m_nestedClassMetaData.m_fieldsInfo[nameArr[i]] = new NestClassFieldInfo()
                         {
-                            m_realTypeName = GetTypeName(typeArr[i], isListArr[i], true),
+                            m_realTypeName = GetTypeName(null, typeArr[i], isListArr[i], true),
                             m_fieldName = nameArr[i].ToLower(),
                             m_comment = commentArr[i],
                             m_listType = isListArr[i],
@@ -417,5 +433,21 @@ namespace ConfigDataExpoter
 
         }
 
+        public static bool ParseForeignKey(string foreignKey, out string type, out string key)
+        {
+            if (foreignKey.Equals(None))
+            {
+                type = key = None;
+                return false;
+            }
+            var foreignKeys = foreignKey.Split(ForeignKeySeperator);
+            if (foreignKeys.Length == 2)
+            {
+                type = foreignKeys[0];
+                key = foreignKeys[1];
+                return true;
+            }
+            throw new ParseExcelException($"外键格式不正确");
+        }
     }
 }

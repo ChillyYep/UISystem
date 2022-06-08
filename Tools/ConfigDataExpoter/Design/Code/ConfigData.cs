@@ -7,48 +7,72 @@ namespace ConfigData
     public enum Color
     {
         //红
-        Red=1,
+        Red = 1,
         //绿
-        Green=2,
+        Green = 2,
         //蓝
-        Blue=3,
+        Blue = 3,
 
     }
     //测试数据类
+    [Serializable]
     public partial class ConfigPP
     {
         //NestedClass
-        public partial class NestedClasss
+        [Serializable]
+        public class NestedClasss
         {
-            public NestedClasss(Int32 @id, String @name)
+            public NestedClasss()
             {
-				id = @id;
-				name = @name;
+            }
+            public NestedClasss(Int32 id, String name)
+            {
+				this.id = @id;
+				this.name = @name;
             }
             //Id
+            private Int32 _id;
             public Int32 id
             {
-                get;
-                private set;
+                get
+                {
+                    return _id;
+                }
+                private set
+                {
+                    _id = value;
+                }
             }
             //姓名
+            private String _name;
             public String name
             {
-                get;
-                private set;
+                get
+                {
+                    return _name;
+                }
+                private set
+                {
+                    _name = value;
+                }
             }
 
         }
 
-        public ConfigPP(Int32 @id, String @name, Color[] @color, List<Single> @ratio, NestedClasss @nesttt)
+        public ConfigPP()
         {
-			id = @id;
-			name = @name;
-			color = @color;
-			ratio = @ratio;
-			nesttt = @nesttt;
+        }
+        public ConfigPP(Int32 id, String name, Color color, List<Boolean> flags, List<Single> ratio, NestedClasss nesttt)
+        {
+			this.id = @id;
+			this.name = @name;
+			this.color = @color;
+			this.flags = @flags;
+			this.ratio = @ratio;
+			this.nesttt = @nesttt;
         }
         //ID
+        
         private Int32 _id;
         public Int32 id
         {
@@ -62,6 +86,7 @@ namespace ConfigData
             }
         }
         //名称
+        
         private String _name;
         public String name
         {
@@ -75,8 +100,9 @@ namespace ConfigData
             }
         }
         //颜色
-        private Color[] _color;
-        public Color[] color
+        
+        private Color _color;
+        public Color color
         {
             get
             {
@@ -87,7 +113,22 @@ namespace ConfigData
                 _color = value;
             }
         }
+        //标志
+        
+        private List<Boolean> _flags;
+        public List<Boolean> flags
+        {
+            get
+            {
+                return _flags;
+            }
+            private set
+            {
+                _flags = value;
+            }
+        }
         //比率
+        
         private List<Single> _ratio;
         public List<Single> ratio
         {
@@ -101,6 +142,7 @@ namespace ConfigData
             }
         }
         //内嵌类
+        
         private NestedClasss _nesttt;
         public NestedClasss nesttt
         {
