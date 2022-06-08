@@ -22,19 +22,25 @@ namespace ConfigDataExpoter
             return defaultValue;
         }
     }
-    /// <summary>
-    /// 表数据类信息
-    /// </summary>
-    class ConfigClassMetaData : ConfigMetaData
+
+    public class ConfigClassMetaDataBase : ConfigMetaData
     {
         /// <summary>
         /// 类名
         /// </summary>
-        public string m_name;
+        public string m_classname;
         /// <summary>
         /// 类注释
         /// </summary>
         public string m_comment;
+
+    }
+
+    /// <summary>
+    /// 表数据类信息
+    /// </summary>
+    class ConfigClassMetaData : ConfigClassMetaDataBase
+    {
 
         public const string IDPrimaryKey = "ID";
         /// <summary>

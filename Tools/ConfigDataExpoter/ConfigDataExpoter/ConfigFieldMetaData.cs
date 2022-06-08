@@ -62,10 +62,43 @@ namespace ConfigDataExpoter
         FixedLengthList,
         VaraintLengthList
     }
+    public abstract class ConfigFieldMetaDataBase : ConfigMetaData
+    {
+        /// <summary>
+        /// 列名
+        /// </summary>
+        public string m_fieldName;
+
+        /// <summary>
+        /// 注释/备注
+        /// </summary>
+        public string m_comment;
+
+        /// <summary>
+        /// 数据类型
+        /// </summary>
+        public DataType m_dataType;
+
+        /// <summary>
+        /// 是否是数组，None,List[0],List[1]……,List[x]可变长数组
+        /// </summary>
+        public string m_listType;
+
+        /// <summary>
+        /// 实际名称
+        /// </summary>
+        public string m_realTypeName;
+
+        /// <summary>
+        /// 所属类的类名
+        /// </summary>
+        public string m_belongClassName;
+
+    }
     /// <summary>
     /// 类的域配置
     /// </summary>
-    class ConfigFieldMetaData : ConfigMetaData
+    class ConfigFieldMetaData : ConfigFieldMetaDataBase
     {
         /// <summary>
         /// 数组类别格式
@@ -84,44 +117,14 @@ namespace ConfigDataExpoter
         public const int DataBeginRow = (int)ConfigClassFieldHeader.ClassNestedClassFieldIsList + 1;
 
         /// <summary>
-        /// 所属类的类名
-        /// </summary>
-        public string m_belongClassName;
-
-        /// <summary>
-        /// 列名
-        /// </summary>
-        public string m_name;
-
-        /// <summary>
-        /// 注释/备注
-        /// </summary>
-        public string m_comment;
-
-        /// <summary>
         /// 双端可见性
         /// </summary>
         public Visiblity m_visiblity;
 
         /// <summary>
-        /// 数据类型
-        /// </summary>
-        public DataType m_dataType;
-
-        /// <summary>
-        /// 实际名称
-        /// </summary>
-        public string m_realTypeName;
-
-        /// <summary>
         /// 外键（"类名.域名"的格式，对外键进行引用）
         /// </summary>
         public string m_foreignKey;
-
-        /// <summary>
-        /// 是否是数组，None,List[0],List[1]……,List[x]可变长数组
-        /// </summary>
-        public string m_listType;
 
         /// <summary>
         /// 表中第几列
@@ -136,24 +139,15 @@ namespace ConfigDataExpoter
         /// <summary>
         /// 内嵌类域信息
         /// </summary>
-        public class NestClassFieldInfo
-        {
-            public string m_realTypeName;
-            public string m_fieldName;
-            public string m_comment;
-            public DataType m_dataType;
-            public string m_listType;
-        }
+        public class NestClassFieldInfo : ConfigFieldMetaDataBase { }
         /// <summary>
         /// 内嵌类额外信息
         /// </summary>
-        public class NestedClassMetaData
+        public class NestedClassMetaData : ConfigClassMetaDataBase
         {
             public const char seperator = ',';
-            public string m_className;
-            public const string Comment = "NestedClass";
             public int FieldNum => m_fieldsInfo.Count;
-            public Dictionary<string, NestClassFieldInfo> m_fieldsInfo = new Dictionary<string, NestClassFieldInfo>();
+            public List<NestClassFieldInfo> m_fieldsInfo = new List<NestClassFieldInfo>();
         }
 
         public static ListType GetListType(string listType)
@@ -178,7 +172,7 @@ namespace ConfigDataExpoter
         public static string GetTypeName(ConfigFieldMetaData metaData, DataType dataType, string listTypeStr, bool isNestedClass = false)
         {
             var belongClassName = metaData == null ? "" : metaData.m_belongClassName;
-            var name = metaData == null ? "" : metaData.m_name;
+            var name = metaData == null ? "" : metaData.m_fieldName;
             var foreignKey = metaData == null ? "" : metaData.m_foreignKey;
             var nestedClassMetaData = metaData == null ? null : metaData.m_nestedClassMetaData;
             var listType = GetListType(listTypeStr);
@@ -230,11 +224,11 @@ namespace ConfigDataExpoter
                     {
                         throw new ParseExcelException($"{belongClassName}中字段{name}为内嵌类，其中不能再嵌套一个类");
                     }
-                    if (nestedClassMetaData.m_fieldsInfo.Count <= 0)
+                    if (nestedClassMetaData.FieldNum <= 0)
                     {
                         throw new ParseExcelException($"{belongClassName}中字段{name}为内嵌类，但该列并没有定义内嵌类");
                     }
-                    elementType = nestedClassMetaData.m_className;
+                    elementType = nestedClassMetaData.m_classname;
                     break;
             }
             if (listType == ListType.None)
@@ -254,7 +248,7 @@ namespace ConfigDataExpoter
         public static string GetFullTypeName(ConfigFieldMetaData metaData, DataType dataType, string listTypeStr, bool isNestedClass = false)
         {
             var belongClassName = metaData.m_belongClassName;
-            var name = metaData.m_name;
+            var name = metaData.m_fieldName;
             var foreignKey = metaData.m_foreignKey;
             var nestedClassMetaData = metaData.m_nestedClassMetaData;
             var listType = GetListType(listTypeStr);
@@ -312,11 +306,11 @@ namespace ConfigDataExpoter
                     {
                         throw new ParseExcelException($"{belongClassName}中字段{name}为内嵌类，其中不能再嵌套一个类");
                     }
-                    if (nestedClassMetaData.m_fieldsInfo.Count <= 0)
+                    if (nestedClassMetaData.FieldNum <= 0)
                     {
                         throw new ParseExcelException($"{belongClassName}中字段{name}为内嵌类，但该列并没有定义内嵌类");
                     }
-                    elementType = $"ConfigData.{belongClassName}+{nestedClassMetaData.m_className}";
+                    elementType = $"ConfigData.{belongClassName}+{nestedClassMetaData.m_classname}";
                     break;
             }
             if (listType == ListType.None)
@@ -342,21 +336,10 @@ namespace ConfigDataExpoter
                         m_comment = value;
                         return m_comment != null;
                     }
-                //case ConfigClassFieldHeader.ClassFieldDataType:
-                //    {
-                //        m_dataType = ParseEnum(value, DataType.None);
-                //        if (m_dataType == DataType.None && m_nestedClassMetaData.m_fieldsInfo.Count > 0)
-                //        {
-                //            m_dataType = DataType.NestedClass;
-                //            m_nestedClassMetaData.m_className = value;
-                //            return true;
-                //        }
-                //        return m_dataType != DataType.None;
-                //    }
                 case ConfigClassFieldHeader.ClassFieldName:
                     {
-                        m_name = value.ToLower();
-                        return m_name != null;
+                        m_fieldName = value.ToLower();
+                        return m_fieldName != null;
                     }
                 case ConfigClassFieldHeader.ClassFieldVisiblity:
                     {
@@ -376,6 +359,7 @@ namespace ConfigDataExpoter
             }
             return false;
         }
+
         /// <summary>
         /// 解析内嵌类
         /// </summary>
@@ -414,14 +398,15 @@ namespace ConfigDataExpoter
                 {
                     for (int i = 0; i < nameArr.Length; ++i)
                     {
-                        m_nestedClassMetaData.m_fieldsInfo[nameArr[i]] = new NestClassFieldInfo()
+                        m_nestedClassMetaData.m_fieldsInfo.Add(new NestClassFieldInfo()
                         {
                             m_realTypeName = GetTypeName(null, typeArr[i], isListArr[i], true),
+                            m_belongClassName = m_nestedClassMetaData.m_classname,
                             m_fieldName = nameArr[i].ToLower(),
                             m_comment = commentArr[i],
                             m_listType = isListArr[i],
                             m_dataType = typeArr[i]
-                        };
+                        });
                     }
                     return true;
                 }
@@ -433,6 +418,13 @@ namespace ConfigDataExpoter
 
         }
 
+        /// <summary>
+        /// 解析外键
+        /// </summary>
+        /// <param name="foreignKey"></param>
+        /// <param name="type"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
         public static bool ParseForeignKey(string foreignKey, out string type, out string key)
         {
             if (foreignKey.Equals(None))

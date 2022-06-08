@@ -32,7 +32,7 @@ namespace ConfigDataExpoter
             }
             else if (sheetData.m_sheetType == SheetType.Class)
             {
-                return (sheetData.m_configMetaData as ConfigClassMetaData).m_name;
+                return (sheetData.m_configMetaData as ConfigClassMetaData).m_classname;
             }
             return string.Empty;
         }
@@ -74,9 +74,9 @@ namespace ConfigDataExpoter
                             continue;
 
                         }
-                        if (foreignClass.Equals(classMetaData.m_name))
+                        if (foreignClass.Equals(classMetaData.m_classname))
                         {
-                            throw new ParseExcelException($"外键名不能与当前所属类型名相同,ClassName:{classMetaData.m_name},Field:{fieldInfo.m_name}");
+                            throw new ParseExcelException($"外键名不能与当前所属类型名相同,ClassName:{classMetaData.m_classname},Field:{fieldInfo.m_fieldName}");
                         }
 
                         if (fieldInfo.m_dataType == DataType.Enum)
@@ -106,7 +106,7 @@ namespace ConfigDataExpoter
                         }
                         else
                         {
-                            throw new ParseExcelException($"不存在该外键类型，ForeignClass:{foreignClass},ClassName:{classMetaData.m_name},FieldName:{fieldInfo.m_name}");
+                            throw new ParseExcelException($"不存在该外键类型，ForeignClass:{foreignClass},ClassName:{classMetaData.m_classname},FieldName:{fieldInfo.m_fieldName}");
                         }
                     }
 

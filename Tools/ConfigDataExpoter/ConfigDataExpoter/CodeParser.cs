@@ -209,7 +209,7 @@ namespace ConfigDataExpoter
             var commentCell = headerRow.GetCell(ConfigSheetData.ClassCommentCellIndex);
             if (nameCell != null && !string.IsNullOrEmpty(nameCell.StringCellValue))
             {
-                classMetaData.m_name = nameCell.StringCellValue;
+                classMetaData.m_classname = nameCell.StringCellValue;
                 classMetaData.m_comment = commentCell == null ? "" : commentCell.StringCellValue;
             }
             else
@@ -251,10 +251,10 @@ namespace ConfigDataExpoter
                     {
                         var fieldMetaData = new ConfigFieldMetaData()
                         {
-                            m_belongClassName = classMetaData.m_name,
-                            m_name = fieldNameCell.StringCellValue.ToLower(),
+                            m_belongClassName = classMetaData.m_classname,
+                            m_fieldName = fieldNameCell.StringCellValue.ToLower(),
                         };
-                        fieldsDict[fieldMetaData.m_name] = fieldMetaData;
+                        fieldsDict[fieldMetaData.m_fieldName] = fieldMetaData;
                         // 解析内嵌类，如果不是内嵌类，则这四个单元格的数据应当也是None的
                         var nestedClassNamesCell = sheet.GetRow((int)ConfigClassFieldHeader.ClassNestedClassFieldNames).GetCell(i);
                         var nestedClassTypesCell = sheet.GetRow((int)ConfigClassFieldHeader.ClassNestedClassFieldTypes).GetCell(i);
@@ -271,7 +271,8 @@ namespace ConfigDataExpoter
                             if (isNestedClass)
                             {
                                 fieldMetaData.m_dataType = DataType.NestedClass;
-                                fieldMetaData.m_nestedClassMetaData.m_className = fieldTypeCell.StringCellValue;
+                                fieldMetaData.m_nestedClassMetaData.m_classname = fieldTypeCell.StringCellValue;
+                                //fieldMetaData.m_nestedClassMetaData.m_comment = fieldMetaData.m_comment;
                             }
                             else
                             {
@@ -314,11 +315,11 @@ namespace ConfigDataExpoter
             var fieldList = fieldsDict.Values.ToList();
             fieldList.Sort((a, b) =>
             {
-                if (a.m_name.Length != b.m_name.Length)
+                if (a.m_fieldName.Length != b.m_fieldName.Length)
                 {
-                    return a.m_name.Length.CompareTo(b.m_name.Length);
+                    return a.m_fieldName.Length.CompareTo(b.m_fieldName.Length);
                 }
-                return a.m_name.CompareTo(b.m_name);
+                return a.m_fieldName.CompareTo(b.m_fieldName);
             });
             classMetaData.m_fieldsInfo.Clear();
             classMetaData.m_fieldsInfo.AddRange(fieldList);

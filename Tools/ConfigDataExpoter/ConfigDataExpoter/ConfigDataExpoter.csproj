@@ -70,7 +70,6 @@
     <Compile Include="ConfigEnumMetaData.cs" />
     <Compile Include="ConfigFieldMetaData.cs" />
     <Compile Include="ConfigSheetData.cs" />
-    <Compile Include="CreateConfigData.cs" />
     <Compile Include="DataExporter.cs" />
     <Compile Include="DataExpoterForm.cs">
       <SubType>Form</SubType>

@@ -10,42 +10,6 @@ using Microsoft.CSharp;
 
 namespace ConfigDataExpoter
 {
-    //public enum VisitFlag
-    //{
-    //    Public,
-    //    Private,
-    //    Protected,
-    //    Default
-    //}
-
-    //public enum VisitorFlag
-    //{
-    //    Getter,
-    //    Setter,
-    //    Both
-    //}
-
-    //public class ClassDesc
-    //{
-    //    public string m_name;
-    //    public VisitFlag m_flags;
-    //    public List<FieldDesc> m_fields;
-    //}
-
-    //public class FieldDesc
-    //{
-    //    public string m_name;
-    //    public VisitFlag m_flags;
-    //    public string m_defaultValue;
-    //}
-
-    //public class PropertyDesc
-    //{
-    //    public string m_name;
-    //    public VisitorFlag m_visitorFlag;
-    //    public FieldDesc m_relativeField;
-    //}
-
     class CodeExpoter : FileExporter
     {
         public void Setup(IEnumerable<ConfigSheetData> configSheetDatas)
@@ -120,7 +84,7 @@ namespace ConfigDataExpoter
             // 1、注释
             if (!string.IsNullOrEmpty(enumMetaData.m_comment))
             {
-                enumCode = enumCode.Replace(COMMENT, COMMENT_PREFIX + enumMetaData.m_comment);
+                enumCode = enumCode.Replace(COMMENT, enumMetaData.m_comment);
             }
             else
             {
@@ -132,7 +96,7 @@ namespace ConfigDataExpoter
             foreach (var equality in enumMetaData.m_enumNameValue)
             {
                 // 字段注释
-                string withComment = CodeEnumEquality.Replace(COMMENT, string.IsNullOrEmpty(equality.Value.m_comment) ? "" : COMMENT_PREFIX + equality.Value.m_comment);
+                string withComment = CodeEnumEquality.Replace(COMMENT, string.IsNullOrEmpty(equality.Value.m_comment) ? "" : equality.Value.m_comment);
                 // 等式
                 codeSB.AppendLine(string.Format(withComment, equality.Value.m_name, equality.Value.m_ID));
             }
@@ -142,7 +106,7 @@ namespace ConfigDataExpoter
 
         private string CreateClassCode(ConfigClassMetaData classMetaData)
         {
-            string className = classMetaData.m_name;
+            string className = classMetaData.m_classname;
             string comment = classMetaData.m_comment;
             List<ConfigFieldMetaData> fieldsInfo = classMetaData.m_fieldsInfo;
             StringBuilder codeSB = new StringBuilder();
@@ -150,7 +114,7 @@ namespace ConfigDataExpoter
             // 1、注释
             if (!string.IsNullOrEmpty(comment))
             {
-                classCode = classCode.Replace(COMMENT, COMMENT_PREFIX + comment);
+                classCode = classCode.Replace(COMMENT, comment);
             }
             else
             {
@@ -163,23 +127,22 @@ namespace ConfigDataExpoter
             // 3、构造函数
             classCode = classCode.Replace(CONSTRUCTOR_PARAMS, string.Join(", ", fieldsInfo.Select(fieldInfo =>
               {
-                  return string.Format(CodeParam, fieldInfo.m_realTypeName, fieldInfo.m_name);
+                  return string.Format(CodeParam, fieldInfo.m_realTypeName, fieldInfo.m_fieldName);
               })));
             var codeEquality = "\t\t\t" + CodeEquality;
             classCode = classCode.Replace(EQAULITY_LIST, string.Join(Environment.NewLine, fieldsInfo.Select(fieldInfo =>
               {
-                  return string.Format(codeEquality, fieldInfo.m_name, string.Format(CodeParamName, fieldInfo.m_name));
+                  return string.Format(codeEquality, fieldInfo.m_fieldName, string.Format(CodeParamName, fieldInfo.m_fieldName));
               })));
 
             // 4、内嵌类
             StringBuilder nestedClass = new StringBuilder();
             foreach (var fieldInfo in fieldsInfo)
             {
-                if (fieldInfo.m_dataType == DataType.NestedClass && fieldInfo.m_nestedClassMetaData.m_fieldsInfo.Count > 0)
+                if (fieldInfo.m_dataType == DataType.NestedClass && fieldInfo.m_nestedClassMetaData.FieldNum > 0)
                 {
-                    var nestedClassCode = CreateNestedCode(fieldInfo.m_nestedClassMetaData.m_className,
-                        ConfigFieldMetaData.NestedClassMetaData.Comment,
-                        fieldInfo.m_nestedClassMetaData.m_fieldsInfo.Values);
+                    var nestedClassCode = CreateNestedCode(fieldInfo.m_nestedClassMetaData.m_classname,
+                        fieldInfo.m_nestedClassMetaData.m_comment, fieldInfo.m_nestedClassMetaData.m_fieldsInfo);
                     nestedClass.AppendLine(nestedClassCode);
                 }
             }
@@ -188,15 +151,15 @@ namespace ConfigDataExpoter
             foreach (var fieldInfo in fieldsInfo)
             {
                 // 字段注释
-                string withComment = CodeProperty.Replace(COMMENT, string.IsNullOrEmpty(fieldInfo.m_comment) ? "" : COMMENT_PREFIX + fieldInfo.m_comment);
+                string withComment = CodeProperty.Replace(COMMENT, string.IsNullOrEmpty(fieldInfo.m_comment) ? "" : fieldInfo.m_comment);
                 // 替换类型名和变量名
-                withComment = withComment.Replace(TYPE_NAME, fieldInfo.m_realTypeName).Replace(VARAINT_NAME, fieldInfo.m_name);
+                withComment = withComment.Replace(TYPE_NAME, fieldInfo.m_realTypeName).Replace(VARAINT_NAME, fieldInfo.m_fieldName);
                 codeSB.AppendLine(withComment);
             }
             classCode = classCode.Replace(PROPERTY_LIST, codeSB.ToString());
             return classCode;
         }
-
+        
         private string CreateNestedCode(string className, string comment, IEnumerable<ConfigFieldMetaData.NestClassFieldInfo> fieldsInfo)
         {
             StringBuilder codeSB = new StringBuilder();
@@ -204,7 +167,7 @@ namespace ConfigDataExpoter
             // 1、注释
             if (!string.IsNullOrEmpty(comment))
             {
-                classCode = classCode.Replace(COMMENT, COMMENT_PREFIX + comment);
+                classCode = classCode.Replace(COMMENT, comment);
             }
             else
             {
@@ -229,7 +192,7 @@ namespace ConfigDataExpoter
             foreach (var fieldInfo in fieldsInfo)
             {
                 // 字段注释
-                string withComment = CodeNestedClassProperty.Replace(COMMENT, string.IsNullOrEmpty(fieldInfo.m_comment) ? "" : COMMENT_PREFIX + fieldInfo.m_comment);
+                string withComment = CodeNestedClassProperty.Replace(COMMENT, string.IsNullOrEmpty(fieldInfo.m_comment) ? "" : fieldInfo.m_comment);
                 // 替换类型名和变量名
                 withComment = withComment.Replace(TYPE_NAME, fieldInfo.m_realTypeName).Replace(VARAINT_NAME, fieldInfo.m_fieldName);
                 codeSB.AppendLine(withComment);
@@ -255,14 +218,18 @@ namespace ConfigDataExpoter
         private const string CodeNamespace =
 @"using System;
 using System.Collections.Generic;
-// 程序自动生成的配置代码
+/// <summary>
+/// 程序自动生成的配置代码
+/// </summary>
 namespace " + NameSpace + @"
 {
 #CLASS_LIST#
 }";
 
         private const string CodeClass =
-@"    #COMMENT#
+@"    /// <summary>
+    /// #COMMENT#
+    /// </summary>
     [Serializable]
     public partial class #CLASS_NAME#
     {
@@ -280,8 +247,7 @@ namespace " + NameSpace + @"
         /// 只支持内嵌一层
         /// </summary>
         private const string CodeNestedClass =
-    @"        #COMMENT#
-        [Serializable]
+@"        [Serializable]
         public class #CLASS_NAME#
         {
             public #CLASS_NAME#()
@@ -299,13 +265,16 @@ namespace " + NameSpace + @"
         private const string CodeEquality = "this.{0} = {1};";
 
         private const string CodeEnumEquality =
-    @"        #COMMENT#
+@"        /// <summary>
+        /// #COMMENT#
+        /// </summary>
         {0} = {1},";
 
         private const string CodeProperty =
-    @"        #COMMENT#
-        
-        private #TYPE_NAME# _#VARAINT_NAME#;
+@"        private #TYPE_NAME# _#VARAINT_NAME#;
+        /// <summary>
+        /// #COMMENT#
+        /// </summary>
         public #TYPE_NAME# #VARAINT_NAME#
         {
             get
@@ -318,8 +287,10 @@ namespace " + NameSpace + @"
             }
         }";
         private const string CodeNestedClassProperty =
-@"            #COMMENT#
-            private #TYPE_NAME# _#VARAINT_NAME#;
+@"            private #TYPE_NAME# _#VARAINT_NAME#;
+            /// <summary>
+            /// #COMMENT#
+            /// </summary>
             public #TYPE_NAME# #VARAINT_NAME#
             {
                 get
@@ -333,7 +304,9 @@ namespace " + NameSpace + @"
             }";
 
         private const string CodeEnum =
-    @"    #COMMENT#
+@"    /// <summary>
+    /// #COMMENT#
+    /// </summary>
     public enum #ENUM_NAME#
     {
 #ENUM_EQUALITY_LIST#

@@ -29,7 +29,7 @@ namespace ConfigDataExpoter
             foreach (var item in m_allTableDatas)
             {
                 var str = SerializeDataTable(item.Value, item.Key);
-                ExportFile(Path.Combine(directory, item.Key.Name + ".txt"), str);
+                ExportFile(Path.Combine(directory, item.Key.Name + ".txt"), str, false);
             }
 
         }
