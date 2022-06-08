@@ -48,7 +48,7 @@ namespace ConfigDataExpoter
 
     class CodeExpoter : FileExporter
     {
-        public void SetConfigSheetData(IEnumerable<ConfigSheetData> configSheetDatas)
+        public void Setup(IEnumerable<ConfigSheetData> configSheetDatas)
         {
             m_configSheetDatas = configSheetDatas;
         }

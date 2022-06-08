@@ -65,19 +65,24 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CodeExpoter.cs" />
+    <Compile Include="CodeParser.cs" />
     <Compile Include="ConfigClassMetaData.cs" />
     <Compile Include="ConfigEnumMetaData.cs" />
     <Compile Include="ConfigFieldMetaData.cs" />
     <Compile Include="ConfigSheetData.cs" />
     <Compile Include="CreateConfigData.cs" />
+    <Compile Include="DataExporter.cs" />
     <Compile Include="DataExpoterForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="DataExpoterForm.Designer.cs">
       <DependentUpon>DataExpoterForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="DataParser.cs" />
+    <Compile Include="Exceptions.cs" />
     <Compile Include="FileExporter.cs" />
-    <Compile Include="ParseExcelProcess.cs" />
+    <Compile Include="FileParser.cs" />
+    <Compile Include="ExcelProcess.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="DataExpoterForm.resx">
