@@ -20,11 +20,11 @@ namespace ConfigDataExpoter
         Boolean,
         Float,
         Double,
+        String,
         /// <summary>
         /// 可翻译的字符串
         /// </summary>
         Text,
-        String,
         Enum,
         /// <summary>
         /// 自定义内嵌类
@@ -65,34 +65,52 @@ namespace ConfigDataExpoter
     public abstract class ConfigFieldMetaDataBase : ConfigMetaData
     {
         /// <summary>
+        /// 带下划线域名
+        /// </summary>
+        public string PrivateFieldName { get; private set; }
+
+        private string m_fieldName;
+
+        /// <summary>
         /// 列名
         /// </summary>
-        public string m_fieldName;
+        public string FieldName
+        {
+            get
+            {
+                return m_fieldName;
+            }
+            set
+            {
+                m_fieldName = value;
+                PrivateFieldName = "_" + m_fieldName;
+            }
+        }
 
         /// <summary>
         /// 注释/备注
         /// </summary>
-        public string m_comment;
+        public string Comment;
 
         /// <summary>
         /// 数据类型
         /// </summary>
-        public DataType m_dataType;
+        public DataType DataType;
 
         /// <summary>
         /// 是否是数组，None,List[0],List[1]……,List[x]可变长数组
         /// </summary>
-        public string m_listType;
+        public string ListType;
 
         /// <summary>
         /// 实际名称
         /// </summary>
-        public string m_realTypeName;
+        public string RealTypeName;
 
         /// <summary>
         /// 所属类的类名
         /// </summary>
-        public string m_belongClassName;
+        public string BelongClassName;
 
     }
     /// <summary>
@@ -109,7 +127,7 @@ namespace ConfigDataExpoter
 
         public const char ForeignKeySeperator = '.';
 
-        public const char ListSeperator = ',';
+        public const char ListSeperator = ';';
 
         /// <summary>
         /// 数据开始行
@@ -154,27 +172,25 @@ namespace ConfigDataExpoter
         {
             if (listType == None)
             {
-                return ListType.None;
+                return ConfigDataExpoter.ListType.None;
             }
             // 可变长
             if (listType.Equals("List[x]"))
             {
-                return ListType.VaraintLengthList;
+                return ConfigDataExpoter.ListType.VaraintLengthList;
             }
             // 固定长度
             if (Regex.Match(listType, @"List\[[0-9]+\]").Length == listType.Length)
             {
-                return ListType.FixedLengthList;
+                return ConfigDataExpoter.ListType.FixedLengthList;
             }
-            return ListType.None;
+            return ConfigDataExpoter.ListType.None;
         }
 
-        public static string GetTypeName(ConfigFieldMetaData metaData, DataType dataType, string listTypeStr, bool isNestedClass = false)
+        public static string GetTypeName(ConfigFieldMetaDataBase metaData, DataType dataType, string listTypeStr, bool isNestedClass = false)
         {
-            var belongClassName = metaData == null ? "" : metaData.m_belongClassName;
-            var name = metaData == null ? "" : metaData.m_fieldName;
-            var foreignKey = metaData == null ? "" : metaData.m_foreignKey;
-            var nestedClassMetaData = metaData == null ? null : metaData.m_nestedClassMetaData;
+            var belongClassName = metaData == null ? "" : metaData.BelongClassName;
+            var name = metaData == null ? "" : metaData.FieldName;
             var listType = GetListType(listTypeStr);
             string elementType = string.Empty;
             switch (dataType)
@@ -183,6 +199,9 @@ namespace ConfigDataExpoter
                     throw new ParseExcelException($"{belongClassName}中{name}字段类型无效");
                 case DataType.Enum:
                     {
+                        ConfigFieldMetaData fieldMetaData = metaData as ConfigFieldMetaData;
+
+                        var foreignKey = fieldMetaData == null ? "" : fieldMetaData.m_foreignKey;
                         if (isNestedClass)
                         {
                             throw new ParseExcelException($"{belongClassName}中字段{name}为内嵌类，该内嵌类中不能使用枚举字段");
@@ -219,19 +238,23 @@ namespace ConfigDataExpoter
                     elementType = typeof(string).Name;
                     break;
                 default:
-                    // 内嵌类
-                    if (isNestedClass)
                     {
-                        throw new ParseExcelException($"{belongClassName}中字段{name}为内嵌类，其中不能再嵌套一个类");
+                        ConfigFieldMetaData fieldMetaData = metaData as ConfigFieldMetaData;
+                        var nestedClassMetaData = fieldMetaData == null ? null : fieldMetaData.m_nestedClassMetaData;
+                        // 内嵌类
+                        if (isNestedClass)
+                        {
+                            throw new ParseExcelException($"{belongClassName}中字段{name}为内嵌类，其中不能再嵌套一个类");
+                        }
+                        if (nestedClassMetaData.FieldNum <= 0)
+                        {
+                            throw new ParseExcelException($"{belongClassName}中字段{name}为内嵌类，但该列并没有定义内嵌类");
+                        }
+                        elementType = nestedClassMetaData.m_classname;
+                        break;
                     }
-                    if (nestedClassMetaData.FieldNum <= 0)
-                    {
-                        throw new ParseExcelException($"{belongClassName}中字段{name}为内嵌类，但该列并没有定义内嵌类");
-                    }
-                    elementType = nestedClassMetaData.m_classname;
-                    break;
             }
-            if (listType == ListType.None)
+            if (listType == ConfigDataExpoter.ListType.None)
             {
                 return elementType;
             }
@@ -245,12 +268,10 @@ namespace ConfigDataExpoter
             }
         }
 
-        public static string GetFullTypeName(ConfigFieldMetaData metaData, DataType dataType, string listTypeStr, bool isNestedClass = false)
+        public static string GetFullTypeName(ConfigFieldMetaDataBase metaData, DataType dataType, string listTypeStr, bool isNestedClass = false)
         {
-            var belongClassName = metaData.m_belongClassName;
-            var name = metaData.m_fieldName;
-            var foreignKey = metaData.m_foreignKey;
-            var nestedClassMetaData = metaData.m_nestedClassMetaData;
+            var belongClassName = metaData.BelongClassName;
+            var name = metaData.FieldName;
             var listType = GetListType(listTypeStr);
             string elementType = string.Empty;
             switch (dataType)
@@ -259,6 +280,8 @@ namespace ConfigDataExpoter
                     throw new ParseExcelException($"{belongClassName}中{name}字段类型无效");
                 case DataType.Enum:
                     {
+                        ConfigFieldMetaData fieldMetaData = metaData as ConfigFieldMetaData;
+                        var foreignKey = fieldMetaData == null ? "" : fieldMetaData.m_foreignKey;
                         if (isNestedClass)
                         {
                             throw new ParseExcelException($"{belongClassName}中字段{name}为内嵌类，该内嵌类中不能使用枚举字段");
@@ -301,19 +324,23 @@ namespace ConfigDataExpoter
                     elementType = typeof(string).FullName;
                     break;
                 default:
-                    // 内嵌类
-                    if (isNestedClass)
                     {
-                        throw new ParseExcelException($"{belongClassName}中字段{name}为内嵌类，其中不能再嵌套一个类");
+                        ConfigFieldMetaData fieldMetaData = metaData as ConfigFieldMetaData;
+                        var nestedClassMetaData = fieldMetaData == null ? null : fieldMetaData.m_nestedClassMetaData;
+                        // 内嵌类
+                        if (isNestedClass)
+                        {
+                            throw new ParseExcelException($"{belongClassName}中字段{name}为内嵌类，其中不能再嵌套一个类");
+                        }
+                        if (nestedClassMetaData.FieldNum <= 0)
+                        {
+                            throw new ParseExcelException($"{belongClassName}中字段{name}为内嵌类，但该列并没有定义内嵌类");
+                        }
+                        elementType = $"ConfigData.{belongClassName}+{nestedClassMetaData.m_classname}";
+                        break;
                     }
-                    if (nestedClassMetaData.FieldNum <= 0)
-                    {
-                        throw new ParseExcelException($"{belongClassName}中字段{name}为内嵌类，但该列并没有定义内嵌类");
-                    }
-                    elementType = $"ConfigData.{belongClassName}+{nestedClassMetaData.m_classname}";
-                    break;
             }
-            if (listType == ListType.None)
+            if (listType == ConfigDataExpoter.ListType.None)
             {
                 return elementType;
             }
@@ -333,13 +360,13 @@ namespace ConfigDataExpoter
             {
                 case ConfigClassFieldHeader.ClassFieldComment:
                     {
-                        m_comment = value;
-                        return m_comment != null;
+                        Comment = value;
+                        return Comment != null;
                     }
                 case ConfigClassFieldHeader.ClassFieldName:
                     {
-                        m_fieldName = value.ToLower();
-                        return m_fieldName != null;
+                        FieldName = value.ToLower();
+                        return FieldName != null;
                     }
                 case ConfigClassFieldHeader.ClassFieldVisiblity:
                     {
@@ -353,8 +380,8 @@ namespace ConfigDataExpoter
                     }
                 case ConfigClassFieldHeader.ClassFieldIsList:
                     {
-                        m_listType = value;
-                        return m_listType != null;
+                        ListType = value;
+                        return ListType != null;
                     }
             }
             return false;
@@ -400,12 +427,12 @@ namespace ConfigDataExpoter
                     {
                         m_nestedClassMetaData.m_fieldsInfo.Add(new NestClassFieldInfo()
                         {
-                            m_realTypeName = GetTypeName(null, typeArr[i], isListArr[i], true),
-                            m_belongClassName = m_nestedClassMetaData.m_classname,
-                            m_fieldName = nameArr[i].ToLower(),
-                            m_comment = commentArr[i],
-                            m_listType = isListArr[i],
-                            m_dataType = typeArr[i]
+                            RealTypeName = GetTypeName(null, typeArr[i], isListArr[i], true),
+                            BelongClassName = m_nestedClassMetaData.m_classname,
+                            FieldName = nameArr[i].ToLower(),
+                            Comment = commentArr[i],
+                            ListType = isListArr[i],
+                            DataType = typeArr[i]
                         });
                     }
                     return true;

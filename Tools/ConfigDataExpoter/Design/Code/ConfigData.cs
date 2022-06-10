@@ -28,18 +28,28 @@ namespace ConfigData
     /// 测试数据类
     /// </summary>
     [Serializable]
-    public partial class ConfigPP
+    public partial class ConfigPP: IBinarySerializer, IBinaryDeserializer
     {
         [Serializable]
-        public class NestedClasss
+        public class NestedClasss: IBinarySerializer, IBinaryDeserializer
         {
             public NestedClasss()
             {
             }
             public NestedClasss(Int32 id, String name)
             {
-				this.id = @id;
-				this.name = @name;
+				this._id = id;
+				this._name = name;
+            }
+            public void Deserialize(BinaryParser reader)
+            {
+				_id = reader.ReadInt32();
+				_name = reader.ReadString();
+            }
+            public void Serialize(BinaryFormatter writer)
+            {
+				writer.WriteInt32(_id);
+				writer.WriteString(_name);
             }
             private Int32 _id;
             /// <summary>
@@ -73,18 +83,35 @@ namespace ConfigData
             }
 
         }
-
         public ConfigPP()
         {
         }
-        public ConfigPP(Int32 id, String name, Color color, List<Boolean> flags, List<Single> ratio, NestedClasss nesttt)
+        public ConfigPP(Int32 id, String name, Color color, List<Boolean> flags, List<Single> ratio, List<NestedClasss> nesttt)
         {
-			this.id = @id;
-			this.name = @name;
-			this.color = @color;
-			this.flags = @flags;
-			this.ratio = @ratio;
-			this.nesttt = @nesttt;
+			this._id = id;
+			this._name = name;
+			this._color = color;
+			this._flags = flags;
+			this._ratio = ratio;
+			this._nesttt = nesttt;
+        }
+        public void Deserialize(BinaryParser reader)
+        {
+			_id = reader.ReadInt32();
+			_name = reader.ReadString();
+			_color = (Color)reader.ReadEnum();
+			_flags = reader.ReadBooleanList();
+			_ratio = reader.ReadSingleList();
+			_nesttt = reader.ReadObjectList<NestedClasss>();
+        }
+        public void Serialize(BinaryFormatter writer)
+        {
+			writer.WriteInt32(_id);
+			writer.WriteString(_name);
+			writer.WriteEnum((Int32)_color);
+			writer.WriteBooleanList(_flags);
+			writer.WriteSingleList(_ratio);
+			writer.WriteObjectList<NestedClasss>(_nesttt);
         }
         private Int32 _id;
         /// <summary>
@@ -161,11 +188,11 @@ namespace ConfigData
                 _ratio = value;
             }
         }
-        private NestedClasss _nesttt;
+        private List<NestedClasss> _nesttt;
         /// <summary>
         /// 内嵌类
         /// </summary>
-        public NestedClasss nesttt
+        public List<NestedClasss> nesttt
         {
             get
             {
@@ -182,18 +209,28 @@ namespace ConfigData
     /// 测试数据类
     /// </summary>
     [Serializable]
-    public partial class ConfigPP2
+    public partial class ConfigPP2: IBinarySerializer, IBinaryDeserializer
     {
         [Serializable]
-        public class NestedClasss
+        public class NestedClasss: IBinarySerializer, IBinaryDeserializer
         {
             public NestedClasss()
             {
             }
             public NestedClasss(Int32 id, String name)
             {
-				this.id = @id;
-				this.name = @name;
+				this._id = id;
+				this._name = name;
+            }
+            public void Deserialize(BinaryParser reader)
+            {
+				_id = reader.ReadInt32();
+				_name = reader.ReadString();
+            }
+            public void Serialize(BinaryFormatter writer)
+            {
+				writer.WriteInt32(_id);
+				writer.WriteString(_name);
             }
             private Int32 _id;
             /// <summary>
@@ -227,18 +264,35 @@ namespace ConfigData
             }
 
         }
-
         public ConfigPP2()
         {
         }
         public ConfigPP2(Int32 id, String name, Color color, List<Boolean> flags, List<Single> ratio, NestedClasss nesttt)
         {
-			this.id = @id;
-			this.name = @name;
-			this.color = @color;
-			this.flags = @flags;
-			this.ratio = @ratio;
-			this.nesttt = @nesttt;
+			this._id = id;
+			this._name = name;
+			this._color = color;
+			this._flags = flags;
+			this._ratio = ratio;
+			this._nesttt = nesttt;
+        }
+        public void Deserialize(BinaryParser reader)
+        {
+			_id = reader.ReadInt32();
+			_name = reader.ReadString();
+			_color = (Color)reader.ReadEnum();
+			_flags = reader.ReadBooleanList();
+			_ratio = reader.ReadSingleList();
+			_nesttt = reader.ReadObject<NestedClasss>();
+        }
+        public void Serialize(BinaryFormatter writer)
+        {
+			writer.WriteInt32(_id);
+			writer.WriteString(_name);
+			writer.WriteEnum((Int32)_color);
+			writer.WriteBooleanList(_flags);
+			writer.WriteSingleList(_ratio);
+			writer.WriteObject<NestedClasss>(_nesttt);
         }
         private Int32 _id;
         /// <summary>

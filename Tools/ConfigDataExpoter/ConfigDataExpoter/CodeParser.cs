@@ -251,10 +251,10 @@ namespace ConfigDataExpoter
                     {
                         var fieldMetaData = new ConfigFieldMetaData()
                         {
-                            m_belongClassName = classMetaData.m_classname,
-                            m_fieldName = fieldNameCell.StringCellValue.ToLower(),
+                            BelongClassName = classMetaData.m_classname,
+                            FieldName = fieldNameCell.StringCellValue.ToLower(),
                         };
-                        fieldsDict[fieldMetaData.m_fieldName] = fieldMetaData;
+                        fieldsDict[fieldMetaData.FieldName] = fieldMetaData;
                         // 解析内嵌类，如果不是内嵌类，则这四个单元格的数据应当也是None的
                         var nestedClassNamesCell = sheet.GetRow((int)ConfigClassFieldHeader.ClassNestedClassFieldNames).GetCell(i);
                         var nestedClassTypesCell = sheet.GetRow((int)ConfigClassFieldHeader.ClassNestedClassFieldTypes).GetCell(i);
@@ -270,13 +270,13 @@ namespace ConfigDataExpoter
                                 nestedClassCommentsCell.StringCellValue, nestedClassIsListCell.StringCellValue);
                             if (isNestedClass)
                             {
-                                fieldMetaData.m_dataType = DataType.NestedClass;
+                                fieldMetaData.DataType = DataType.NestedClass;
                                 fieldMetaData.m_nestedClassMetaData.m_classname = fieldTypeCell.StringCellValue;
                                 //fieldMetaData.m_nestedClassMetaData.m_comment = fieldMetaData.m_comment;
                             }
                             else
                             {
-                                fieldMetaData.m_dataType = tempFieldDataType;
+                                fieldMetaData.DataType = tempFieldDataType;
                             }
                         }
                         else
@@ -297,7 +297,7 @@ namespace ConfigDataExpoter
                             }
                         }
                         // 域的实际类名
-                        fieldMetaData.m_realTypeName = ConfigFieldMetaData.GetTypeName(fieldMetaData, fieldMetaData.m_dataType, fieldMetaData.m_listType);
+                        fieldMetaData.RealTypeName = ConfigFieldMetaData.GetTypeName(fieldMetaData, fieldMetaData.DataType, fieldMetaData.ListType);
                         // 表中第几列
                         fieldMetaData.m_columnIndex = i;
                     }
@@ -315,11 +315,11 @@ namespace ConfigDataExpoter
             var fieldList = fieldsDict.Values.ToList();
             fieldList.Sort((a, b) =>
             {
-                if (a.m_fieldName.Length != b.m_fieldName.Length)
+                if (a.FieldName.Length != b.FieldName.Length)
                 {
-                    return a.m_fieldName.Length.CompareTo(b.m_fieldName.Length);
+                    return a.FieldName.Length.CompareTo(b.FieldName.Length);
                 }
-                return a.m_fieldName.CompareTo(b.m_fieldName);
+                return a.FieldName.CompareTo(b.FieldName);
             });
             classMetaData.m_fieldsInfo.Clear();
             classMetaData.m_fieldsInfo.AddRange(fieldList);

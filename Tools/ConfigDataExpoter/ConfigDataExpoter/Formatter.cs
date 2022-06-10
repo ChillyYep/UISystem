@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
+using ProtoBuf;
 
 namespace ConfigDataExpoter
 {
@@ -19,27 +20,28 @@ namespace ConfigDataExpoter
     public interface IFormatter
     {
         string SerializeDataTable(List<object> dataTable, Type classType);
-        List<object> DeSerializeDataTable(string stream, Type classType);
+        List<object> DeSerializeDataTable(Stream stream, Type classType);
     }
 
     public abstract class FormatterImpBase : IFormatter
     {
-        public abstract List<object> DeSerializeDataTable(string stream, Type classType);
+        public abstract List<object> DeSerializeDataTable(Stream stream, Type classType);
 
         public abstract string SerializeDataTable(List<object> dataTable, Type classType);
     }
 
     public class BinaryFormatterImp : FormatterImpBase
     {
-        public override List<object> DeSerializeDataTable(string stream, Type classType)
+        public override List<object> DeSerializeDataTable(Stream stream, Type classType)
         {
             List<object> tableData = null;
-            using (MemoryStream ms = new MemoryStream())
-            {
-                var bytes = System.Text.Encoding.Default.GetBytes(stream);
-                ms.Write(bytes, 0, bytes.Length);
-                tableData = binaryFormatter.Deserialize(ms) as List<object>;
-            }
+            //using (MemoryStream ms = new MemoryStream())
+            //{
+                //binaryParser = new ConfigData.BinaryParser(stream);
+                //var bytes = System.Text.Encoding.Default.GetBytes(stream);
+                //ms.Write(bytes, 0, bytes.Length);
+                //tableData = binaryFormatter.Deserialize(ms) as List<object>;
+            //}
             return tableData == null ? new List<object>() : tableData;
         }
 
@@ -48,13 +50,18 @@ namespace ConfigDataExpoter
             byte[] bytes = new byte[0];
             using (MemoryStream ms = new MemoryStream())
             {
-                binaryFormatter.Serialize(ms, dataTable);
+                binaryFormatter = new ConfigData.BinaryFormatter(ms);
+                binaryFormatter.WriteObject(dataTable, dataTable.GetType());
+                //ProtoBuf.Meta.RuntimeTypeModel.Create().Serialize(ms, dataTable);
+                //binaryFormatter.Serialize(ms, dataTable);
                 bytes = ms.GetBuffer();
             }
             return System.Text.Encoding.Default.GetString(bytes);
         }
 
-        private BinaryFormatter binaryFormatter = new BinaryFormatter();
+        private ConfigData.BinaryParser binaryParser;
+
+        private ConfigData.BinaryFormatter binaryFormatter;
 
     }
 
@@ -80,7 +87,7 @@ namespace ConfigDataExpoter
             m_formatterImp = CreateFormatterImp(formatterType);
         }
 
-        public List<object> DeSerializeDataTable(string stream, Type classType)
+        public List<object> DeSerializeDataTable(Stream stream, Type classType)
         {
             return m_formatterImp.DeSerializeDataTable(stream, classType);
         }

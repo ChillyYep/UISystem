@@ -22,6 +22,7 @@ namespace ConfigDataExpoter
             public FieldInfo m_fieldInfo;
             public string m_fieldName;
             public bool m_isList;
+            public MethodBase m_addMethod;
         }
 
         public Dictionary<Type, List<object>> ParseAllTableDatas(Assembly configDataAssembly, string directory, Dictionary<string, List<ConfigSheetData>> configSheetDict)
@@ -74,6 +75,29 @@ namespace ConfigDataExpoter
             }
         }
 
+        private object CreateNestedClassInstace(Dictionary<string, List<TypeInfo>> nestedClassFieldTypeInfos, string nestedClassInstanceStr, ConfigFieldMetaData fieldInfo, Type nestedFieldType)
+        {
+            var nestedClassInstance = Activator.CreateInstance(nestedFieldType);
+            if (nestedClassInstance == null)
+            {
+                throw new ParseExcelException($"创建内嵌类{fieldInfo.FieldName}实例失败");
+            }
+            var nestMetaData = fieldInfo.m_nestedClassMetaData;
+            var values = nestedClassInstanceStr.Split(ConfigFieldMetaData.NestedClassMetaData.seperator);
+            if (!nestedClassFieldTypeInfos.TryGetValue(fieldInfo.FieldName, out var nestedClassFieldInfos))
+            {
+                throw new ParseExcelException($"内嵌类{fieldInfo.FieldName}获取域信息失败");
+            }
+            for (int x = 0; x < nestedClassFieldInfos.Count; ++x)
+            {
+                var nestedFieldInfo = nestedClassFieldInfos[x].m_fieldInfo;
+                var dataType = nestedClassFieldInfos[x].m_dataType;
+                var nestedFieldName = nestedClassFieldInfos[x].m_fieldName;
+                SetFieldValue(nestedFieldInfo, nestedClassInstance, values[x], dataType);
+            }
+            return nestedClassInstance;
+        }
+
         /// <summary>
         /// 读取数据实例
         /// </summary>
@@ -108,40 +132,44 @@ namespace ConfigDataExpoter
             {
                 if (fieldTypeInfos.TryGetValue(fieldMetaData.m_columnIndex, out var fieldTypeInfo))
                 {
-                    throw new ParseExcelException($"字段名称重复,Class:{classMetaData.m_classname},Field:{fieldMetaData.m_fieldName}");
+                    throw new ParseExcelException($"字段名称重复,Class:{classMetaData.m_classname},Field:{fieldMetaData.FieldName}");
                 }
                 fieldTypeInfo = new TypeInfo();
-                fieldTypeInfo.m_isList = ConfigFieldMetaData.GetListType(fieldMetaData.m_listType) != ListType.None;
-                fieldTypeInfo.m_dataType = fieldMetaData.m_dataType;
-                fieldTypeInfo.m_fieldName = "_" + fieldMetaData.m_fieldName;
+                fieldTypeInfo.m_isList = ConfigFieldMetaData.GetListType(fieldMetaData.ListType) != ListType.None;
+                fieldTypeInfo.m_dataType = fieldMetaData.DataType;
+                fieldTypeInfo.m_fieldName = fieldMetaData.PrivateFieldName;
                 fieldTypeInfo.m_fieldInfo = classType.GetField(fieldTypeInfo.m_fieldName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
                 if (fieldTypeInfo.m_fieldInfo == null)
                 {
-                    throw new ParseExcelException($"字段类型解析失败,Class:{classMetaData.m_classname},Field:{fieldMetaData.m_fieldName}");
+                    throw new ParseExcelException($"字段类型解析失败,Class:{classMetaData.m_classname},Field:{fieldMetaData.FieldName}");
                 }
-                if (fieldMetaData.m_dataType == DataType.NestedClass)
+
+                if (fieldMetaData.DataType == DataType.NestedClass)
                 {
-                    var fullTypeName = ConfigFieldMetaData.GetFullTypeName(fieldMetaData, fieldMetaData.m_dataType, fieldMetaData.m_listType);
+                    // 收集内嵌类信息，不管他是不是数组的
+                    var fullTypeName = ConfigFieldMetaData.GetFullTypeName(fieldMetaData, fieldMetaData.DataType, ConfigFieldMetaData.None);
                     var nestedClassType = assembly.GetType(fullTypeName);
                     if (nestedClassType == null)
                     {
                         throw new ParseExcelException("内嵌类解析失败");
                     }
-                    nestedClassFieldTypeInfos[fieldMetaData.m_fieldName] = new List<TypeInfo>();
+                    nestedClassFieldTypeInfos[fieldMetaData.FieldName] = new List<TypeInfo>();
                     var fieldList = fieldMetaData.m_nestedClassMetaData.m_fieldsInfo;
 
                     foreach (var nestedClassFieldTypeInfo in fieldList)
                     {
                         var typeinfo = new TypeInfo()
                         {
-                            m_fieldName = "_" + nestedClassFieldTypeInfo.m_fieldName,
-                            m_dataType = nestedClassFieldTypeInfo.m_dataType
+                            m_fieldName = nestedClassFieldTypeInfo.PrivateFieldName,
+                            m_dataType = nestedClassFieldTypeInfo.DataType
                         };
-                        typeinfo.m_isList = ConfigFieldMetaData.GetListType(nestedClassFieldTypeInfo.m_listType) != ListType.None;
+                        typeinfo.m_isList = ConfigFieldMetaData.GetListType(nestedClassFieldTypeInfo.ListType) != ListType.None;
                         typeinfo.m_fieldInfo = nestedClassType.GetField(typeinfo.m_fieldName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
-                        nestedClassFieldTypeInfos[fieldMetaData.m_fieldName].Add(typeinfo);
+                        nestedClassFieldTypeInfos[fieldMetaData.FieldName].Add(typeinfo);
                     }
                     nestedClassTypes[fieldTypeInfo.m_fieldName] = nestedClassType;
+                    fieldTypeInfo.m_addMethod = fieldTypeInfo.m_fieldInfo.FieldType.GetMethod("Add", new Type[] { nestedClassType });
+
                 }
                 fieldTypeInfos[fieldMetaData.m_columnIndex] = fieldTypeInfo;
                 fieldMetaInfos[fieldMetaData.m_columnIndex] = fieldMetaData;
@@ -167,39 +195,37 @@ namespace ConfigDataExpoter
                         var fieldInfo = fieldMetaInfos[j];
                         var fieldType = fieldTypeInfo.m_fieldInfo;
                         var fieldName = fieldTypeInfo.m_fieldName;
-                        if (fieldInfo.m_dataType == DataType.NestedClass)
+                        if (fieldInfo.DataType == DataType.NestedClass)
                         {
-                            if (fieldTypeInfo.m_isList)
-                            {
-                                throw new ParseExcelException($"内嵌类不支持数组化");
-                            }
                             if (!nestedClassTypes.TryGetValue(fieldName, out var nestedFieldType))
                             {
-                                throw new ParseExcelException($"不存在该内嵌类{fieldInfo.m_fieldName}");
+                                throw new ParseExcelException($"不存在该内嵌类{fieldInfo.FieldName}");
                             }
-                            var nestedClassInstance = Activator.CreateInstance(nestedFieldType);
-                            if (nestedClassInstance == null)
+                            if (!fieldTypeInfo.m_isList)
                             {
-                                throw new ParseExcelException($"创建内嵌类{fieldInfo.m_fieldName}实例失败");
+                                var nestedClassInstance = CreateNestedClassInstace(nestedClassFieldTypeInfos, NormalizeCellValue2String(cell), fieldInfo, nestedFieldType);
+                                fieldType.SetValue(instance, nestedClassInstance);
                             }
-                            var nestMetaData = fieldInfo.m_nestedClassMetaData;
-                            var values = cell.StringCellValue.Split(ConfigFieldMetaData.NestedClassMetaData.seperator);
-                            if (!nestedClassFieldTypeInfos.TryGetValue(fieldInfo.m_fieldName, out var nestedClassFieldInfos))
+                            else
                             {
-                                throw new ParseExcelException($"内嵌类{fieldInfo.m_fieldName}获取域信息失败");
+                                var listInstance = Activator.CreateInstance(fieldType.FieldType);
+                                var addMethod = fieldTypeInfo.m_addMethod;
+                                if (addMethod == null)
+                                {
+                                    throw new ParseExcelException($"{fieldTypeInfo.m_fieldName}字段不存在Add方法");
+                                }
+                                var listValue = NormalizeCellValue2String(cell).Split(ConfigFieldMetaData.ListSeperator);
+                                foreach (var value in listValue)
+                                {
+                                    var obj = CreateNestedClassInstace(nestedClassFieldTypeInfos, value, fieldInfo, nestedFieldType);
+                                    addMethod.Invoke(listInstance, new object[] { obj });
+                                }
+                                fieldType.SetValue(instance, listInstance);
                             }
-                            for (int x = 0; x < nestedClassFieldInfos.Count; ++x)
-                            {
-                                var nestedFieldInfo = nestedClassFieldInfos[x].m_fieldInfo;
-                                var dataType = nestedClassFieldInfos[x].m_dataType;
-                                var nestedFieldName = nestedClassFieldInfos[x].m_fieldName;
-                                SetFieldValue(nestedFieldInfo, nestedClassInstance, values[x], dataType);
-                            }
-                            fieldType.SetValue(instance, nestedClassInstance);
                         }
                         else
                         {
-                            SetFieldValue(fieldType, instance, NormalizeCellValue2String(cell), fieldInfo.m_dataType, fieldTypeInfo.m_isList, fieldInfo.m_foreignKey);
+                            SetFieldValue(fieldType, instance, NormalizeCellValue2String(cell), fieldInfo.DataType, fieldTypeInfo.m_isList, fieldInfo.m_foreignKey);
                         }
                     }
                     else

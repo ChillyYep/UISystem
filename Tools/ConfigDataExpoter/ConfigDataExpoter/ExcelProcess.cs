@@ -16,12 +16,14 @@ namespace ConfigDataExpoter
 {
     class ExcelProcess
     {
-        public ExcelProcess(string mainDirecotry, string exportCodeDiretory, string exportDataDirecotry, string exportCodeFileName)
+        public ExcelProcess(string mainDirecotry, string exportCodeDiretory, string exportDataDirecotry, string exportCodeFileName, string exportTypeEnumCodeFileName, string copyFromDirectory)
         {
             m_mainDirectory = mainDirecotry;
             m_exportCodeDirectory = exportCodeDiretory;
             m_exportDataDirectory = exportDataDirecotry;
             m_exportCodePath = Path.Combine(exportCodeDiretory, exportCodeFileName);
+            m_exportTypeEnumCodePath = Path.Combine(exportCodeDiretory, exportTypeEnumCodeFileName);
+            m_copyFromDirectory = copyFromDirectory;
         }
 
         private string GetClassOrEnumName(ConfigSheetData sheetData)
@@ -76,12 +78,12 @@ namespace ConfigDataExpoter
                         }
                         if (foreignClass.Equals(classMetaData.m_classname))
                         {
-                            throw new ParseExcelException($"外键名不能与当前所属类型名相同,ClassName:{classMetaData.m_classname},Field:{fieldInfo.m_fieldName}");
+                            throw new ParseExcelException($"外键名不能与当前所属类型名相同,ClassName:{classMetaData.m_classname},Field:{fieldInfo.FieldName}");
                         }
 
-                        if (fieldInfo.m_dataType == DataType.Enum)
+                        if (fieldInfo.DataType == DataType.Enum)
                         {
-                            var listType = ConfigFieldMetaData.GetListType(fieldInfo.m_listType);
+                            var listType = ConfigFieldMetaData.GetListType(fieldInfo.ListType);
                             if (listType != ListType.None)
                             {
                                 throw new ParseExcelException($"Enum不能数组化");
@@ -106,7 +108,7 @@ namespace ConfigDataExpoter
                         }
                         else
                         {
-                            throw new ParseExcelException($"不存在该外键类型，ForeignClass:{foreignClass},ClassName:{classMetaData.m_classname},FieldName:{fieldInfo.m_fieldName}");
+                            throw new ParseExcelException($"不存在该外键类型，ForeignClass:{foreignClass},ClassName:{classMetaData.m_classname},FieldName:{fieldInfo.FieldName}");
                         }
                     }
 
@@ -131,8 +133,9 @@ namespace ConfigDataExpoter
                 sheetDatas.AddRange(fileSheetDatas);
             }
             codeExporter.Setup(sheetDatas);
-            codeExporter.ExportCode(m_exportCodePath);
-
+            codeExporter.ExportConfigCode(m_exportCodePath);
+            codeExporter.ExportTypeEnumCode(m_exportTypeEnumCodePath);
+            //codeExporter.CopyBinaryTools(m_copyFromDirectory, m_exportCodeDirectory);
             // 4、编译代码
             var assembly = codeExporter.Compile(m_exportCodeDirectory);
             if (assembly == null)
@@ -164,6 +167,13 @@ namespace ConfigDataExpoter
         /// 代码导出位置
         /// </summary>
         private string m_exportCodePath;
+
+        /// <summary>
+        /// 复制代码目录
+        /// </summary>
+        private string m_copyFromDirectory;
+
+        private string m_exportTypeEnumCodePath;
 
         /// <summary>
         /// 代码导出目录

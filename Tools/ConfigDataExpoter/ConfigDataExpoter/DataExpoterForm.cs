@@ -18,7 +18,8 @@ namespace ConfigDataExpoter
             InitializeComponent();
             string directory = AppDomain.CurrentDomain.BaseDirectory;
             directory = Path.Combine(directory, "../../../Design");
-            m_parseProcess = new ExcelProcess(directory, Path.Combine(directory, "Code"), Path.Combine(directory, "Data"), "ConfigData.cs");
+            m_parseProcess = new ExcelProcess(directory, Path.Combine(directory, "Code"), Path.Combine(directory, "Data"), "ConfigData.cs", "ConfigDataTypeEnum.cs",
+                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../BinaryReadWrite"));
         }
 
         private void button1_Click(object sender, EventArgs e)
