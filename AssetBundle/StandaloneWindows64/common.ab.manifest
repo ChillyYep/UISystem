@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 3989194912
+CRC: 2987580204
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: c8b553a0e492cd65e9f820886b849581
+    Hash: 69623df401acaccfb329506318a89337
   TypeTreeHash:
     serializedVersion: 2
     Hash: 6e0ebf521f4add5289f4949a38fb254b
@@ -23,8 +23,7 @@ SerializeReferenceClassIdentifiers: []
 Assets:
 - Assets/RuntimeAssets/Common/Image/cat1.jpeg
 - Assets/RuntimeAssets/Common/Test/New Animation.anim
-- Assets/RuntimeAssets/Common/Material/New Material.mat
-- Assets/RuntimeAssets/Common/Material/Standard.mat
+- Assets/RuntimeAssets/Common/Material/Custom_NewSurfaceShader.mat
 - Assets/RuntimeAssets/Common/Image/cat2.png
 - Assets/RuntimeAssets/Common/Image/cat3.png
 Dependencies: []

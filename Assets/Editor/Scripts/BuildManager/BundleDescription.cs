@@ -29,8 +29,9 @@ namespace GameBase.Asset
         ComputeShader = 1 << 10,
         RenderTexture = 1 << 11,
         Mesh = 1 << 12,
+        TextAsset = 1 << 13,
         Default = Texture | Material | Prefab | AnimationClip | AnimatorController | PlayableAsset | Mesh,
-        All = Texture | Material | Prefab | AnimationClip | AnimatorController | PlayableAsset | AudioMixer | AudioClip | Font | Shader | ComputeShader | RenderTexture | Mesh
+        All = Texture | Material | Prefab | AnimationClip | AnimatorController | PlayableAsset | AudioMixer | AudioClip | Font | Shader | ComputeShader | RenderTexture | Mesh | TextAsset
     }
     /// <summary>
     /// 打Bundle依赖的设置
@@ -99,7 +100,7 @@ namespace GameBase.Asset
         public string GetBundleNameWithSuffix()
         {
             var bundleBuildSetting = GameClientSettings.LoadMainGameClientSettings().m_bundleBuildSettings;
-            return m_outputBundleName + bundleBuildSetting.m_bundleSuffix;
+            return m_outputBundleName + "." + bundleBuildSetting.BundleSuffix;
         }
         /// <summary>
         /// 清除数据
@@ -181,24 +182,25 @@ namespace GameBase.Asset
         {
             var gameSettings = GameClientSettings.LoadMainGameClientSettings();
             var bundleBuildSettings = gameSettings.m_bundleBuildSettings;
-            var runtimeAssetsDir = bundleBuildSettings.m_runtimeAssetsDir;
-            var defaultABName = bundleBuildSettings.m_defaultAbName;
+            var defaultABName = bundleBuildSettings.DefaultAbName;
             var descAssetPath = AssetDatabase.GetAssetPath(this);
-            var folderPath = ProjectWindowUtil.GetContainingFolder(descAssetPath);
-            int index = folderPath.IndexOf(runtimeAssetsDir);
             // 必须是RuntimeAssetsDir之下的
-            if (index < 0)
+            if (!bundleBuildSettings.IsFileAllowedInBundle(descAssetPath, out var outputBundleDdirectory))
             {
-                Debug.LogError($"Fail to {nameof(AutoGenOutputBundleName)}!\"{descAssetPath}\" is't under \"{runtimeAssetsDir}\".");
+                Debug.LogError($"Fail to {nameof(AutoGenOutputBundleName)}!\"{descAssetPath}\" is't under \"{string.Join("\",\"", bundleBuildSettings.AssetDirs)}\".");
                 return;
             }
-            if (folderPath.Equals(runtimeAssetsDir))
+            var assetFolder = Path.GetDirectoryName(descAssetPath);
+            outputBundleDdirectory = outputBundleDdirectory.Replace("\\", "/");
+            assetFolder = assetFolder.Replace("\\", "/");
+            int index = assetFolder.IndexOf(outputBundleDdirectory);
+            if (outputBundleDdirectory.Equals(assetFolder))
             {
-                m_outputBundleName = defaultABName;
+                m_outputBundleName = Path.GetFileName(assetFolder).ToLower();
             }
             else
             {
-                m_outputBundleName = folderPath.Substring(index + runtimeAssetsDir.Length + 1).Replace('/', '_').Replace('\\', '_').ToLower();
+                m_outputBundleName = assetFolder.Substring(index + outputBundleDdirectory.Length + 1).Replace('/', '_').Replace("\\", "_").ToLower();
             }
             EditorUtils.SaveAndReimport(this);
         }

@@ -44,7 +44,7 @@ namespace ConfigDataExpoter
             {
                 code = string.Empty;
             }
-            ExportFile(filePath, code, false);
+            ExportFile(filePath, code, true);
         }
 
         public void ExportTypeEnumCode(string filePath)
@@ -112,22 +112,44 @@ namespace ConfigDataExpoter
 
         }
 
-        public void CopyBinaryTools(string srcDirectory, string dstDirectory)
+        public void ExportConfigDataLoaderCode(string filePath)
         {
-            if (!Directory.Exists(dstDirectory))
+            string code = CodeNamespace;
+            StringBuilder equalityList = new StringBuilder();
+            StringBuilder propertyList = new StringBuilder();
+            string classCode = CodeConfigDataLoader;
+            int count = m_configSheetDatas.Count();
+            foreach (var sheetData in m_configSheetDatas)
             {
-                Directory.CreateDirectory(dstDirectory);
+                --count;
+                if (sheetData.m_sheetType == SheetType.Class && sheetData.m_configMetaData is ConfigClassMetaData classMetaData)
+                {
+                    var variantName = $"ConfigData{classMetaData.m_classname}Table";
+                    var className = classMetaData.m_classname;
+                    equalityList.Append(LoadConfigDataFormat.Replace(VARAINT_NAME, variantName).Replace(TYPE_NAME, className));
+                    propertyList.Append(ConfigDataLoaderPropertiesFormat.Replace(COMMENT, classMetaData.m_comment).Replace(VARAINT_NAME, variantName).Replace(TYPE_NAME, className));
+                }
+                if (count > 0)
+                {
+                    equalityList.AppendLine();
+                    propertyList.AppendLine();
+                }
             }
-            var srcFiles = Directory.GetFiles(srcDirectory);
-            foreach (var file in srcFiles)
+            classCode = classCode.Replace(EQAULITY_LIST, equalityList.ToString()).Replace(PROPERTY_LIST, propertyList.ToString());
+            if (equalityList.Length > 0 && propertyList.Length > 0)
             {
-                File.Copy(file, Path.Combine(dstDirectory, Path.GetFileName(file)), true);
+                code = code.Replace(CLASS_LIST, classCode);
             }
+            else
+            {
+                code = string.Empty;
+            }
+            ExportFile(filePath, code, false);
         }
 
         public Assembly Compile(string directory)
         {
-            var files = Directory.GetFiles(directory);
+            var files = Directory.GetFiles(directory, "*.cs");
             var codeProvider = CodeDomProvider.CreateProvider("CSharp");
 
             string[] codes = new string[files.Length];
@@ -142,7 +164,7 @@ namespace ConfigDataExpoter
             parameters.IncludeDebugInformation = false;
             parameters.TreatWarningsAsErrors = true;
             //AppDomain.CurrentDomain.GetAssemblies()
-            parameters.ReferencedAssemblies.Add("BinaryReaderWriter.dll");
+            parameters.ReferencedAssemblies.Add(Path.Combine(directory, "BinaryReaderWriter.dll"));
 
             CompilerResults results = codeProvider.CompileAssemblyFromSource(parameters, codes);
             if (results.Errors.HasErrors)
@@ -237,7 +259,7 @@ namespace ConfigDataExpoter
                 // 字段注释
                 string withComment = CodeProperty.Replace(COMMENT, string.IsNullOrEmpty(fieldInfo.Comment) ? "" : fieldInfo.Comment);
                 // 替换类型名和变量名
-                withComment = withComment.Replace(TYPE_NAME, fieldInfo.RealTypeName).Replace(VARAINT_NAME, fieldInfo.FieldName);
+                withComment = withComment.Replace(TYPE_NAME, fieldInfo.RealTypeName).Replace(VARAINT_NAME, fieldInfo.PrivateFieldName).Replace(PROPERTY_NAME, fieldInfo.FieldName);
                 codeSB.AppendLine(withComment);
             }
             classCode = classCode.Replace(PROPERTY_LIST, codeSB.ToString());
@@ -282,7 +304,7 @@ namespace ConfigDataExpoter
                 // 字段注释
                 string withComment = CodeNestedClassProperty.Replace(COMMENT, string.IsNullOrEmpty(fieldInfo.Comment) ? "" : fieldInfo.Comment);
                 // 替换类型名和变量名
-                withComment = withComment.Replace(TYPE_NAME, fieldInfo.RealTypeName).Replace(VARAINT_NAME, fieldInfo.FieldName);
+                withComment = withComment.Replace(TYPE_NAME, fieldInfo.RealTypeName).Replace(VARAINT_NAME, fieldInfo.PrivateFieldName).Replace(PROPERTY_NAME, fieldInfo.FieldName);
                 codeSB.AppendLine(withComment);
             }
             classCode = classCode.Replace(PROPERTY_LIST, codeSB.ToString());
@@ -323,7 +345,7 @@ namespace ConfigDataExpoter
                     }
                     else if (fieldInfo.DataType == DataType.Enum)
                     {
-                        throw new ParseExcelException("不支持枚举数组");
+                        throw new ParseExcelException("暂时不支持枚举数组");
                     }
                     else if (fieldInfo.DataType == DataType.NestedClass)
                     {
@@ -394,6 +416,7 @@ namespace ConfigDataExpoter
         private const string ENUM_EQUALITY_LIST = "#ENUM_EQUALITY_LIST#";
         private const string TYPE_NAME = "#TYPE_NAME#";
         private const string VARAINT_NAME = "#VARAINT_NAME#";
+        private const string PROPERTY_NAME = "#PROPERTY_NAME#";
         private const string CONSTRUCTOR_PARAMS = "#CONSTRUCTOR_PARAMS#";
         private const string EQAULITY_LIST = "#EQAULITY_LIST#";
         private const string EQUALITY = "#EQUALITY#";
@@ -427,7 +450,7 @@ namespace " + NameSpace + @"
     /// #COMMENT#
     /// </summary>
     [Serializable]
-    public partial class #CLASS_NAME#: IBinarySerializer, IBinaryDeserializer
+    public partial class #CLASS_NAME#: IConfigData, IBinarySerializer, IBinaryDeserializer
     {
 #NESTEDCLASS_LIST#
         public #CLASS_NAME#()
@@ -468,35 +491,35 @@ namespace " + NameSpace + @"
         {0} = {1},";
 
         private const string CodeProperty =
-@"        private #TYPE_NAME# _#VARAINT_NAME#;
+@"        private #TYPE_NAME# #VARAINT_NAME#;
         /// <summary>
         /// #COMMENT#
         /// </summary>
-        public #TYPE_NAME# #VARAINT_NAME#
+        public #TYPE_NAME# #PROPERTY_NAME#
         {
             get
             {
-                return _#VARAINT_NAME#;
+                return #VARAINT_NAME#;
             }
             private set
             {
-                _#VARAINT_NAME# = value;
+                #VARAINT_NAME# = value;
             }
         }";
         private const string CodeNestedClassProperty =
-@"            private #TYPE_NAME# _#VARAINT_NAME#;
+@"            private #TYPE_NAME# #VARAINT_NAME#;
             /// <summary>
             /// #COMMENT#
             /// </summary>
-            public #TYPE_NAME# #VARAINT_NAME#
+            public #TYPE_NAME# #PROPERTY_NAME#
             {
                 get
                 {
-                    return _#VARAINT_NAME#;
+                    return #VARAINT_NAME#;
                 }
                 private set
                 {
-                    _#VARAINT_NAME# = value;
+                    #VARAINT_NAME# = value;
                 }
             }";
 
@@ -531,6 +554,28 @@ namespace " + NameSpace + @"
 #SERIALIZE_EQUALITY#
             }";
 
+        private const string CodeConfigDataLoader =
+@"    public partial class ConfigDataLoader
+    {
+        /// <summary>
+        /// 加载所有表数据
+        /// </summary>
+        public void LoadAllTableData()
+        {
+#EQAULITY_LIST#
+        }
+#PROPERTY_LIST#
+    }";
+
+
+        private const string LoadConfigDataFormat =
+@"            #VARAINT_NAME# = LoadConfigDataDict<#TYPE_NAME#>" + "(\"#TYPE_NAME#\");";
+
+        private const string ConfigDataLoaderPropertiesFormat =
+@"        /// <summary>
+        /// #COMMENT#
+        /// </summary>
+        public Dictionary<int, #TYPE_NAME#> #VARAINT_NAME# { get; private set; }";
         private IEnumerable<ConfigSheetData> m_configSheetDatas;
     }
 }

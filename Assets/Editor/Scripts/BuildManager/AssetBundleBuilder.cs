@@ -34,7 +34,7 @@ namespace GameBase.BundleBuilder
             bundleName2AssetList = null;
             dependencies = null;
 
-            var allBundleDescriptions = CollectAllBundleDesc();
+            var allBundleDescriptions = CollectAllBundleDesc(bundleBuildSettings);
 
             // 0、BundleDescription重新收集资源
             AutoRecollectAssetAndGenOutoutBundleName(allBundleDescriptions);
@@ -444,10 +444,10 @@ namespace GameBase.BundleBuilder
                 }
                 foreach (var dependency in dependencies)
                 {
-                    if (bundleBuildSettings.IsAssetInOuter(dependency))
+                    if (!bundleBuildSettings.IsFileAllowedInBundle(dependency, out _))
                     {
                         passCheck = false;
-                        Debug.LogError($"Asset \"{dependency}\" is out of the appointed directory \"{bundleBuildSettings.m_runtimeAssetsDir}\"!");
+                        Debug.LogError($"Asset \"{dependency}\" is out of the appointed directory \"{bundleBuildSettings.RuntimeAssetsDir}\"!");
                     }
                 }
                 EditorUtility.ClearProgressBar();
@@ -667,7 +667,7 @@ namespace GameBase.BundleBuilder
         {
             if (bundleBuildSettings.ContainMode(BundleBuildMode.PreprocessCullExpiredMaterialProps))
             {
-                var materials = AssetDatabase.FindAssets("t:material", new string[] { bundleBuildSettings.m_runtimeAssetsDir }).Select(matGuid => AssetDatabase.LoadAssetAtPath<Material>(AssetDatabase.GUIDToAssetPath(matGuid)));
+                var materials = AssetDatabase.FindAssets("t:material", new string[] { bundleBuildSettings.RuntimeAssetsDir }).Select(matGuid => AssetDatabase.LoadAssetAtPath<Material>(AssetDatabase.GUIDToAssetPath(matGuid)));
                 List<int> removeList = new List<int>();
                 foreach (var mat in materials)
                 {
@@ -744,7 +744,6 @@ namespace GameBase.BundleBuilder
                 AssetDatabase.DeleteAsset(assetbundleMapPath);
             }
             AssetDatabase.CreateAsset(newMap, assetbundleMapPath);
-            newMap.Init(Location.AssetBundleDir);
             // Manifest的特殊处理
             {
                 bundleName2AssetList[resSettings.GetAssetBundleManifestName()] = new List<string>() { AssetBundleManifestName };
@@ -780,7 +779,7 @@ namespace GameBase.BundleBuilder
                     }
                     if (!md5Hash.Equals(bundleInfo.m_hash) || !crc.Equals(bundleInfo.m_crc))
                     {
-                        bundleInfo.m_version += bundleBuildSettings.m_versionStep;
+                        bundleInfo.m_version += bundleBuildSettings.VersionStep;
                     }
                     // 更新Hash和CRC
                     bundleInfo.m_hash = md5Hash;
@@ -832,7 +831,6 @@ namespace GameBase.BundleBuilder
                 }
                 // 生成StreamingAssets的AssetBundleMap
                 var streamingAssetsAssetBundleMap = ScriptableObject.CreateInstance<AssetBundleMap>();
-                streamingAssetsAssetBundleMap.Init(Location.StreamingAssetDir);
                 foreach (var bundleName in copyBundleNames)
                 {
                     var singleBundleInfo = assetBundleMap.GetSingleBundleInfo(bundleName);
@@ -901,9 +899,9 @@ namespace GameBase.BundleBuilder
         /// 收集所有BundleDescription
         /// </summary>
         /// <returns></returns>
-        private static List<BundleDescription> CollectAllBundleDesc()
+        private static List<BundleDescription> CollectAllBundleDesc(BundleBuildSettings bundleBuildSettings)
         {
-            return AssetDatabase.FindAssets("t:" + nameof(BundleDescription)).Select(bundleDescGuid => AssetDatabase.LoadAssetAtPath<BundleDescription>(AssetDatabase.GUIDToAssetPath(bundleDescGuid))).ToList();
+            return AssetDatabase.FindAssets("t:" + nameof(BundleDescription), bundleBuildSettings.AssetDirs.ToArray()).Select(bundleDescGuid => AssetDatabase.LoadAssetAtPath<BundleDescription>(AssetDatabase.GUIDToAssetPath(bundleDescGuid))).ToList();
         }
         #endregion
     }

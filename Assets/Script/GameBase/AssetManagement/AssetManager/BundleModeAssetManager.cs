@@ -97,12 +97,12 @@ namespace GameBase.Asset
             if (resSettings.RuntimeReadBundleInStreamingAssets)
             {
                 m_assetBundleMap = AssetBundleMap.LoadStreamingAssetsAssetBundleMap();
-                m_assetBundleMap.Init(Location.StreamingAssetDir);
+                m_assetBundleMap.SetLocation(Location.StreamingAssetDir);
             }
             else
             {
                 m_assetBundleMap = AssetBundleMap.LoadAssetBundleMap();
-                m_assetBundleMap.Init(Location.AssetBundleDir);
+                m_assetBundleMap.SetLocation(Location.AssetBundleDir);
             }
             m_bundleCacheDict.Clear();
             m_bundleLoadingContext.Init();

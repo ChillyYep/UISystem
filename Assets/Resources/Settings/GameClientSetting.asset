@@ -31,10 +31,13 @@ MonoBehaviour:
     UnloadUnusedAssetInverval: 60
     MaxBundleWorkers: 1
   m_bundleBuildSettings:
-    m_bundleBuildMode: 367
-    m_bundleSuffix: .ab
-    m_versionStep: 1
-    m_useAssetBundleManifestCollectDependencies: 0
-    m_runtimeAssetsDir: Assets/RuntimeAssets
-    m_defaultAbName: runtimeassets
-    m_buildCachePath: Assets/Editor/Cache/BundleBuildCache.asset
+    BundleBuildMode: 0
+    BundleSuffix: ab
+    VersionStep: 1
+    UseAssetBundleManifestCollectDependencies: 0
+    AssetDirs:
+    - Assets/RuntimeAssets
+    - Assets/ConfigData
+    RuntimeAssetsDir: Assets/RuntimeAssets
+    DefaultAbName: runtimeassets
+    BuildCachePath: Assets/Editor/Cache/BundleBuildCache.asset

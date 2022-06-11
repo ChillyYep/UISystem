@@ -27,12 +27,9 @@ MonoBehaviour:
         - m_assetPath: Assets/RuntimeAssets/Common/Image/cat3.png
           m_assetSize: 217612
           m_assetHash: 57b1d13079e169bb6d7cb304d87a06c2
-        - m_assetPath: Assets/RuntimeAssets/Common/Material/New Material.mat
-          m_assetSize: 2036
-          m_assetHash: 0dea1d4d5c62842b7d9b9de388839e04
-        - m_assetPath: Assets/RuntimeAssets/Common/Material/Standard.mat
-          m_assetSize: 2360
-          m_assetHash: 93f5b99f2dc8f592aad1c7deee1fe7dd
+        - m_assetPath: Assets/RuntimeAssets/Common/Material/Custom_NewSurfaceShader.mat
+          m_assetSize: 833
+          m_assetHash: eff2a25958a8f958b7e6ab30931befb1
         - m_assetPath: Assets/RuntimeAssets/Common/Test/New Animation.anim
           m_assetSize: 1301
           m_assetHash: 1769d344d37d8148cb9478bea477028c
@@ -79,15 +76,22 @@ MonoBehaviour:
         m_bundleName: prefabs_page_childpage.ab
         m_singleAssetCaches:
         - m_assetPath: Assets/RuntimeAssets/Prefabs/Page/ChildPage/TestPage2.prefab
-          m_assetSize: 21301
-          m_assetHash: bc0eb290711aa9d667a86d1b9d3d40c1
+          m_assetSize: 17096
+          m_assetHash: 82eac593fac00cbc6368affb3efa2e02
     - key: prefabs_page_childpage_childpage.ab
       value:
         m_bundleName: prefabs_page_childpage_childpage.ab
         m_singleAssetCaches:
         - m_assetPath: Assets/RuntimeAssets/Prefabs/Page/ChildPage/ChildPage/TestPage3.prefab
-          m_assetSize: 21289
-          m_assetHash: e6dc7f1aa47513b7b961370b5bba1080
+          m_assetSize: 17084
+          m_assetHash: 76fc5c3e5d90dec0bb350d6a72827e76
+    - key: sssss.ab
+      value:
+        m_bundleName: sssss.ab
+        m_singleAssetCaches:
+        - m_assetPath: Assets/ConfigData/sssss/sssss.txt
+          m_assetSize: 38
+          m_assetHash: c39cae804746387a163462573a7ec319
     - key: StandaloneWindows64
       value:
         m_bundleName: StandaloneWindows64

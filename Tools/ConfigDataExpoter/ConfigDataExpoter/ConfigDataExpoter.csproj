@@ -33,7 +33,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\Bin\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -112,11 +112,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CodeExpoter.cs" />
-    <Compile Include="CodeParser.cs" />
+    <Compile Include="ExcelTypeMetaDataParser.cs" />
     <Compile Include="ConfigClassMetaData.cs" />
+    <Compile Include="CopyFromDirectory\ConfigDataLoader.cs" />
     <Compile Include="ConfigEnumMetaData.cs" />
     <Compile Include="ConfigFieldMetaData.cs" />
     <Compile Include="ConfigSheetData.cs" />
+    <Compile Include="ConfigDataLoader_AutoGen.cs" />
     <Compile Include="DataExporter.cs" />
     <Compile Include="DataExpoterForm.cs">
       <SubType>Form</SubType>
@@ -126,6 +128,7 @@
     </Compile>
     <Compile Include="DataParser.cs" />
     <Compile Include="Exceptions.cs" />
+    <Compile Include="ExportConfigDataSettings.cs" />
     <Compile Include="FileExporter.cs" />
     <Compile Include="FileParser.cs" />
     <Compile Include="ExcelProcess.cs" />

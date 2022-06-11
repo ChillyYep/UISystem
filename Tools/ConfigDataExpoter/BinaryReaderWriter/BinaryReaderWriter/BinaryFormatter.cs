@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
@@ -16,9 +17,10 @@ namespace ConfigData
             m_bw = new BinaryWriter(stream);
         }
 
-        public void WriteObject(object data, Type type)
+        public void WriteObject(object data)
         {
-            if (type.IsGenericType && type.GenericTypeArguments.Length > 0)
+            Type type = data.GetType();
+            if (typeof(IList).IsAssignableFrom(type) && typeof(ICollection).IsAssignableFrom(type))
             {
                 if (type.Equals(typeof(List<byte>)))
                 {
@@ -56,7 +58,8 @@ namespace ConfigData
                 {
                     WriteStringList(data as List<string>);
                 }
-                else if (type.GenericTypeArguments[0].IsAssignableFrom(typeof(IBinarySerializer)))
+
+                else if (type.IsGenericType && type.GenericTypeArguments.Length > 0)
                 {
                     WriteObjectList(data, type);
                 }
@@ -104,7 +107,7 @@ namespace ConfigData
                     WriteString((string)data);
 
                 }
-                else if (type.IsAssignableFrom(typeof(IBinarySerializer)))
+                else if (typeof(IBinarySerializer).IsAssignableFrom(type))
                 {
                     WriteObject(data as IBinarySerializer);
                 }
@@ -208,6 +211,7 @@ namespace ConfigData
                 WriteInt64(value[i]);
             }
         }
+
         public void WriteSingle(float value)
         {
             m_bw.Write(value);
@@ -267,13 +271,12 @@ namespace ConfigData
 
         public void WriteObjectList(object value, Type type)
         {
-            var elementType = type.GenericTypeArguments[0];
             var indexer = type.GetProperty("Item").GetMethod;
             var size = (int)type.GetProperty("Count").GetGetMethod().Invoke(value, new object[] { });
             WriteSize(size);
             for (int i = 0; i < size; ++i)
             {
-                WriteObject(indexer.Invoke(value, new object[] { i }), elementType);
+                WriteObject(indexer.Invoke(value, new object[] { i }));
             }
 
         }

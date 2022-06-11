@@ -23,10 +23,9 @@ namespace GameBase.Asset
     [Serializable]
     public class ResSettings
     {
-        [SerializeField]
-        private string EditorBundleDirectoryRelativeToAssets = @"../AssetBundle";
-        [SerializeField]
-        private string StreamingAssetsRelativeToAssets = @"StreamingAssets";
+        public string EditorBundleDirectoryRelativeToAssets = @"../AssetBundle";
+
+        public string StreamingAssetsRelativeToAssets = @"StreamingAssets";
 
         public string ResourcesDir = "Assets/Resources";
 

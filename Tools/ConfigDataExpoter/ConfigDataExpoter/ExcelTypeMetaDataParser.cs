@@ -11,9 +11,9 @@ using System.Threading.Tasks;
 namespace ConfigDataExpoter
 {
     /// <summary>
-    /// 代码解析类
+    /// 配置表类型元数据解析
     /// </summary>
-    class CodeParser : ExcelParserBase
+    class ExcelTypeMetaDataParser : ExcelParserBase
     {
         /// <summary>
         /// 解析一个目录下所有Excel
@@ -129,13 +129,33 @@ namespace ConfigDataExpoter
         {
             ConfigEnumMetaData enumMetaData = new ConfigEnumMetaData();
 
-            var row = sheet.GetRow(ConfigSheetData.EnumHeaderIndex);
-            var nameCell = row.GetCell(ConfigSheetData.EnumNameCellIndex);
-            var commentCell = row.GetCell(ConfigSheetData.EnumCommentCellIndex);
-            var visiblityCell = row.GetCell(ConfigSheetData.EnumVisiblityCellIndex);
+            var headerRow = sheet.GetRow(ConfigSheetData.EnumHeaderIndex);
+            var nameCell = headerRow.GetCell(ConfigSheetData.EnumNameCellIndex);
+            var commentCell = headerRow.GetCell(ConfigSheetData.EnumCommentCellIndex);
+            var visiblityCell = headerRow.GetCell(ConfigSheetData.EnumVisiblityCellIndex);
 
             enumMetaData.m_name = nameCell.StringCellValue;
             enumMetaData.m_comment = commentCell.StringCellValue;
+
+            var fieldInfoRow = sheet.GetRow(ConfigSheetData.EnumFieldIndex);
+            var idFieldInfoCell = fieldInfoRow.GetCell(ConfigSheetData.EnumFlagIDCellIndex);
+            var nameFieldInfoCell = fieldInfoRow.GetCell(ConfigSheetData.EnumFlagNameCellIndex);
+            var commentFieldInfoCell = fieldInfoRow.GetCell(ConfigSheetData.EnumFlagCommentCellIndex);
+
+            // 列头信息，务必填写正确
+            if (!idFieldInfoCell.StringCellValue.Equals(ConfigEnumMetaData.IDPrimaryKey, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new ParseExcelException($"枚举表{enumMetaData.m_name} ID列不存在！");
+            }
+            if (!nameFieldInfoCell.StringCellValue.Equals(ConfigEnumMetaData.ValuePrimaryKey, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new ParseExcelException($"枚举表{enumMetaData.m_name} Value列不存在！");
+            }
+            if (!commentFieldInfoCell.StringCellValue.Equals(ConfigEnumMetaData.CommentCell, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new ParseExcelException($"枚举表{enumMetaData.m_name} Comment列不存在！");
+            }
+
             var visiblity = enumMetaData.ParseEnum(visiblityCell.StringCellValue, Visiblity.Invalid);
             if (visiblity != Visiblity.Invalid)
             {
@@ -247,12 +267,13 @@ namespace ConfigDataExpoter
 
                 if (fieldNameCell != null && !string.IsNullOrEmpty(fieldNameCell.StringCellValue))
                 {
-                    if (!fieldsDict.ContainsKey(fieldNameCell.StringCellValue))
+                    var fieldName = fieldNameCell.StringCellValue.ToLower();
+                    if (!fieldsDict.ContainsKey(fieldName))
                     {
                         var fieldMetaData = new ConfigFieldMetaData()
                         {
                             BelongClassName = classMetaData.m_classname,
-                            FieldName = fieldNameCell.StringCellValue.ToLower(),
+                            FieldName = fieldName,
                         };
                         fieldsDict[fieldMetaData.FieldName] = fieldMetaData;
                         // 解析内嵌类，如果不是内嵌类，则这四个单元格的数据应当也是None的
@@ -281,7 +302,7 @@ namespace ConfigDataExpoter
                         }
                         else
                         {
-                            throw new ParseExcelException($"内嵌类配置错误，请检查[{fieldNameCell.StringCellValue}]");
+                            throw new ParseExcelException($"内嵌类配置错误，请检查[{fieldName}]");
                         }
                         // 通常处理
                         foreach (var headerInfo in headers)
@@ -293,7 +314,7 @@ namespace ConfigDataExpoter
                             // 枚举或字符串
                             if (!fieldMetaData.SetValue(header, headerCell.StringCellValue))
                             {
-                                throw new ParseExcelException($"域信息解析异常，域名:{fieldNameCell.StringCellValue}，域信息类型：{header}");
+                                throw new ParseExcelException($"域信息解析异常，域名:{fieldName}，域信息类型：{header}");
                             }
                         }
                         // 域的实际类名
@@ -303,7 +324,7 @@ namespace ConfigDataExpoter
                     }
                     else
                     {
-                        throw new ParseExcelException($"一个配置类里不能有重名的字段名,域名:{fieldNameCell.StringCellValue}");
+                        throw new ParseExcelException($"一个配置类里不能有重名的字段名,域名:{fieldName}");
                     }
                 }
                 else

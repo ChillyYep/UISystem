@@ -109,7 +109,7 @@ namespace ConfigData
         {
             return ReadInt32();
         }
-        
+
         public Int64 ReadInt64()
         {
             return m_br.ReadInt64();
@@ -160,7 +160,6 @@ namespace ConfigData
 
         public string ReadString()
         {
-            GetLength();
             return m_br.ReadString();
         }
 
@@ -178,12 +177,11 @@ namespace ConfigData
 
         public T ReadObject<T>() where T : IBinaryDeserializer, new()
         {
-            GetLength();
             var deserializer = new T();
             deserializer.Deserialize(this);
             return deserializer;
         }
-        
+
         public List<T> ReadObjectList<T>() where T : IBinaryDeserializer, new()
         {
             List<T> list = new List<T>();

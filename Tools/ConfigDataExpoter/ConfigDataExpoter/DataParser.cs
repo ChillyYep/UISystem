@@ -12,9 +12,9 @@ using System.Threading.Tasks;
 namespace ConfigDataExpoter
 {
     /// <summary>
-    /// 数据解析类
+    /// Excel数据解析类
     /// </summary>
-    class DataParser : ExcelParserBase
+    class ExcelDataRowParser : ExcelParserBase
     {
         public class TypeInfo
         {
@@ -250,7 +250,8 @@ namespace ConfigDataExpoter
                 case CellType.Boolean:
                     return cell.BooleanCellValue.ToString();
                 case CellType.Numeric:
-                    return cell.NumericCellValue.ToString();
+                    var value = cell.NumericCellValue.ToString();
+                    return value;
                 case CellType.String:
                     return cell.StringCellValue;
                 default:
@@ -281,7 +282,7 @@ namespace ConfigDataExpoter
                     var fieldType = fieldInfo.FieldType;
                     if (ConfigFieldMetaData.ParseForeignKey(foreignKeys, out var foreignClass, out var foreignKey))
                     {
-                        if (foreignKey == ConfigEnumMetaData.IDPrimaryKey)
+                        if (foreignKey.Equals(ConfigEnumMetaData.IDPrimaryKey, StringComparison.OrdinalIgnoreCase))
                         {
                             //if (values != null)
                             //{

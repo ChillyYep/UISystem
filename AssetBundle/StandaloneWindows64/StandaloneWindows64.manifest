@@ -1,5 +1,5 @@
 ManifestFileVersion: 0
-CRC: 1264970348
+CRC: 4057923560
 AssetBundleManifest:
   AssetBundleInfos:
     Info_0:
@@ -10,9 +10,8 @@ AssetBundleManifest:
     Info_1:
       Name: prefabs_page_childpage.ab
       Dependencies:
-        Dependency_0: prefabs_page_childpage_childpage.ab
-        Dependency_1: prefabs_page.ab
-        Dependency_2: common.ab
+        Dependency_0: prefabs_page.ab
+        Dependency_1: common.ab
     Info_2:
       Name: prefabs_page.ab
       Dependencies:
@@ -24,4 +23,7 @@ AssetBundleManifest:
         Dependency_0: common.ab
     Info_4:
       Name: common.ab
+      Dependencies: {}
+    Info_5:
+      Name: sssss.ab
       Dependencies: {}

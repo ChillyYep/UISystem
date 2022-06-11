@@ -11,52 +11,56 @@ namespace ConfigDataExpoter
 {
     public enum FormatterType
     {
-        Json,
+        //Json,
         Binary,
-        CSV,
-        XML
+        //CSV,
+        //XML
     }
 
     public interface IFormatter
     {
-        string SerializeDataTable(List<object> dataTable, Type classType);
-        List<object> DeSerializeDataTable(Stream stream, Type classType);
+        /// <summary>
+        /// 序列化成字节流，切记不要自行编码字节流，会使部分类型如浮点数类型丢失精度
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="classType"></param>
+        /// <returns></returns>
+        byte[] SerializeDataTable(List<object> dataTable, Type classType);
+        /// <summary>
+        /// 反序列化
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="stream"></param>
+        /// <returns></returns>
+        List<T> DeSerializeDataTable<T>(Stream stream) where T : ConfigData.IBinaryDeserializer, new();
     }
 
     public abstract class FormatterImpBase : IFormatter
     {
-        public abstract List<object> DeSerializeDataTable(Stream stream, Type classType);
+        public abstract List<T> DeSerializeDataTable<T>(Stream stream) where T : ConfigData.IBinaryDeserializer, new();
 
-        public abstract string SerializeDataTable(List<object> dataTable, Type classType);
+        public abstract byte[] SerializeDataTable(List<object> dataTable, Type classType);
     }
 
     public class BinaryFormatterImp : FormatterImpBase
     {
-        public override List<object> DeSerializeDataTable(Stream stream, Type classType)
+        public override List<T> DeSerializeDataTable<T>(Stream stream)
         {
-            List<object> tableData = null;
-            //using (MemoryStream ms = new MemoryStream())
-            //{
-                //binaryParser = new ConfigData.BinaryParser(stream);
-                //var bytes = System.Text.Encoding.Default.GetBytes(stream);
-                //ms.Write(bytes, 0, bytes.Length);
-                //tableData = binaryFormatter.Deserialize(ms) as List<object>;
-            //}
-            return tableData == null ? new List<object>() : tableData;
+            binaryParser = new ConfigData.BinaryParser(stream);
+            List<T> tableData = binaryParser.ReadObjectList<T>();
+            return tableData == null ? new List<T>() : tableData;
         }
 
-        public override string SerializeDataTable(List<object> dataTable, Type classType)
+        public override byte[] SerializeDataTable(List<object> dataTable, Type classType)
         {
             byte[] bytes = new byte[0];
             using (MemoryStream ms = new MemoryStream())
             {
                 binaryFormatter = new ConfigData.BinaryFormatter(ms);
-                binaryFormatter.WriteObject(dataTable, dataTable.GetType());
-                //ProtoBuf.Meta.RuntimeTypeModel.Create().Serialize(ms, dataTable);
-                //binaryFormatter.Serialize(ms, dataTable);
+                binaryFormatter.WriteObject(dataTable);
                 bytes = ms.GetBuffer();
             }
-            return System.Text.Encoding.Default.GetString(bytes);
+            return bytes;
         }
 
         private ConfigData.BinaryParser binaryParser;
@@ -87,12 +91,12 @@ namespace ConfigDataExpoter
             m_formatterImp = CreateFormatterImp(formatterType);
         }
 
-        public List<object> DeSerializeDataTable(Stream stream, Type classType)
+        public List<T> DeSerializeDataTable<T>(Stream stream) where T : ConfigData.IBinaryDeserializer, new()
         {
-            return m_formatterImp.DeSerializeDataTable(stream, classType);
+            return m_formatterImp.DeSerializeDataTable<T>(stream);
         }
 
-        public string SerializeDataTable(List<object> dataTable, Type classType)
+        public byte[] SerializeDataTable(List<object> dataTable, Type classType)
         {
             return m_formatterImp.SerializeDataTable(dataTable, classType);
         }

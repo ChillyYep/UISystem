@@ -75,7 +75,7 @@ namespace GameBase.BundleBuilder
         public static BundleBuildCache LoadBundleBuildCache()
         {
             var gameSettings = GameClientSettings.LoadMainGameClientSettings();
-            var buildCachePath = gameSettings.m_bundleBuildSettings.m_buildCachePath;
+            var buildCachePath = gameSettings.m_bundleBuildSettings.BuildCachePath;
             if (!File.Exists(buildCachePath))
             {
                 var directory = Path.GetDirectoryName(buildCachePath);

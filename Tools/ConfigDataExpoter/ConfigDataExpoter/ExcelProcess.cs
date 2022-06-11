@@ -16,14 +16,9 @@ namespace ConfigDataExpoter
 {
     class ExcelProcess
     {
-        public ExcelProcess(string mainDirecotry, string exportCodeDiretory, string exportDataDirecotry, string exportCodeFileName, string exportTypeEnumCodeFileName, string copyFromDirectory)
+        public ExcelProcess(string baseDirecotry)
         {
-            m_mainDirectory = mainDirecotry;
-            m_exportCodeDirectory = exportCodeDiretory;
-            m_exportDataDirectory = exportDataDirecotry;
-            m_exportCodePath = Path.Combine(exportCodeDiretory, exportCodeFileName);
-            m_exportTypeEnumCodePath = Path.Combine(exportCodeDiretory, exportTypeEnumCodeFileName);
-            m_copyFromDirectory = copyFromDirectory;
+            m_baseDirectory = baseDirecotry;
         }
 
         private string GetClassOrEnumName(ConfigSheetData sheetData)
@@ -68,19 +63,11 @@ namespace ConfigDataExpoter
             {
                 if (sheetData.Value.m_sheetType == SheetType.Class)
                 {
+                    bool existID = false;
                     var classMetaData = sheetData.Value.m_configMetaData as ConfigClassMetaData;
                     foreach (var fieldInfo in classMetaData.m_fieldsInfo)
                     {
-                        if (!ConfigFieldMetaData.ParseForeignKey(fieldInfo.m_foreignKey, out var foreignClass, out var foreignField))
-                        {
-                            continue;
-
-                        }
-                        if (foreignClass.Equals(classMetaData.m_classname))
-                        {
-                            throw new ParseExcelException($"外键名不能与当前所属类型名相同,ClassName:{classMetaData.m_classname},Field:{fieldInfo.FieldName}");
-                        }
-
+                        // 暂时不支持枚举数组
                         if (fieldInfo.DataType == DataType.Enum)
                         {
                             var listType = ConfigFieldMetaData.GetListType(fieldInfo.ListType);
@@ -89,6 +76,23 @@ namespace ConfigDataExpoter
                                 throw new ParseExcelException($"Enum不能数组化");
                             }
                         }
+                        // 判断类型有ID列
+                        if (fieldInfo.FieldName.Equals(ConfigClassMetaData.IDPrimaryKey, StringComparison.OrdinalIgnoreCase))
+                        {
+                            existID = true;
+                        }
+                        if (!ConfigFieldMetaData.ParseForeignKey(fieldInfo.m_foreignKey, out var foreignClass, out var foreignField))
+                        {
+                            continue;
+
+                        }
+                        // 外键不能是当前类自己
+                        if (foreignClass.Equals(classMetaData.m_classname))
+                        {
+                            throw new ParseExcelException($"外键名不能与当前所属类型名相同,ClassName:{classMetaData.m_classname},Field:{fieldInfo.FieldName}");
+                        }
+
+                        // 外键必须是存在类型的ID或枚举的ID
                         if (className2SheetData.TryGetValue(foreignClass, out var foreignMetaData))
                         {
                             if (foreignMetaData.m_sheetType == SheetType.Enum)
@@ -111,16 +115,32 @@ namespace ConfigDataExpoter
                             throw new ParseExcelException($"不存在该外键类型，ForeignClass:{foreignClass},ClassName:{classMetaData.m_classname},FieldName:{fieldInfo.FieldName}");
                         }
                     }
-
+                    if (!existID)
+                    {
+                        throw new ParseExcelException("配置类必须具有ID列,ID 将被当作数据表的主键来使用。");
+                    }
                 }
             }
         }
-
-        public void ParseAllExcel()
+        private void Init(ExportConfigDataSettings settings)
         {
+            m_mainDirectory = Path.Combine(m_baseDirectory, settings.ExportRootDirectoryPath);
+            m_exportCodeDirectory = Path.Combine(m_mainDirectory, settings.ExportCodeDirectoryName);
+            m_exportDataDirectory = Path.Combine(m_mainDirectory, settings.ExportDataDirectoryName);
+            m_exportCodePath = Path.Combine(m_exportCodeDirectory, settings.ExportConfigDataName);
+            m_exportTypeEnumCodePath = Path.Combine(m_exportCodeDirectory, settings.ExportTypeEnumCodeName);
+            m_copyFromDirectory = Path.Combine(m_baseDirectory, settings.CopyFromDirectoryPath);
+            m_configDataLoaderAutoGenPath = Path.Combine(m_exportCodeDirectory, settings.ExportLoaderCodeName);
+            m_unityCodeDirectory = Path.Combine(m_mainDirectory, settings.UnityCodeDirectory);
+            m_unityDataDirectory = Path.Combine(m_mainDirectory, settings.UnityDataDirectory);
+
+        }
+        public void ParseAllExcel(ExportConfigDataSettings settings)
+        {
+            Init(settings);
             // 1、从一个文件夹读取所有Excel文件，挨个解析ConfigSheetData列表
-            CodeParser codeParser = new CodeParser();
-            m_configSheetDict = codeParser.ParseAllMetaData(m_mainDirectory);
+            ExcelTypeMetaDataParser metaDataParser = new ExcelTypeMetaDataParser();
+            m_configSheetDict = metaDataParser.ParseAllMetaData(m_mainDirectory);
 
             // 2、验证头信息安全性
             CheckMetaDataSafety();
@@ -135,7 +155,8 @@ namespace ConfigDataExpoter
             codeExporter.Setup(sheetDatas);
             codeExporter.ExportConfigCode(m_exportCodePath);
             codeExporter.ExportTypeEnumCode(m_exportTypeEnumCodePath);
-            //codeExporter.CopyBinaryTools(m_copyFromDirectory, m_exportCodeDirectory);
+            codeExporter.ExportConfigDataLoaderCode(m_configDataLoaderAutoGenPath);
+            codeExporter.CopyDirectory(m_copyFromDirectory, m_exportCodeDirectory);
             // 4、编译代码
             var assembly = codeExporter.Compile(m_exportCodeDirectory);
             if (assembly == null)
@@ -143,20 +164,25 @@ namespace ConfigDataExpoter
                 throw new ParseExcelException("导出代码编译出错！");
             }
 
+            codeExporter.CopyDirectory(m_exportCodeDirectory, m_unityCodeDirectory, false);
+
             // 5、读取数据体，序列化
-            DataParser dataParser = new DataParser();
+            ExcelDataRowParser dataParser = new ExcelDataRowParser();
             var allTableDatas = dataParser.ParseAllTableDatas(assembly, m_mainDirectory, m_configSheetDict);
 
             // 6、导出数据
             DataExporter dataExporter = new DataExporter();
             dataExporter.Setup(allTableDatas, FormatterType.Binary);
             dataExporter.ExportData(m_exportDataDirectory);
+            dataExporter.CopyDirectory(m_exportDataDirectory, m_unityDataDirectory, false);
         }
 
         /// <summary>
         /// Excel路径/名称为key
         /// </summary>
         public Dictionary<string, List<ConfigSheetData>> m_configSheetDict = new Dictionary<string, List<ConfigSheetData>>();
+
+        private string m_baseDirectory;
 
         /// <summary>
         /// Excel文件所在目录
@@ -172,6 +198,15 @@ namespace ConfigDataExpoter
         /// 复制代码目录
         /// </summary>
         private string m_copyFromDirectory;
+
+        /// <summary>
+        /// 自动生成的Loader文件
+        /// </summary>
+        private string m_configDataLoaderAutoGenPath;
+
+        private string m_unityCodeDirectory;
+
+        private string m_unityDataDirectory;
 
         private string m_exportTypeEnumCodePath;
 

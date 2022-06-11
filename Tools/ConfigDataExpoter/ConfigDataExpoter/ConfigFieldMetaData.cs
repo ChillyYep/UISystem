@@ -446,7 +446,7 @@ namespace ConfigDataExpoter
         }
 
         /// <summary>
-        /// 解析外键
+        /// 解析外键，外键为None或格式不对则解析失败
         /// </summary>
         /// <param name="foreignKey"></param>
         /// <param name="type"></param>

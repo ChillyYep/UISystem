@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 934259895
+CRC: 3755049378
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: ae21e884129125c9bc1df57ba182a066
+    Hash: a46ad2568d00e5d5994bd8a6181eb008
   TypeTreeHash:
     serializedVersion: 2
     Hash: 2f84250dd258ea204402c37632d94ec2
@@ -47,4 +47,3 @@ Assets:
 Dependencies:
 - J:/unity/UISystem/Assets/../AssetBundle/StandaloneWindows64/common.ab
 - J:/unity/UISystem/Assets/../AssetBundle/StandaloneWindows64/prefabs_page.ab
-- J:/unity/UISystem/Assets/../AssetBundle/StandaloneWindows64/prefabs_page_childpage_childpage.ab

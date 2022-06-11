@@ -62,28 +62,43 @@ namespace GameBase.Settings
     [Serializable]
     public class BundleBuildSettings
     {
-        public BundleBuildMode m_bundleBuildMode;
+        public BundleBuildMode BundleBuildMode;
 
-        public string m_bundleSuffix;
+        public string BundleSuffix = "ab";
 
-        public int m_versionStep = 1;
+        public int VersionStep = 1;
 
-        public bool m_useAssetBundleManifestCollectDependencies = false;
+        public bool UseAssetBundleManifestCollectDependencies = false;
 
-        public string m_runtimeAssetsDir = "Assets/RuntimeAssets";
-
-        public string m_defaultAbName = "runtimeassets";
-
-        public string m_buildCachePath = "Assets/Editor/Cache/BundleBuildCache.asset";
-
-        public bool IsAssetInOuter(string assetPath)
+        public List<string> AssetDirs = new List<string>()
         {
-            return assetPath.IndexOf(m_runtimeAssetsDir) < 0;
+            "Assets/RuntimeAssets",
+            "Assets/ConfigData"
+        };
+
+        public string RuntimeAssetsDir = "Assets/RuntimeAssets";
+
+        public string DefaultAbName = "runtimeassets";
+
+        public string BuildCachePath = "Assets/Editor/Cache/BundleBuildCache.asset";
+
+        public bool IsFileAllowedInBundle(string assetPath, out string outputBundleDdirectory)
+        {
+            foreach (var dir in AssetDirs)
+            {
+                if (assetPath.IndexOf(dir) >= 0)
+                {
+                    outputBundleDdirectory = dir;
+                    return true;
+                }
+            }
+            outputBundleDdirectory = string.Empty;
+            return false;
         }
 
         public bool ContainMode(BundleBuildMode bundleBuildMode)
         {
-            return (m_bundleBuildMode & bundleBuildMode) == bundleBuildMode;
+            return (BundleBuildMode & bundleBuildMode) == bundleBuildMode;
         }
     }
 }

@@ -81,20 +81,25 @@ namespace GameBase.Asset
         /// <summary>
         /// 初始化映射
         /// </summary>
-        public void Init(Location location)
+        public void SetLocation(Location location)
         {
-            var useManifest = GameClientSettings.LoadMainGameClientSettings().m_bundleBuildSettings.m_useAssetBundleManifestCollectDependencies;
+            var gameClientSettings = GameClientSettings.LoadMainGameClientSettings();
+            var resSetting = gameClientSettings.m_resPathSettings;
+
+            var useManifest = gameClientSettings.m_bundleBuildSettings.UseAssetBundleManifestCollectDependencies;
             switch (location)
             {
                 case Location.AssetBundleDir:
                     {
-                        var ab = AssetBundle.LoadFromFile(AssetBundleMapPath);
+                        var ab = AssetBundle.LoadFromFile(Path.Combine(resSetting.GetStreamingAssetsByPlatform(), resSetting.GetAssetBundleManifestName()));
                         m_manifest = ab.LoadAsset<AssetBundleManifest>(nameof(AssetBundleManifest));
                     }
                     break;
                 case Location.StreamingAssetDir:
                     {
-                        var ab = AssetBundle.LoadFromFile(StreamingAssetsAssetBundleMapPath);
+                        var path = Path.Combine(Application.dataPath, resSetting.EditorBundleDirectoryRelativeToAssets, resSetting.GetPlatformFolder());
+                        path = Path.Combine(path, resSetting.GetAssetBundleManifestName());
+                        var ab = AssetBundle.LoadFromFile(path);
                         m_manifest = ab.LoadAsset<AssetBundleManifest>(nameof(AssetBundleManifest));
                     }
                     break;

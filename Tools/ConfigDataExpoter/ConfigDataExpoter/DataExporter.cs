@@ -29,14 +29,20 @@ namespace ConfigDataExpoter
             foreach (var item in m_allTableDatas)
             {
                 var str = SerializeDataTable(item.Value, item.Key);
-                ExportFile(Path.Combine(directory, item.Key.Name + ".txt"), str, false);
+                var filePath = Path.Combine(directory, item.Key.Name + ".txt");
+                ExportFile(filePath, str, false);
             }
 
         }
 
-        public string SerializeDataTable(List<object> dataTable, Type classType)
+        public byte[] SerializeDataTable(List<object> dataTable, Type classType)
         {
             return formatter.SerializeDataTable(dataTable, classType);
+        }
+
+        public List<T> DeSerializeDataTable<T>(Stream stream) where T : ConfigData.IBinaryDeserializer, new()
+        {
+            return formatter.DeSerializeDataTable<T>(stream);
         }
 
         public Dictionary<Type, List<object>> m_allTableDatas;

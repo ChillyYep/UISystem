@@ -57,7 +57,10 @@ namespace GameBase.BundleBuilder
         [MenuItem(MenuItemCollection.AssetBundleBuilder.RecollectBundleDesciption, priority = 11)]
         private static void AutoRecollectAssetAndGenOutputBundleNameMenuFunc()
         {
-            AutoRecollectAssetAndGenOutoutBundleName(CollectAllBundleDesc());
+            if (GetBundleBuildSettings(out var buildSettings, out _, out _))
+            {
+                AutoRecollectAssetAndGenOutoutBundleName(CollectAllBundleDesc(buildSettings));
+            }
         }
 
         [MenuItem(MenuItemCollection.AssetBundleBuilder.CheckBundleDescsLegality, priority = 12)]
@@ -65,7 +68,7 @@ namespace GameBase.BundleBuilder
         {
             if (GetBundleBuildSettings(out var buildSettings, out _, out _))
             {
-                CheckBundleDescsLegality(CollectAllBundleDesc(), buildSettings);
+                CheckBundleDescsLegality(CollectAllBundleDesc(buildSettings), buildSettings);
             }
         }
 
@@ -74,7 +77,7 @@ namespace GameBase.BundleBuilder
         {
             if (GetBundleBuildSettings(out var buildSettings, out _, out _))
             {
-                var bundleDescs = CollectAllBundleDesc();
+                var bundleDescs = CollectAllBundleDesc(buildSettings);
                 if (CheckRepeatedAsset(bundleDescs, buildSettings, out var bundleName2AssetList, out var asset2BundleList)
                     && CheckSameAssetInOneBundle(bundleName2AssetList, buildSettings)
                     && CheckOuterDependencies(bundleDescs, buildSettings))

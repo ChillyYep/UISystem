@@ -20,7 +20,13 @@ public class GameMain : MonoBehaviour
         TimerManager.Instance.Initialize();
         // 3、资源管理器
         AssetManager.Instance.Initialize(GameSettings.m_resPathSettings, IndepedentCoroutineHelper.Instance);
-        // 4、UI模块
+        // 4、配置数据
+        ConfigData.ConfigDataManager.Instance.Init();
+        foreach (var item in ConfigData.ConfigDataManager.Instance.ConfigDataLoader.ConfigDataConfigPPTable)
+        {
+            Debug.LogError($"id:{item.Value.id},name:{item.Value.name},ratio:{string.Join(",", item.Value.ratio)}");
+        }
+        // 5、UI模块
         InitUIModules();
         Debug.Log("Game Start!");
     }
@@ -35,6 +41,7 @@ public class GameMain : MonoBehaviour
         Debug.Log("Game Quit!");
         // 与初始化顺序相反
         UnInitUIModules();
+        ConfigData.ConfigDataManager.Instance.Uninit();
         AssetManager.Instance.UnInitialize();
         TimerManager.Instance.UnInitialize();
         LogManager.Instance.Unintialize();

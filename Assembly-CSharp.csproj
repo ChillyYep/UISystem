@@ -70,6 +70,11 @@
     <Compile Include="Assets\Script\Common\ObjectRef.cs" />
     <Compile Include="Assets\Script\Common\Singleton_CSharp.cs" />
     <Compile Include="Assets\Script\Common\Singleton_Unity.cs" />
+    <Compile Include="Assets\Script\ConfigDataLoader_AutoGen\ConfigData.cs" />
+    <Compile Include="Assets\Script\ConfigDataLoader_AutoGen\ConfigDataLoader.cs" />
+    <Compile Include="Assets\Script\ConfigDataLoader_AutoGen\ConfigDataLoader_AutoGen.cs" />
+    <Compile Include="Assets\Script\ConfigDataLoader_AutoGen\ConfigDataTypeEnum.cs" />
+    <Compile Include="Assets\Script\ConfigDataManager\ConfigDataManager.cs" />
     <Compile Include="Assets\Script\GameBase\AssetManagement\AssetManager\AssetManager.cs" />
     <Compile Include="Assets\Script\GameBase\AssetManagement\AssetManager\AssetManagerImp.cs" />
     <Compile Include="Assets\Script\GameBase\AssetManagement\AssetManager\AssetUpdateImp.cs" />
@@ -103,6 +108,8 @@
     <Compile Include="Assets\Script\UISystem\UIModuleBase.cs" />
     <Compile Include="Assets\Script\UISystem\UIModuleManagementCentre.cs" />
     <None Include="Assets\RuntimeAssets\Shaders\NewSurfaceShader.shader" />
+    <None Include="Assets\ConfigData\ConfigPP.txt" />
+    <None Include="Assets\ConfigData\ConfigPP2.txt" />
     <Reference Include="UnityEngine">
       <HintPath>I:/Unity/2019.4.18f1c1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>
     </Reference>
@@ -285,6 +292,9 @@
     </Reference>
     <Reference Include="UnityEditor">
       <HintPath>I:/Unity/2019.4.18f1c1/Editor/Data/Managed/UnityEditor.dll</HintPath>
+    </Reference>
+    <Reference Include="BinaryReaderWriter">
+      <HintPath>J:/unity/UISystem/Assets/Script/ConfigDataLoader_AutoGen/BinaryReaderWriter.dll</HintPath>
     </Reference>
     <Reference Include="netstandard">
       <HintPath>I:/Unity/2019.4.18f1c1/Editor/Data/NetStandard/ref/2.0.0/netstandard.dll</HintPath>
