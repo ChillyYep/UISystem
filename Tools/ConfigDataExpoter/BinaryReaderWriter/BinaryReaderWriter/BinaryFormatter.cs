@@ -58,7 +58,6 @@ namespace ConfigData
                 {
                     WriteStringList(data as List<string>);
                 }
-
                 else if (type.IsGenericType && type.GenericTypeArguments.Length > 0)
                 {
                     WriteObjectList(data, type);
@@ -105,7 +104,6 @@ namespace ConfigData
                 else if (type.Equals(typeof(string)))
                 {
                     WriteString((string)data);
-
                 }
                 else if (typeof(IBinarySerializer).IsAssignableFrom(type))
                 {
@@ -151,6 +149,7 @@ namespace ConfigData
                 WriteBoolean(value[i]);
             }
         }
+
         public void WriteChar(char value)
         {
             m_bw.Write(value);
@@ -196,6 +195,15 @@ namespace ConfigData
         public void WriteEnum(Int32 value)
         {
             WriteInt32(value);
+        }
+
+        public void WriteEnumList<T>(List<T> value) where T : struct
+        {
+            WriteSize(value.Count);
+            for (int i = 0; i < value.Count; ++i)
+            {
+                WriteEnum((Int32)Enum.Parse(typeof(T), value[i].ToString(), true));
+            }
         }
 
         public void WriteInt64(Int64 value)
@@ -245,7 +253,6 @@ namespace ConfigData
             m_bw.Write(value);
         }
 
-
         public void WriteStringList(List<string> value)
         {
             WriteSize(value.Count);
@@ -285,10 +292,12 @@ namespace ConfigData
         {
             m_bw.Flush();
         }
+
         public void Close()
         {
             m_bw.Close();
         }
+
         private BinaryWriter m_bw;
     }
 }

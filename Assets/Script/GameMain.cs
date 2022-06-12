@@ -25,6 +25,12 @@ public class GameMain : MonoBehaviour
         foreach (var item in ConfigData.ConfigDataManager.Instance.ConfigDataLoader.ConfigDataConfigPPTable)
         {
             Debug.LogError($"id:{item.Value.id},name:{item.Value.name},ratio:{string.Join(",", item.Value.ratio)}");
+            Debug.LogError($"colors:{string.Join(",", item.Value.color)}");
+            Debug.LogError($"comment:{string.Join(",", item.Value.comment)}");
+        }
+        foreach (var item in ConfigData.ConfigDataManager.Instance.ConfigDataLoader.ConfigDataConfigPP2Table)
+        {
+            Debug.LogError($"foreignids:{string.Join(",", item.Value.foreignid)}");
         }
         // 5、UI模块
         InitUIModules();

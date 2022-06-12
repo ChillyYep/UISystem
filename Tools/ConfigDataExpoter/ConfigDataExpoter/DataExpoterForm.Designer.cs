@@ -30,6 +30,10 @@
         {
             this.button1 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.unityDataDirectoryText = new System.Windows.Forms.TextBox();
+            this.label9 = new System.Windows.Forms.Label();
+            this.unityCodeDirectoryText = new System.Windows.Forms.TextBox();
+            this.label8 = new System.Windows.Forms.Label();
             this.copyFromDirectoryPathText = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
             this.typeEnumCodeNameText = new System.Windows.Forms.TextBox();
@@ -44,10 +48,8 @@
             this.label2 = new System.Windows.Forms.Label();
             this.rootDirectoryText = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.unityCodeDirectoryText = new System.Windows.Forms.TextBox();
-            this.label8 = new System.Windows.Forms.Label();
-            this.unityDataDirectoryText = new System.Windows.Forms.TextBox();
-            this.label9 = new System.Windows.Forms.Label();
+            this.codeTypeDropDown = new System.Windows.Forms.ComboBox();
+            this.label10 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -63,6 +65,8 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.label10);
+            this.groupBox1.Controls.Add(this.codeTypeDropDown);
             this.groupBox1.Controls.Add(this.unityDataDirectoryText);
             this.groupBox1.Controls.Add(this.label9);
             this.groupBox1.Controls.Add(this.unityCodeDirectoryText);
@@ -89,6 +93,40 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "自动生成设置";
             this.groupBox1.Enter += new System.EventHandler(this.groupBox1_Enter);
+            // 
+            // unityDataDirectoryText
+            // 
+            this.unityDataDirectoryText.Location = new System.Drawing.Point(105, 257);
+            this.unityDataDirectoryText.Name = "unityDataDirectoryText";
+            this.unityDataDirectoryText.Size = new System.Drawing.Size(244, 21);
+            this.unityDataDirectoryText.TabIndex = 19;
+            this.unityDataDirectoryText.TextChanged += new System.EventHandler(this._TextChanged);
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(20, 260);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(83, 12);
+            this.label9.TabIndex = 18;
+            this.label9.Text = "UnityData目录";
+            // 
+            // unityCodeDirectoryText
+            // 
+            this.unityCodeDirectoryText.Location = new System.Drawing.Point(105, 230);
+            this.unityCodeDirectoryText.Name = "unityCodeDirectoryText";
+            this.unityCodeDirectoryText.Size = new System.Drawing.Size(244, 21);
+            this.unityCodeDirectoryText.TabIndex = 17;
+            this.unityCodeDirectoryText.TextChanged += new System.EventHandler(this._TextChanged);
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(20, 233);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(83, 12);
+            this.label8.TabIndex = 16;
+            this.label8.Text = "UnityCode目录";
             // 
             // copyFromDirectoryPathText
             // 
@@ -209,39 +247,23 @@
             this.label1.TabIndex = 2;
             this.label1.Text = "导出目录";
             // 
-            // textBox1
+            // comboBox1
             // 
-            this.unityCodeDirectoryText.Location = new System.Drawing.Point(105, 230);
-            this.unityCodeDirectoryText.Name = "textBox1";
-            this.unityCodeDirectoryText.Size = new System.Drawing.Size(244, 21);
-            this.unityCodeDirectoryText.TabIndex = 17;
-            this.unityCodeDirectoryText.TextChanged += new System.EventHandler(this._TextChanged);
+            this.codeTypeDropDown.FormattingEnabled = true;
+            this.codeTypeDropDown.Location = new System.Drawing.Point(105, 284);
+            this.codeTypeDropDown.Name = "comboBox1";
+            this.codeTypeDropDown.Size = new System.Drawing.Size(121, 20);
+            this.codeTypeDropDown.TabIndex = 2;
+            this.codeTypeDropDown.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
-            // label8
+            // label10
             // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(20, 233);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(83, 12);
-            this.label8.TabIndex = 16;
-            this.label8.Text = "UnityCode目录";
-            // 
-            // textBox2
-            // 
-            this.unityDataDirectoryText.Location = new System.Drawing.Point(105, 257);
-            this.unityDataDirectoryText.Name = "textBox2";
-            this.unityDataDirectoryText.Size = new System.Drawing.Size(244, 21);
-            this.unityDataDirectoryText.TabIndex = 19;
-            this.unityDataDirectoryText.TextChanged += new System.EventHandler(this._TextChanged);
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(20, 260);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(83, 12);
-            this.label9.TabIndex = 18;
-            this.label9.Text = "UnityData目录";
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(20, 287);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(41, 12);
+            this.label10.TabIndex = 20;
+            this.label10.Text = "面向端";
             // 
             // DataExpoterForm
             // 
@@ -279,6 +301,8 @@
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.TextBox unityCodeDirectoryText;
         private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.ComboBox codeTypeDropDown;
     }
 }
 

@@ -33,7 +33,9 @@ namespace ConfigDataExpoter
             }
             return string.Empty;
         }
-
+        /// <summary>
+        /// 检测Meta数据安全性
+        /// </summary>
         public void CheckMetaDataSafety()
         {
             Dictionary<string, ConfigSheetData> className2SheetData = new Dictionary<string, ConfigSheetData>();
@@ -68,23 +70,26 @@ namespace ConfigDataExpoter
                     foreach (var fieldInfo in classMetaData.m_fieldsInfo)
                     {
                         // 暂时不支持枚举数组
-                        if (fieldInfo.DataType == DataType.Enum)
-                        {
-                            var listType = ConfigFieldMetaData.GetListType(fieldInfo.ListType);
-                            if (listType != ListType.None)
-                            {
-                                throw new ParseExcelException($"Enum不能数组化");
-                            }
-                        }
+                        //if (fieldInfo.DataType == DataType.Enum)
+                        //{
+                        //    var listType = ConfigFieldMetaData.GetListType(fieldInfo.ListType);
+                        //    if (listType != ListType.None)
+                        //    {
+                        //        throw new ParseExcelException($"Enum不能数组化");
+                        //    }
+                        //}
                         // 判断类型有ID列
                         if (fieldInfo.FieldName.Equals(ConfigClassMetaData.IDPrimaryKey, StringComparison.OrdinalIgnoreCase))
                         {
+                            if (ConfigFieldMetaData.GetListType(fieldInfo.BelongClassName, fieldInfo.FieldName, fieldInfo.ListType, out _) > ListType.None)
+                            {
+                                throw new ParseExcelException("主键ID列不能是列表类型");
+                            }
                             existID = true;
                         }
                         if (!ConfigFieldMetaData.ParseForeignKey(fieldInfo.m_foreignKey, out var foreignClass, out var foreignField))
                         {
                             continue;
-
                         }
                         // 外键不能是当前类自己
                         if (foreignClass.Equals(classMetaData.m_classname))
@@ -104,7 +109,7 @@ namespace ConfigDataExpoter
                             }
                             else if (foreignMetaData.m_sheetType == SheetType.Class)
                             {
-                                if (!foreignField.Equals(ConfigClassMetaData.IDPrimaryKey))
+                                if (!foreignField.Equals(ConfigClassMetaData.IDPrimaryKey, StringComparison.OrdinalIgnoreCase))
                                 {
                                     throw new ParseExcelException($"只能以{foreignClass}的ID列为外键");
                                 }
@@ -122,6 +127,7 @@ namespace ConfigDataExpoter
                 }
             }
         }
+
         private void Init(ExportConfigDataSettings settings)
         {
             m_mainDirectory = Path.Combine(m_baseDirectory, settings.ExportRootDirectoryPath);
@@ -133,13 +139,13 @@ namespace ConfigDataExpoter
             m_configDataLoaderAutoGenPath = Path.Combine(m_exportCodeDirectory, settings.ExportLoaderCodeName);
             m_unityCodeDirectory = Path.Combine(m_mainDirectory, settings.UnityCodeDirectory);
             m_unityDataDirectory = Path.Combine(m_mainDirectory, settings.UnityDataDirectory);
-
         }
+
         public void ParseAllExcel(ExportConfigDataSettings settings)
         {
             Init(settings);
             // 1、从一个文件夹读取所有Excel文件，挨个解析ConfigSheetData列表
-            ExcelTypeMetaDataParser metaDataParser = new ExcelTypeMetaDataParser();
+            ExcelTypeMetaDataParser metaDataParser = new ExcelTypeMetaDataParser(settings);
             m_configSheetDict = metaDataParser.ParseAllMetaData(m_mainDirectory);
 
             // 2、验证头信息安全性
@@ -168,7 +174,7 @@ namespace ConfigDataExpoter
 
             // 5、读取数据体，序列化
             ExcelDataRowParser dataParser = new ExcelDataRowParser();
-            var allTableDatas = dataParser.ParseAllTableDatas(assembly, m_mainDirectory, m_configSheetDict);
+            var allTableDatas = dataParser.ParseAllExcelTableDatas(assembly, m_mainDirectory, m_configSheetDict);
 
             // 6、导出数据
             DataExporter dataExporter = new DataExporter();

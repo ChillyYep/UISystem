@@ -5,6 +5,11 @@ using System.Xml.Serialization;
 
 namespace ConfigDataExpoter
 {
+    public enum CodeType
+    {
+        Client,
+        Server
+    }
     [Serializable]
     public class ExportConfigDataSettings : IBinarySerializer, IBinaryDeserializer
     {
@@ -17,18 +22,42 @@ namespace ConfigDataExpoter
         public string CopyFromDirectoryPath = "../../CopyFromDirectory";
         public string UnityCodeDirectory = "";
         public string UnityDataDirectory = "";
+        public CodeType CodeVisiblity = CodeType.Client;
 
+        private string ReadString(BinaryParser reader)
+        {
+            try
+            {
+                return reader.ReadString();
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
+        private int ReadEnum(BinaryParser reader)
+        {
+            try
+            {
+                return reader.ReadEnum();
+            }
+            catch
+            {
+                return default(int);
+            }
+        }
         public void Deserialize(BinaryParser reader)
         {
-            ExportRootDirectoryPath = reader.ReadString();
-            ExportCodeDirectoryName = reader.ReadString();
-            ExportDataDirectoryName = reader.ReadString();
-            ExportConfigDataName = reader.ReadString();
-            ExportLoaderCodeName = reader.ReadString();
-            ExportTypeEnumCodeName = reader.ReadString();
-            CopyFromDirectoryPath = reader.ReadString();
-            UnityCodeDirectory = reader.ReadString();
-            UnityDataDirectory = reader.ReadString();
+            ExportRootDirectoryPath = ReadString(reader);
+            ExportCodeDirectoryName = ReadString(reader);
+            ExportDataDirectoryName = ReadString(reader);
+            ExportConfigDataName = ReadString(reader);
+            ExportLoaderCodeName = ReadString(reader);
+            ExportTypeEnumCodeName = ReadString(reader);
+            CopyFromDirectoryPath = ReadString(reader);
+            UnityCodeDirectory = ReadString(reader);
+            UnityDataDirectory = ReadString(reader);
+            CodeVisiblity = (CodeType)ReadEnum(reader);
         }
 
         public void Serialize(BinaryFormatter formatter)
@@ -42,6 +71,7 @@ namespace ConfigDataExpoter
             formatter.WriteString(CopyFromDirectoryPath);
             formatter.WriteString(UnityCodeDirectory);
             formatter.WriteString(UnityDataDirectory);
+            formatter.WriteEnum((int)CodeVisiblity);
         }
     }
 }

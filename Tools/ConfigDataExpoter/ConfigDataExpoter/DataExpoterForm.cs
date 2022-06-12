@@ -76,6 +76,9 @@ namespace ConfigDataExpoter
             copyFromDirectoryPathText.Text = settings.CopyFromDirectoryPath;
             unityCodeDirectoryText.Text = settings.UnityCodeDirectory;
             unityDataDirectoryText.Text = settings.UnityDataDirectory;
+            m_dropDownItems = Enum.GetNames(typeof(CodeType));
+            codeTypeDropDown.Items.AddRange(m_dropDownItems);
+            codeTypeDropDown.SelectedItem = settings.CodeVisiblity.ToString();
         }
         private void _TextChanged(object sender, EventArgs e)
         {
@@ -133,5 +136,23 @@ namespace ConfigDataExpoter
         private ExportConfigDataSettings settings = new ExportConfigDataSettings();
 
         private ExcelProcess m_parseProcess;
+
+        private string[] m_dropDownItems;
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var dropdown = sender as ComboBox;
+            if (dropdown == codeTypeDropDown)
+            {
+                try
+                {
+                    settings.CodeVisiblity = (CodeType)Enum.Parse(typeof(CodeType), m_dropDownItems[dropdown.SelectedIndex]);
+                }
+                catch
+                {
+                    settings.CodeVisiblity = CodeType.Client;
+                }
+            }
+        }
     }
 }

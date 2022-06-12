@@ -36,11 +36,11 @@ namespace ConfigDataExpoter
     /// </summary>
     public enum Visiblity
     {
-        Invalid,
-        None,
-        Client,
-        Server,
-        Both
+        Invalid = -1,
+        None = 0,
+        Client = 1 << 0,
+        Server = 1 << 1,
+        Both = Client | Server
     }
 
     public enum ConfigClassFieldHeader
@@ -129,6 +129,8 @@ namespace ConfigDataExpoter
 
         public const char ListSeperator = ';';
 
+        public const string ListStringSeperator = "\";\"";
+
         /// <summary>
         /// 数据开始行
         /// </summary>
@@ -168,30 +170,47 @@ namespace ConfigDataExpoter
             public List<NestClassFieldInfo> m_fieldsInfo = new List<NestClassFieldInfo>();
         }
 
-        public static ListType GetListType(string listType)
+        /// <summary>
+        /// 获取列表类型和列表长度
+        /// </summary>
+        /// <param name="listType"></param>
+        /// <param name="listCount"></param>
+        /// <returns></returns>
+        public static ListType GetListType(string belongtoClassName, string fieldName, string listType, out int listCount)
         {
             if (listType == None)
             {
+                listCount = 0;
                 return ConfigDataExpoter.ListType.None;
             }
             // 可变长
-            if (listType.Equals("List[x]"))
+            if (listType.Equals("List[x]", StringComparison.OrdinalIgnoreCase))
             {
+                listCount = int.MaxValue;
                 return ConfigDataExpoter.ListType.VaraintLengthList;
             }
             // 固定长度
-            if (Regex.Match(listType, @"List\[[0-9]+\]").Length == listType.Length)
+            if (Regex.Match(listType, @"List\[[0-9]+\]", RegexOptions.IgnoreCase).Length == listType.Length)
             {
+                var match = Regex.Match(listType, @"[0-9]+");
+                if (match.Success)
+                {
+                    listCount = int.Parse(match.Value);
+                }
+                else
+                {
+                    listCount = int.MaxValue;
+                }
                 return ConfigDataExpoter.ListType.FixedLengthList;
             }
-            return ConfigDataExpoter.ListType.None;
+            throw new ParseExcelException($"{belongtoClassName}的{fieldName}使用了非法的列表类型格式");
         }
 
         public static string GetTypeName(ConfigFieldMetaDataBase metaData, DataType dataType, string listTypeStr, bool isNestedClass = false)
         {
             var belongClassName = metaData == null ? "" : metaData.BelongClassName;
             var name = metaData == null ? "" : metaData.FieldName;
-            var listType = GetListType(listTypeStr);
+            var listType = GetListType(metaData.BelongClassName, metaData.FieldName, listTypeStr, out _);
             string elementType = string.Empty;
             switch (dataType)
             {
@@ -272,7 +291,7 @@ namespace ConfigDataExpoter
         {
             var belongClassName = metaData.BelongClassName;
             var name = metaData.FieldName;
-            var listType = GetListType(listTypeStr);
+            var listType = GetListType(metaData.BelongClassName, metaData.FieldName, listTypeStr, out _);
             string elementType = string.Empty;
             switch (dataType)
             {
@@ -425,15 +444,16 @@ namespace ConfigDataExpoter
                 {
                     for (int i = 0; i < nameArr.Length; ++i)
                     {
-                        m_nestedClassMetaData.m_fieldsInfo.Add(new NestClassFieldInfo()
+                        var fieldInfo = new NestClassFieldInfo()
                         {
-                            RealTypeName = GetTypeName(null, typeArr[i], isListArr[i], true),
                             BelongClassName = m_nestedClassMetaData.m_classname,
                             FieldName = nameArr[i].ToLower(),
                             Comment = commentArr[i],
                             ListType = isListArr[i],
                             DataType = typeArr[i]
-                        });
+                        };
+                        fieldInfo.RealTypeName = GetTypeName(fieldInfo, typeArr[i], isListArr[i], true);
+                        m_nestedClassMetaData.m_fieldsInfo.Add(fieldInfo);
                     }
                     return true;
                 }

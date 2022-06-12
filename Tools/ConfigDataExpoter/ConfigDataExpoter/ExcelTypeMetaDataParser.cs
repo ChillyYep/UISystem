@@ -15,6 +15,10 @@ namespace ConfigDataExpoter
     /// </summary>
     class ExcelTypeMetaDataParser : ExcelParserBase
     {
+        public ExcelTypeMetaDataParser(ExportConfigDataSettings settings)
+        {
+            m_settings = settings;
+        }
         /// <summary>
         /// 解析一个目录下所有Excel
         /// </summary>
@@ -48,6 +52,11 @@ namespace ConfigDataExpoter
             foreach (var sheet in sheets)
             {
                 var sheetData = ParseSheet(sheet);
+                // 跳过无效的Sheet
+                if (sheetData == null || sheetData.m_sheetType == SheetType.Invalid)
+                {
+                    continue;
+                }
                 sheetData.m_filePath = path;
                 sheetData.m_fileName = Path.GetFileNameWithoutExtension(path);
                 sheetData.m_sheetName = sheet.SheetName;
@@ -70,6 +79,14 @@ namespace ConfigDataExpoter
                 case SheetType.Enum:
                     {
                         var enumMetaData = ParseEnumHeader(sheet);
+                        if ((m_settings.CodeVisiblity == CodeType.Client && (enumMetaData.m_visiblity & Visiblity.Client) != Visiblity.Client)||
+                            (m_settings.CodeVisiblity == CodeType.Server && (enumMetaData.m_visiblity & Visiblity.Server) != Visiblity.Server))
+                        {
+                            return new ConfigSheetData()
+                            {
+                                m_sheetType = SheetType.Invalid
+                            };
+                        }
                         ParseEnumValues(sheet, enumMetaData);
                         return new ConfigSheetData()
                         {
@@ -250,6 +267,7 @@ namespace ConfigDataExpoter
             var fieldsDict = new Dictionary<string, ConfigFieldMetaData>();
             var fieldNameRow = sheet.GetRow((int)ConfigClassFieldHeader.ClassFieldName);
             var fieldTypeRow = sheet.GetRow((int)ConfigClassFieldHeader.ClassFieldDataType);
+            var fieldVisiblityRow = sheet.GetRow((int)ConfigClassFieldHeader.ClassFieldVisiblity);
             // 排除了特殊处理的列表
             var headers = (Enum.GetValues(typeof(ConfigClassFieldHeader)) as ConfigClassFieldHeader[]).Except(new ConfigClassFieldHeader[]{ConfigClassFieldHeader.ClassFieldName,
                                 ConfigClassFieldHeader.ClassFieldDataType ,
@@ -261,6 +279,23 @@ namespace ConfigDataExpoter
             // 首先获得域名
             for (int i = 0; i < fieldNameRow.LastCellNum; ++i)
             {
+                var fieldVisiblityCell = fieldVisiblityRow.GetCell(i);
+                var fieldVisibilityStr = fieldVisiblityCell == null ? string.Empty : fieldVisiblityCell.StringCellValue;
+                var visiblity = classMetaData.ParseEnum(fieldVisibilityStr, Visiblity.None);
+                // 不可见的列，跳过
+                if (visiblity == Visiblity.None)
+                {
+                    continue;
+                }
+                // 必须和当前选择的Client/Server对应
+                if (m_settings.CodeVisiblity == CodeType.Client && (visiblity & Visiblity.Client) != Visiblity.Client)
+                {
+                    continue;
+                }
+                if (m_settings.CodeVisiblity == CodeType.Server && (visiblity & Visiblity.Server) != Visiblity.Server)
+                {
+                    continue;
+                }
                 var fieldNameCell = fieldNameRow.GetCell(i);
                 var fieldTypeCell = fieldTypeRow.GetCell(i);
                 var tempFieldDataType = classMetaData.ParseEnum(fieldTypeCell.StringCellValue, DataType.None);
@@ -345,5 +380,6 @@ namespace ConfigDataExpoter
             classMetaData.m_fieldsInfo.Clear();
             classMetaData.m_fieldsInfo.AddRange(fieldList);
         }
+        private ExportConfigDataSettings m_settings;
     }
 }

@@ -318,7 +318,7 @@ namespace ConfigDataExpoter
             foreach (var fieldInfo in fieldsInfo)
             {
                 --count;
-                if (ConfigFieldMetaData.GetListType(fieldInfo.ListType) == ListType.None)
+                if (ConfigFieldMetaData.GetListType(fieldInfo.BelongClassName, fieldInfo.FieldName, fieldInfo.ListType, out _) == ListType.None)
                 {
                     var classType = ConfigFieldMetaData.GetTypeName(fieldInfo, fieldInfo.DataType, ConfigFieldMetaData.None/*, fieldInfo.m_dataType == DataType.NestedClass*/);
                     if (fieldInfo.DataType >= DataType.Int8 && fieldInfo.DataType <= DataType.Text)
@@ -345,7 +345,7 @@ namespace ConfigDataExpoter
                     }
                     else if (fieldInfo.DataType == DataType.Enum)
                     {
-                        throw new ParseExcelException("暂时不支持枚举数组");
+                        sb.Append(string.Format(writeCodeFormat, $"EnumList<{classType}>", fieldInfo.PrivateFieldName));
                     }
                     else if (fieldInfo.DataType == DataType.NestedClass)
                     {
@@ -369,7 +369,7 @@ namespace ConfigDataExpoter
             foreach (var fieldInfo in fieldsInfo)
             {
                 --count;
-                if (ConfigFieldMetaData.GetListType(fieldInfo.ListType) == ListType.None)
+                if (ConfigFieldMetaData.GetListType(fieldInfo.BelongClassName, fieldInfo.FieldName, fieldInfo.ListType, out _) == ListType.None)
                 {
                     var classType = ConfigFieldMetaData.GetTypeName(fieldInfo, fieldInfo.DataType, ConfigFieldMetaData.None/*, fieldInfo.m_dataType == DataType.NestedClass*/);
                     if (fieldInfo.DataType >= DataType.Int8 && fieldInfo.DataType <= DataType.Text)
@@ -394,7 +394,7 @@ namespace ConfigDataExpoter
                     }
                     else if (fieldInfo.DataType == DataType.Enum)
                     {
-                        throw new ParseExcelException("不支持枚举数组");
+                        sb.Append(string.Format(readCodeFormat, fieldInfo.PrivateFieldName, "", $"EnumList<{classType}>"));
                     }
                     else if (fieldInfo.DataType == DataType.NestedClass)
                     {

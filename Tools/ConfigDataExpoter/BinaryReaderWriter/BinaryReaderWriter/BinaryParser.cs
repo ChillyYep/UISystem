@@ -105,9 +105,20 @@ namespace ConfigData
             return list;
         }
 
-        public int ReadEnum()
+        public Int32 ReadEnum()
         {
             return ReadInt32();
+        }
+
+        public List<T> ReadEnumList<T>() where T : struct
+        {
+            List<T> list = new List<T>();
+            var size = GetLength();
+            for (int i = 0; i < size; ++i)
+            {
+                list.Add((T)Enum.Parse(typeof(T), ReadEnum().ToString()));
+            }
+            return list;
         }
 
         public Int64 ReadInt64()
@@ -193,13 +204,13 @@ namespace ConfigData
             return list;
         }
 
-
         public void Close()
         {
             m_br.Close();
         }
 
         private BinaryReader m_br;
+
         public byte[] m_dataBytes;
     }
 }
