@@ -130,6 +130,7 @@
     <Compile Include="KeyRelations.cs" />
     <Compile Include="MutiLanguageProcess.cs" />
     <Compile Include="MutiLanguageReader.cs" />
+    <Compile Include="MutiLanguageWriter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="DataExpoterForm.resx">

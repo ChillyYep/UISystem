@@ -10,13 +10,22 @@ namespace ConfigData
         void Serialize(BinaryFormatter formatter);
     }
 
+    public interface ITextWriter
+    {
+        string Encode(string sourceText);
+    }
+
     public class BinaryFormatter
     {
         public BinaryFormatter(Stream stream)
         {
             m_bw = new BinaryWriter(stream);
         }
-
+        public BinaryFormatter(Stream stream, ITextWriter textWriter)
+        {
+            m_bw = new BinaryWriter(stream);
+            m_textwriter = textWriter;
+        }
         public void WriteObjectNoGeneric(object data)
         {
             Type type = data.GetType();
@@ -248,7 +257,7 @@ namespace ConfigData
             }
         }
 
-        public void WriteString(String value)
+        public void WriteString(string value)
         {
             m_bw.Write(value);
         }
@@ -259,6 +268,21 @@ namespace ConfigData
             for (int i = 0; i < value.Count; ++i)
             {
                 WriteString(value[i]);
+            }
+        }
+
+        public void WriteText(string value)
+        {
+            value = m_textwriter?.Encode(value) ?? value;
+            m_bw.Write(value);
+        }
+
+        public void WriteTextList(List<string> value)
+        {
+            WriteSize(value.Count);
+            for (int i = 0; i < value.Count; ++i)
+            {
+                WriteText(value[i]);
             }
         }
 
@@ -297,6 +321,8 @@ namespace ConfigData
         {
             m_bw.Close();
         }
+
+        private ITextWriter m_textwriter;
 
         private BinaryWriter m_bw;
     }

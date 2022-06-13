@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ConfigDataExpoter
+namespace ConfigData
 {
     public enum Language
     {
@@ -25,12 +25,15 @@ namespace ConfigDataExpoter
         }
         public abstract void LoadAllTexts();
 
-        public Dictionary<string, Dictionary<string, string>> m_languageParser = new Dictionary<string, Dictionary<string, string>>();
+        /// <summary>
+        /// key:className.ID.FieldName.FieldListIndex.NestedClassFieldIndex.NestdClassFieldListIndex
+        /// </summary>
+        public Dictionary<string, string> m_languageParser = new Dictionary<string, string>();
 
-        private Language m_language;
+        protected Language m_language;
     }
 
-    class MutiLanguageReader
+    class MutiLanguageReader : ITextReader
     {
         public MutiLanguageReader(LanguageLoaderImpBase languageLoaderImp)
         {
@@ -38,16 +41,13 @@ namespace ConfigDataExpoter
             m_languageLoaderImp.LoadAllTexts();
         }
 
-        public string GetText(string className, string source)
+        public string DeCode(string codeStr)
         {
-            if (m_languageLoaderImp.m_languageParser.TryGetValue(className, out var classTexts))
+            if (m_languageLoaderImp.m_languageParser.TryGetValue(codeStr, out var classText))
             {
-                if (classTexts.TryGetValue(source, out var text))
-                {
-                    return text;
-                }
+                return classText;
             }
-            return $"{className} does't have {source} translate text";
+            return $"{codeStr} does't have translate text";
         }
 
         private LanguageLoaderImpBase m_languageLoaderImp;

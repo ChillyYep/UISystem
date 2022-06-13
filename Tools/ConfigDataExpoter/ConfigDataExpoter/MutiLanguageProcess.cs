@@ -1,4 +1,5 @@
-﻿using NPOI.SS.UserModel;
+﻿using ConfigData;
+using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using System;
 using System.Collections.Generic;
@@ -27,19 +28,12 @@ namespace ConfigDataExpoter
         public static SourceInfo ParseSourceIDStr(string sourceStr)
         {
             var sourceInfo = new SourceInfo();
-            //var strs = sourceStr.Split('_');
-            //sourceInfo.m_rowID = int.Parse(strs[0]);
-            //var feildListStr = strs[1];
-            //var nestedFieldListStr = strs[2];
-            //var matched = Regex.Match(feildListStr, "\\[[0-9]+\\]");
-            //if (matched.Success)
-            //{
-            //    matched = Regex.Match(matched.Value, "[0-9]+");
-            //    if (matched.Success)
-            //    {
-            //        sourceInfo.m_fieldName = int.Parse(strs[0])
-            //    }
-            //}
+            var strs = sourceStr.Split('.');
+            sourceInfo.m_rowID = int.Parse(strs[0]);
+            sourceInfo.m_fieldName = strs[1];
+            sourceInfo.m_fieldListIndex = int.Parse(strs[2]);
+            sourceInfo.m_nestedFieldName = strs[3];
+            sourceInfo.m_nestedFieldListIndex = int.Parse(strs[4]);
             return sourceInfo;
         }
         /// <summary>
@@ -74,7 +68,7 @@ namespace ConfigDataExpoter
 
         public string GetIDStr()
         {
-            return $"{m_rowID}_{m_fieldName}_{m_fieldListIndex}";
+            return $"{m_rowID}.{m_fieldName}.{m_fieldListIndex}.{m_nestedFieldName}.{m_nestedFieldListIndex}";
         }
     }
     /// <summary>

@@ -320,25 +320,23 @@ namespace ConfigDataExpoter
                 --count;
                 if (ConfigFieldMetaData.GetListType(fieldInfo.BelongClassName, fieldInfo.FieldName, fieldInfo.ListType, out _) == ListType.None)
                 {
-                    var classType = ConfigFieldMetaData.GetTypeName(fieldInfo, fieldInfo.OwnDataType, ConfigFieldMetaData.None/*, fieldInfo.m_dataType == DataType.NestedClass*/);
+                    var classType = ConfigFieldMetaData.GetTypeName(fieldInfo, fieldInfo.OwnDataType, ConfigFieldMetaData.None);
                     if (fieldInfo.OwnDataType >= DataType.Int8 && fieldInfo.OwnDataType <= DataType.Text)
                     {
                         sb.Append(string.Format(writeCodeFormat, classType, fieldInfo.PrivateFieldName));
                     }
                     else if (fieldInfo.OwnDataType == DataType.Enum)
                     {
-                        //var enumTypeName = ConfigFieldMetaData.GetTypeName(fieldInfo, DataType.Enum, fieldInfo.m_listType);
                         sb.Append(string.Format(writeCodeFormat, "Enum", $"(Int32){fieldInfo.PrivateFieldName}"));
                     }
                     else if (fieldInfo.OwnDataType == DataType.NestedClass)
                     {
-                        //var nestedClassTypeName = ConfigFieldMetaData.GetTypeName(fieldInfo, DataType.NestedClass, fieldInfo.m_listType, true);
                         sb.Append(string.Format(writeCodeFormat, $"Object<{classType}>", fieldInfo.PrivateFieldName));
                     }
                 }
                 else
                 {
-                    var classType = ConfigFieldMetaData.GetTypeName(fieldInfo, fieldInfo.OwnDataType, ConfigFieldMetaData.None/*, fieldInfo.m_dataType == DataType.NestedClass*/);
+                    var classType = ConfigFieldMetaData.GetTypeName(fieldInfo, fieldInfo.OwnDataType, ConfigFieldMetaData.None);
                     if (fieldInfo.OwnDataType >= DataType.Int8 && fieldInfo.OwnDataType <= DataType.Text)
                     {
                         sb.Append(string.Format(writeCodeFormat, $"{classType}List", fieldInfo.PrivateFieldName));
@@ -349,7 +347,6 @@ namespace ConfigDataExpoter
                     }
                     else if (fieldInfo.OwnDataType == DataType.NestedClass)
                     {
-                        //var nestedClassTypeName = ConfigFieldMetaData.GetTypeName(fieldInfo, DataType.NestedClass, ConfigFieldMetaData.None, true);
                         sb.Append(string.Format(writeCodeFormat, $"ObjectList<{classType}>", fieldInfo.PrivateFieldName));
                     }
                 }

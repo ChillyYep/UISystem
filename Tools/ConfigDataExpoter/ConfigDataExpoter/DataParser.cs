@@ -609,7 +609,6 @@ namespace ConfigDataExpoter
                     }
                     break;
                 case DataType.Text:
-                    string sourceInfoFieldName = string.Empty;
                     if (isList)
                     {
                         List<string> realValues = new List<string>(values.Length);

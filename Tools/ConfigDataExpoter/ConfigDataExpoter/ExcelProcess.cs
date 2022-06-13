@@ -174,7 +174,7 @@ namespace ConfigDataExpoter
             codeExporter.CopyDirectory(m_exportCodeDirectory, m_unityCodeDirectory, false);
 
             // 5、读取数据体，穿插多语言收集
-            MutiLanguageProcess mutiLanguageProcess = new MutiLanguageProcess(Language.CN);
+            MutiLanguageProcess mutiLanguageProcess = new MutiLanguageProcess(ConfigData.Language.CN);
             mutiLanguageProcess.Load(m_exportLanguageDirectory);
 
             ExcelDataRowParser dataParser = new ExcelDataRowParser(mutiLanguageProcess);

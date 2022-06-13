@@ -8,10 +8,21 @@ namespace ConfigData
     {
         void Deserialize(BinaryParser reader);
     }
+
+    public interface ITextReader
+    {
+        string DeCode(string codeStr);
+    }
     public class BinaryParser
     {
         public BinaryParser(Stream stream)
         {
+            m_br = new BinaryReader(stream, System.Text.Encoding.Default);
+        }
+
+        public BinaryParser(Stream stream, ITextReader textReader)
+        {
+            m_textReader = textReader;
             m_br = new BinaryReader(stream, System.Text.Encoding.Default);
         }
 
@@ -182,7 +193,24 @@ namespace ConfigData
             {
                 list.Add(ReadString());
             }
-            Console.WriteLine(string.Format("ReadStringList:{0}", list.Count));
+            return list;
+        }
+
+        public string ReadText()
+        {
+            var readStr = m_br.ReadString();
+            readStr = m_textReader?.DeCode(readStr) ?? readStr;
+            return readStr;
+        }
+
+        public List<string> ReadTextist()
+        {
+            List<string> list = new List<string>();
+            var size = GetLength();
+            for (int i = 0; i < size; ++i)
+            {
+                list.Add(ReadText());
+            }
             return list;
         }
 
@@ -211,6 +239,6 @@ namespace ConfigData
 
         private BinaryReader m_br;
 
-        public byte[] m_dataBytes;
+        private ITextReader m_textReader;
     }
 }
