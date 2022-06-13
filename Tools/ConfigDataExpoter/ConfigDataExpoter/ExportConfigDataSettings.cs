@@ -23,6 +23,7 @@ namespace ConfigDataExpoter
         public string UnityCodeDirectory = "";
         public string UnityDataDirectory = "";
         public CodeType CodeVisiblity = CodeType.Client;
+        public string ExportLanguageDirectoryName = "Language";
 
         private string ReadString(BinaryParser reader)
         {
@@ -58,6 +59,7 @@ namespace ConfigDataExpoter
             UnityCodeDirectory = ReadString(reader);
             UnityDataDirectory = ReadString(reader);
             CodeVisiblity = (CodeType)ReadEnum(reader);
+            ExportLanguageDirectoryName = ReadString(reader);
         }
 
         public void Serialize(BinaryFormatter formatter)
@@ -72,6 +74,7 @@ namespace ConfigDataExpoter
             formatter.WriteString(UnityCodeDirectory);
             formatter.WriteString(UnityDataDirectory);
             formatter.WriteEnum((int)CodeVisiblity);
+            formatter.WriteString(ExportLanguageDirectoryName);
         }
     }
 }

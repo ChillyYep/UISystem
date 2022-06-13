@@ -15,7 +15,7 @@ namespace ConfigDataExpoter
     /// <summary>
     /// 表数据
     /// </summary>
-    class ConfigSheetData : ConfigMetaData
+    public class ConfigSheetData : ConfigMetaData
     {
         public const int TypeRowIndex = 0;
 

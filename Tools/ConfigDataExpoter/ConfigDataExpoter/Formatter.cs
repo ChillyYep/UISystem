@@ -56,7 +56,7 @@ namespace ConfigDataExpoter
             using (MemoryStream ms = new MemoryStream())
             {
                 binaryFormatter = new ConfigData.BinaryFormatter(ms);
-                binaryFormatter.WriteObject(dataTable);
+                binaryFormatter.WriteObjectNoGeneric(dataTable);
                 bytes = ms.GetBuffer();
             }
             return bytes;

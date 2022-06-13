@@ -27,10 +27,8 @@ namespace ConfigData
     /// <summary>
     /// 测试数据类
     /// </summary>
-    [Serializable]
     public partial class ConfigPP: IConfigData, IBinarySerializer, IBinaryDeserializer
     {
-        [Serializable]
         public class NestedClasss: IBinarySerializer, IBinaryDeserializer
         {
             public NestedClasss()
@@ -86,37 +84,37 @@ namespace ConfigData
         public ConfigPP()
         {
         }
-        public ConfigPP(Int32 id, String name, List<Color> color, List<Boolean> flags, List<Single> ratio, List<Color> color2, List<NestedClasss> nesttt, List<String> comment)
+        public ConfigPP(Int32 id, String name, List<Single> ratio, List<Color> color, List<NestedClasss> nesttt, List<Boolean> flags, List<Color> color2, List<String> comment)
         {
 			this._id = id;
 			this._name = name;
-			this._color = color;
-			this._flags = flags;
 			this._ratio = ratio;
-			this._color2 = color2;
+			this._color = color;
 			this._nesttt = nesttt;
+			this._flags = flags;
+			this._color2 = color2;
 			this._comment = comment;
         }
         public void Deserialize(BinaryParser reader)
         {
 			_id = reader.ReadInt32();
 			_name = reader.ReadString();
-			_color = reader.ReadEnumList<Color>();
-			_flags = reader.ReadBooleanList();
 			_ratio = reader.ReadSingleList();
-			_color2 = reader.ReadEnumList<Color>();
+			_color = reader.ReadEnumList<Color>();
 			_nesttt = reader.ReadObjectList<NestedClasss>();
+			_flags = reader.ReadBooleanList();
+			_color2 = reader.ReadEnumList<Color>();
 			_comment = reader.ReadStringList();
         }
         public void Serialize(BinaryFormatter writer)
         {
 			writer.WriteInt32(_id);
 			writer.WriteString(_name);
-			writer.WriteEnumList<Color>(_color);
-			writer.WriteBooleanList(_flags);
 			writer.WriteSingleList(_ratio);
-			writer.WriteEnumList<Color>(_color2);
+			writer.WriteEnumList<Color>(_color);
 			writer.WriteObjectList<NestedClasss>(_nesttt);
+			writer.WriteBooleanList(_flags);
+			writer.WriteEnumList<Color>(_color2);
 			writer.WriteStringList(_comment);
         }
         private Int32 _id;
@@ -149,6 +147,21 @@ namespace ConfigData
                 _name = value;
             }
         }
+        private List<Single> _ratio;
+        /// <summary>
+        /// 比率
+        /// </summary>
+        public List<Single> ratio
+        {
+            get
+            {
+                return _ratio;
+            }
+            private set
+            {
+                _ratio = value;
+            }
+        }
         private List<Color> _color;
         /// <summary>
         /// 颜色
@@ -162,6 +175,21 @@ namespace ConfigData
             private set
             {
                 _color = value;
+            }
+        }
+        private List<NestedClasss> _nesttt;
+        /// <summary>
+        /// 内嵌类
+        /// </summary>
+        public List<NestedClasss> nesttt
+        {
+            get
+            {
+                return _nesttt;
+            }
+            private set
+            {
+                _nesttt = value;
             }
         }
         private List<Boolean> _flags;
@@ -179,21 +207,6 @@ namespace ConfigData
                 _flags = value;
             }
         }
-        private List<Single> _ratio;
-        /// <summary>
-        /// 比率
-        /// </summary>
-        public List<Single> ratio
-        {
-            get
-            {
-                return _ratio;
-            }
-            private set
-            {
-                _ratio = value;
-            }
-        }
         private List<Color> _color2;
         /// <summary>
         /// 颜色
@@ -207,21 +220,6 @@ namespace ConfigData
             private set
             {
                 _color2 = value;
-            }
-        }
-        private List<NestedClasss> _nesttt;
-        /// <summary>
-        /// 内嵌类
-        /// </summary>
-        public List<NestedClasss> nesttt
-        {
-            get
-            {
-                return _nesttt;
-            }
-            private set
-            {
-                _nesttt = value;
             }
         }
         private List<String> _comment;
@@ -244,10 +242,8 @@ namespace ConfigData
     /// <summary>
     /// 测试数据类
     /// </summary>
-    [Serializable]
     public partial class ConfigPP2: IConfigData, IBinarySerializer, IBinaryDeserializer
     {
-        [Serializable]
         public class NestedClasss: IBinarySerializer, IBinaryDeserializer
         {
             public NestedClasss()
@@ -303,13 +299,13 @@ namespace ConfigData
         public ConfigPP2()
         {
         }
-        public ConfigPP2(Int32 id, String name, Color color, List<Boolean> flags, NestedClasss nesttt, List<Int32> foreignid)
+        public ConfigPP2(Int32 id, String name, Color color, NestedClasss nesttt, List<Boolean> flags, List<Int32> foreignid)
         {
 			this._id = id;
 			this._name = name;
 			this._color = color;
-			this._flags = flags;
 			this._nesttt = nesttt;
+			this._flags = flags;
 			this._foreignid = foreignid;
         }
         public void Deserialize(BinaryParser reader)
@@ -317,8 +313,8 @@ namespace ConfigData
 			_id = reader.ReadInt32();
 			_name = reader.ReadString();
 			_color = (Color)reader.ReadEnum();
-			_flags = reader.ReadBooleanList();
 			_nesttt = reader.ReadObject<NestedClasss>();
+			_flags = reader.ReadBooleanList();
 			_foreignid = reader.ReadInt32List();
         }
         public void Serialize(BinaryFormatter writer)
@@ -326,8 +322,8 @@ namespace ConfigData
 			writer.WriteInt32(_id);
 			writer.WriteString(_name);
 			writer.WriteEnum((Int32)_color);
-			writer.WriteBooleanList(_flags);
 			writer.WriteObject<NestedClasss>(_nesttt);
+			writer.WriteBooleanList(_flags);
 			writer.WriteInt32List(_foreignid);
         }
         private Int32 _id;
@@ -375,21 +371,6 @@ namespace ConfigData
                 _color = value;
             }
         }
-        private List<Boolean> _flags;
-        /// <summary>
-        /// 标志
-        /// </summary>
-        public List<Boolean> flags
-        {
-            get
-            {
-                return _flags;
-            }
-            private set
-            {
-                _flags = value;
-            }
-        }
         private NestedClasss _nesttt;
         /// <summary>
         /// 内嵌类
@@ -403,6 +384,21 @@ namespace ConfigData
             private set
             {
                 _nesttt = value;
+            }
+        }
+        private List<Boolean> _flags;
+        /// <summary>
+        /// 标志
+        /// </summary>
+        public List<Boolean> flags
+        {
+            get
+            {
+                return _flags;
+            }
+            private set
+            {
+                _flags = value;
             }
         }
         private List<Int32> _foreignid;

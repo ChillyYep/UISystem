@@ -13,12 +13,11 @@ namespace ConfigDataExpoter
     /// <summary>
     /// Excel解析工具
     /// </summary>
-    abstract class ExcelParserBase
+    public abstract class ExcelParserBase
     {
         public List<ISheet> GetSheets(string path)
         {
             List<ISheet> sheets = new List<ISheet>();
-            var sheetDatas = new List<ConfigSheetData>();
             using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read))
             {
                 IWorkbook workbook = null;
@@ -40,6 +39,11 @@ namespace ConfigDataExpoter
                 }
             }
             return sheets;
+        }
+
+        public string[] GetAllTopDirectoryExcelFiles(string directory)
+        {
+            return Directory.GetFiles(directory, "*.xlsx", SearchOption.TopDirectoryOnly);
         }
     }
 }

@@ -17,7 +17,7 @@ namespace ConfigData
             m_bw = new BinaryWriter(stream);
         }
 
-        public void WriteObject(object data)
+        public void WriteObjectNoGeneric(object data)
         {
             Type type = data.GetType();
             if (typeof(IList).IsAssignableFrom(type) && typeof(ICollection).IsAssignableFrom(type))
@@ -283,7 +283,7 @@ namespace ConfigData
             WriteSize(size);
             for (int i = 0; i < size; ++i)
             {
-                WriteObject(indexer.Invoke(value, new object[] { i }));
+                WriteObjectNoGeneric(indexer.Invoke(value, new object[] { i }));
             }
 
         }

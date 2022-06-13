@@ -87,7 +87,7 @@ namespace ConfigDataExpoter
                             }
                             existID = true;
                         }
-                        if (!ConfigFieldMetaData.ParseForeignKey(fieldInfo.m_foreignKey, out var foreignClass, out var foreignField))
+                        if (!ConfigFieldMetaData.ParseForeignKey(fieldInfo.ForeignKey, out var foreignClass, out var foreignField))
                         {
                             continue;
                         }
@@ -133,6 +133,7 @@ namespace ConfigDataExpoter
             m_mainDirectory = Path.Combine(m_baseDirectory, settings.ExportRootDirectoryPath);
             m_exportCodeDirectory = Path.Combine(m_mainDirectory, settings.ExportCodeDirectoryName);
             m_exportDataDirectory = Path.Combine(m_mainDirectory, settings.ExportDataDirectoryName);
+            m_exportLanguageDirectory = Path.Combine(m_mainDirectory, settings.ExportLanguageDirectoryName);
             m_exportCodePath = Path.Combine(m_exportCodeDirectory, settings.ExportConfigDataName);
             m_exportTypeEnumCodePath = Path.Combine(m_exportCodeDirectory, settings.ExportTypeEnumCodeName);
             m_copyFromDirectory = Path.Combine(m_baseDirectory, settings.CopyFromDirectoryPath);
@@ -172,15 +173,21 @@ namespace ConfigDataExpoter
 
             codeExporter.CopyDirectory(m_exportCodeDirectory, m_unityCodeDirectory, false);
 
-            // 5、读取数据体，序列化
-            ExcelDataRowParser dataParser = new ExcelDataRowParser();
+            // 5、读取数据体，穿插多语言收集
+            MutiLanguageProcess mutiLanguageProcess = new MutiLanguageProcess(Language.CN);
+            mutiLanguageProcess.Load(m_exportLanguageDirectory);
+
+            ExcelDataRowParser dataParser = new ExcelDataRowParser(mutiLanguageProcess);
             var allTableDatas = dataParser.ParseAllExcelTableDatas(assembly, m_mainDirectory, m_configSheetDict);
 
-            // 6、导出数据
+            // 6、导出数据，序列化
             DataExporter dataExporter = new DataExporter();
             dataExporter.Setup(allTableDatas, FormatterType.Binary);
             dataExporter.ExportData(m_exportDataDirectory);
             dataExporter.CopyDirectory(m_exportDataDirectory, m_unityDataDirectory, false);
+
+            // 7、多语言处理
+            mutiLanguageProcess.Save(m_exportLanguageDirectory);
         }
 
         /// <summary>
@@ -225,5 +232,10 @@ namespace ConfigDataExpoter
         /// 数据导出目录
         /// </summary>
         private string m_exportDataDirectory;
+
+        /// <summary>
+        /// 语言表导出目录
+        /// </summary>
+        private string m_exportLanguageDirectory;
     }
 }

@@ -95,7 +95,7 @@ namespace ConfigDataExpoter
         /// <summary>
         /// 数据类型
         /// </summary>
-        public DataType DataType;
+        public DataType OwnDataType;
 
         /// <summary>
         /// 是否是数组，None,List[0],List[1]……,List[x]可变长数组
@@ -116,7 +116,7 @@ namespace ConfigDataExpoter
     /// <summary>
     /// 类的域配置
     /// </summary>
-    class ConfigFieldMetaData : ConfigFieldMetaDataBase
+    public class ConfigFieldMetaData : ConfigFieldMetaDataBase
     {
         /// <summary>
         /// 数组类别格式
@@ -139,22 +139,22 @@ namespace ConfigDataExpoter
         /// <summary>
         /// 双端可见性
         /// </summary>
-        public Visiblity m_visiblity;
+        public Visiblity OwnVisiblity;
 
         /// <summary>
         /// 外键（"类名.域名"的格式，对外键进行引用）
         /// </summary>
-        public string m_foreignKey;
+        public string ForeignKey;
 
         /// <summary>
         /// 表中第几列
         /// </summary>
-        public int m_columnIndex;
+        public int ColumnIndex;
 
         /// <summary>
         /// 内嵌类额外信息
         /// </summary>
-        public NestedClassMetaData m_nestedClassMetaData = new NestedClassMetaData();
+        public NestedClassMetaData OwnNestedClassMetaData = new NestedClassMetaData();
 
         /// <summary>
         /// 内嵌类域信息
@@ -220,7 +220,7 @@ namespace ConfigDataExpoter
                     {
                         ConfigFieldMetaData fieldMetaData = metaData as ConfigFieldMetaData;
 
-                        var foreignKey = fieldMetaData == null ? "" : fieldMetaData.m_foreignKey;
+                        var foreignKey = fieldMetaData == null ? "" : fieldMetaData.ForeignKey;
                         if (isNestedClass)
                         {
                             throw new ParseExcelException($"{belongClassName}中字段{name}为内嵌类，该内嵌类中不能使用枚举字段");
@@ -259,7 +259,7 @@ namespace ConfigDataExpoter
                 default:
                     {
                         ConfigFieldMetaData fieldMetaData = metaData as ConfigFieldMetaData;
-                        var nestedClassMetaData = fieldMetaData == null ? null : fieldMetaData.m_nestedClassMetaData;
+                        var nestedClassMetaData = fieldMetaData == null ? null : fieldMetaData.OwnNestedClassMetaData;
                         // 内嵌类
                         if (isNestedClass)
                         {
@@ -300,7 +300,7 @@ namespace ConfigDataExpoter
                 case DataType.Enum:
                     {
                         ConfigFieldMetaData fieldMetaData = metaData as ConfigFieldMetaData;
-                        var foreignKey = fieldMetaData == null ? "" : fieldMetaData.m_foreignKey;
+                        var foreignKey = fieldMetaData == null ? "" : fieldMetaData.ForeignKey;
                         if (isNestedClass)
                         {
                             throw new ParseExcelException($"{belongClassName}中字段{name}为内嵌类，该内嵌类中不能使用枚举字段");
@@ -345,7 +345,7 @@ namespace ConfigDataExpoter
                 default:
                     {
                         ConfigFieldMetaData fieldMetaData = metaData as ConfigFieldMetaData;
-                        var nestedClassMetaData = fieldMetaData == null ? null : fieldMetaData.m_nestedClassMetaData;
+                        var nestedClassMetaData = fieldMetaData == null ? null : fieldMetaData.OwnNestedClassMetaData;
                         // 内嵌类
                         if (isNestedClass)
                         {
@@ -389,13 +389,13 @@ namespace ConfigDataExpoter
                     }
                 case ConfigClassFieldHeader.ClassFieldVisiblity:
                     {
-                        m_visiblity = ParseEnum(value, Visiblity.Invalid);
-                        return m_visiblity != Visiblity.Invalid;
+                        OwnVisiblity = ParseEnum(value, Visiblity.Invalid);
+                        return OwnVisiblity != Visiblity.Invalid;
                     }
                 case ConfigClassFieldHeader.ClassFieldForeignKey:
                     {
-                        m_foreignKey = value;
-                        return m_foreignKey != null;
+                        ForeignKey = value;
+                        return ForeignKey != null;
                     }
                 case ConfigClassFieldHeader.ClassFieldIsList:
                     {
@@ -416,7 +416,7 @@ namespace ConfigDataExpoter
         /// <param name="isLists"></param>
         public bool ParseNestedClass(DataType dataType, string names, string types, string comments, string isLists)
         {
-            m_nestedClassMetaData.m_fieldsInfo.Clear();
+            OwnNestedClassMetaData.m_fieldsInfo.Clear();
             const char seperator = NestedClassMetaData.seperator;
             const string none = None;
             var nameArr = names.Split(seperator);
@@ -444,22 +444,27 @@ namespace ConfigDataExpoter
                 {
                     for (int i = 0; i < nameArr.Length; ++i)
                     {
+                        var listType = GetListType(OwnNestedClassMetaData.m_classname, nameArr[i], isListArr[i], out _);
+                        if (listType > ConfigDataExpoter.ListType.None)
+                        {
+                            throw new ParseExcelException("内嵌类各字段不能是数组类型的，如需要数组类型应当另起一列");
+                        }
                         var fieldInfo = new NestClassFieldInfo()
                         {
-                            BelongClassName = m_nestedClassMetaData.m_classname,
+                            BelongClassName = OwnNestedClassMetaData.m_classname,
                             FieldName = nameArr[i].ToLower(),
                             Comment = commentArr[i],
                             ListType = isListArr[i],
-                            DataType = typeArr[i]
+                            OwnDataType = typeArr[i]
                         };
                         fieldInfo.RealTypeName = GetTypeName(fieldInfo, typeArr[i], isListArr[i], true);
-                        m_nestedClassMetaData.m_fieldsInfo.Add(fieldInfo);
+                        OwnNestedClassMetaData.m_fieldsInfo.Add(fieldInfo);
                     }
                     return true;
                 }
                 else
                 {
-                    throw new ParseExcelException("无效类型，如果是内嵌类，内嵌类四行头数据字段数量必须大于一且四行数据一一对应，否则应当是基础类型");
+                    throw new ParseExcelException("无效类型，如果是内嵌类，内嵌类字段数量必须大于一，否则应当使用基础类型，且字段类型/备注/名称/列表类型应当一一对应，");
                 }
             }
 

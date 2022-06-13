@@ -70,6 +70,7 @@ namespace ConfigDataExpoter
             rootDirectoryText.Text = settings.ExportRootDirectoryPath;
             codeDirectoryNameText.Text = settings.ExportCodeDirectoryName;
             dataDirectoryNameText.Text = settings.ExportDataDirectoryName;
+            languageDirectoryText.Text = settings.ExportLanguageDirectoryName;
             configDataNameText.Text = settings.ExportConfigDataName;
             loaderCodeNameText.Text = settings.ExportLoaderCodeName;
             typeEnumCodeNameText.Text = settings.ExportTypeEnumCodeName;
@@ -119,6 +120,10 @@ namespace ConfigDataExpoter
             {
                 settings.UnityDataDirectory = textBox.Text;
             }
+            else if (textBox == languageDirectoryText)
+            {
+                settings.ExportLanguageDirectoryName = textBox.Text;
+            }
         }
 
         private void splitContainer1_Panel2_Paint(object sender, PaintEventArgs e)
@@ -153,6 +158,11 @@ namespace ConfigDataExpoter
                     settings.CodeVisiblity = CodeType.Client;
                 }
             }
+        }
+
+        private void label11_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

@@ -14,12 +14,17 @@ namespace ConfigDataExpoter
     /// <summary>
     /// Excel数据解析类
     /// </summary>
-    class ExcelDataRowParser : ExcelParserBase
+    public class ExcelDataRowParser : ExcelParserBase
     {
+        public ExcelDataRowParser(MutiLanguageProcess mutiLanguageProcess)
+        {
+            m_mutiLanguageProcess = mutiLanguageProcess;
+        }
+
         public Dictionary<Type, List<object>> ParseAllExcelTableDatas(Assembly configDataAssembly, string directory, Dictionary<string, List<ConfigSheetData>> configSheetDict)
         {
             var allTableDatas = new Dictionary<Type, List<object>>();
-            var files = Directory.GetFiles(directory, "*.xlsx", SearchOption.AllDirectories);
+            var files = GetAllTopDirectoryExcelFiles(directory);
             foreach (var file in files)
             {
                 if (!configSheetDict.TryGetValue(file, out var fileSheetDatas))
@@ -42,6 +47,9 @@ namespace ConfigDataExpoter
         /// <param name="allTableData"></param>
         public void ParseOneExcelTableData(Assembly configDataAssembly, string path, List<ConfigSheetData> sheetDatas, ref Dictionary<Type, List<object>> allTableData)
         {
+            // 当前正在解析的表
+            m_context.m_curParsingExcelName = Path.GetFileNameWithoutExtension(path);
+
             var sheets = GetSheets(path);
             if (sheets.Count <= 0)
             {
@@ -66,6 +74,7 @@ namespace ConfigDataExpoter
                 }
                 allTableData[classType] = dataTable;
             }
+            m_context.m_curParsingExcelName = string.Empty;
         }
 
         /// <summary>
@@ -84,6 +93,9 @@ namespace ConfigDataExpoter
             {
                 return dataTable;
             }
+            // 正在解析的类型
+            m_context.m_curParsingClassName = classMetaData.m_classname;
+
             // 配置类
             var classFullName = $"ConfigData.{classMetaData.m_classname}";
             classType = assembly.GetType(classFullName);
@@ -101,6 +113,7 @@ namespace ConfigDataExpoter
                 var instance = ParseSingleRowData(row, classMetaData, classType);
                 dataTable.Add(instance);
             }
+            m_context.m_curParsingClassName = string.Empty;
             return dataTable;
         }
 
@@ -111,21 +124,21 @@ namespace ConfigDataExpoter
             Dictionary<string, List<FieldTypeInfo>> nestedClassFieldTypeInfos, Dictionary<string, Type> nestedClassTypes)
         {
             // 收集内嵌类信息，不管他是不是数组的
-            var fullTypeName = ConfigFieldMetaData.GetFullTypeName(fieldMetaData, fieldMetaData.DataType, ConfigFieldMetaData.None);
+            var fullTypeName = ConfigFieldMetaData.GetFullTypeName(fieldMetaData, fieldMetaData.OwnDataType, ConfigFieldMetaData.None);
             var nestedClassType = assembly.GetType(fullTypeName);
             if (nestedClassType == null)
             {
                 throw new ParseExcelException("内嵌类解析失败");
             }
             nestedClassFieldTypeInfos[fieldMetaData.FieldName] = new List<FieldTypeInfo>();
-            var fieldList = fieldMetaData.m_nestedClassMetaData.m_fieldsInfo;
+            var fieldList = fieldMetaData.OwnNestedClassMetaData.m_fieldsInfo;
 
             foreach (var nestedClassFieldTypeInfo in fieldList)
             {
                 var typeinfo = new FieldTypeInfo()
                 {
                     m_fieldName = nestedClassFieldTypeInfo.PrivateFieldName,
-                    m_dataType = nestedClassFieldTypeInfo.DataType,
+                    m_dataType = nestedClassFieldTypeInfo.OwnDataType,
                     m_isNestedClassField = true,
                     m_keyType = KeyType.None //内嵌类的域不会是逐渐或外键 
                 };
@@ -172,28 +185,28 @@ namespace ConfigDataExpoter
 
             foreach (var fieldMetaData in classMetaData.m_fieldsInfo)
             {
-                if (m_fieldTypeInfos.TryGetValue(fieldMetaData.m_columnIndex, out var fieldTypeInfo))
+                if (m_fieldTypeInfos.TryGetValue(fieldMetaData.ColumnIndex, out var fieldTypeInfo))
                 {
                     throw new ParseExcelException($"字段名称重复,Class:{classMetaData.m_classname},Field:{fieldMetaData.FieldName}");
                 }
                 fieldTypeInfo = new FieldTypeInfo();
 
                 // 枚举是硬编码的，不走下面的主键或外键判断
-                if (fieldMetaData.DataType != DataType.Enum)
+                if (fieldMetaData.OwnDataType != DataType.Enum)
                 {
                     if (fieldMetaData.FieldName.Equals(ConfigClassMetaData.IDPrimaryKey, StringComparison.OrdinalIgnoreCase))
                     {
-                        if (fieldMetaData.DataType != DataType.Int32)
+                        if (fieldMetaData.OwnDataType != DataType.Int32)
                         {
                             throw new ParseExcelException("主键类型只能是Int32的！");
                         }
                         fieldTypeInfo.m_keyType = KeyType.Primary;
                     }
-                    else if (ConfigFieldMetaData.ParseForeignKey(fieldMetaData.m_foreignKey, out var foreignClass, out var foreignKey))
+                    else if (ConfigFieldMetaData.ParseForeignKey(fieldMetaData.ForeignKey, out var foreignClass, out var foreignKey))
                     {
                         if (foreignKey.Equals(ConfigClassMetaData.IDPrimaryKey, StringComparison.OrdinalIgnoreCase))
                         {
-                            if (fieldMetaData.DataType != DataType.Int32)
+                            if (fieldMetaData.OwnDataType != DataType.Int32)
                             {
                                 throw new ParseExcelException("外键类型只能是Int32的！");
                             }
@@ -210,7 +223,7 @@ namespace ConfigDataExpoter
                 fieldTypeInfo.m_isNestedClassField = false;
                 fieldTypeInfo.m_listType = ConfigFieldMetaData.GetListType(fieldMetaData.BelongClassName, fieldMetaData.FieldName, fieldMetaData.ListType, out var listCount);
                 fieldTypeInfo.m_listCount = listCount;
-                fieldTypeInfo.m_dataType = fieldMetaData.DataType;
+                fieldTypeInfo.m_dataType = fieldMetaData.OwnDataType;
                 fieldTypeInfo.m_fieldName = fieldMetaData.PrivateFieldName;
                 fieldTypeInfo.m_fieldInfo = classType.GetField(fieldTypeInfo.m_fieldName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
                 fieldTypeInfo.m_fieldMetaData = fieldMetaData;
@@ -220,17 +233,17 @@ namespace ConfigDataExpoter
                     throw new ParseExcelException($"字段类型解析失败,Class:{classMetaData.m_classname},Field:{fieldMetaData.FieldName}");
                 }
                 // 内嵌类额外的信息
-                if (fieldMetaData.DataType == DataType.NestedClass)
+                if (fieldMetaData.OwnDataType == DataType.NestedClass)
                 {
                     ParseNestedClassExtraTypeInfos(assembly, fieldMetaData, fieldTypeInfo, m_nestedClassFieldTypeInfos, m_nestedClassTypes);
                 }
                 // 枚举额外的信息
-                else if (fieldMetaData.DataType == DataType.Enum)
+                else if (fieldMetaData.OwnDataType == DataType.Enum)
                 {
                     ParseEnumExtraTypeInfos(fieldTypeInfo);
                 }
 
-                m_fieldTypeInfos[fieldMetaData.m_columnIndex] = fieldTypeInfo;
+                m_fieldTypeInfos[fieldMetaData.ColumnIndex] = fieldTypeInfo;
             }
         }
 
@@ -250,9 +263,12 @@ namespace ConfigDataExpoter
             {
                 throw new ParseExcelException($"内嵌类{fieldInfo.FieldName}获取域信息失败");
             }
+            var belongFieldName = m_context.m_curParsingFieldName;
             for (int x = 0; x < nestedClassFieldInfos.Count; ++x)
             {
-                SetFieldValue(nestedClassFieldInfos[x], nestedClassInstance, values[x]);
+                var fieldTypeInfo = nestedClassFieldInfos[x];
+                m_context.m_curParsingFieldName = $"{belongFieldName}.{fieldTypeInfo.m_fieldMetaData.FieldName}";
+                SetFieldValue(fieldTypeInfo, nestedClassInstance, values[x]);
             }
             return nestedClassInstance;
         }
@@ -262,6 +278,7 @@ namespace ConfigDataExpoter
         /// </summary>
         private object ParseSingleRowData(IRow row, ConfigClassMetaData classMetaData, Type classType)
         {
+            m_context.m_sourceInfos.Clear();
             var instance = Activator.CreateInstance(classType);
             if (instance == null)
             {
@@ -270,54 +287,40 @@ namespace ConfigDataExpoter
 
             foreach (var fieldMetaData in classMetaData.m_fieldsInfo)
             {
-                int columnIndex = fieldMetaData.m_columnIndex;
+                int columnIndex = fieldMetaData.ColumnIndex;
                 var cell = row.GetCell(columnIndex);
                 if (m_fieldTypeInfos.TryGetValue(columnIndex, out var fieldTypeInfo))
                 {
-                    var fieldInfo = fieldTypeInfo.FieldMetaData;
-                    var fieldType = fieldTypeInfo.m_fieldInfo;
-                    var fieldName = fieldTypeInfo.m_fieldName;
-                    if (fieldInfo.DataType == DataType.NestedClass)
-                    {
-                        if (!m_nestedClassTypes.TryGetValue(fieldName, out var nestedFieldType))
-                        {
-                            throw new ParseExcelException($"不存在该内嵌类{fieldInfo.FieldName}");
-                        }
-                        if (fieldTypeInfo.m_listType == ListType.None)
-                        {
-                            var nestedClassInstance = ParseNestedClassData(m_nestedClassFieldTypeInfos, NormalizeCellValue2String(cell), fieldInfo, nestedFieldType);
-                            fieldType.SetValue(instance, nestedClassInstance);
-                        }
-                        else
-                        {
-                            var listInstance = Activator.CreateInstance(fieldType.FieldType);
-                            var addMethod = fieldTypeInfo.m_addMethod;
-                            if (addMethod == null)
-                            {
-                                throw new ParseExcelException($"{fieldTypeInfo.m_fieldName}字段不存在Add方法");
-                            }
-                            var listValue = NormalizeCellValue2String(cell).Split(ConfigFieldMetaData.ListSeperator);
-                            foreach (var value in listValue)
-                            {
-                                var obj = ParseNestedClassData(m_nestedClassFieldTypeInfos, value, fieldInfo, nestedFieldType);
-                                addMethod.Invoke(listInstance, new object[] { obj });
-                            }
-                            fieldType.SetValue(instance, listInstance);
-                        }
-                    }
-                    else
-                    {
-                        var value = NormalizeCellValue2String(cell);
-
-                        SetFieldValue(fieldTypeInfo, instance, value, fieldInfo.m_foreignKey, true);
-                    }
+                    m_context.m_curParsingFieldName = fieldMetaData.FieldName;
+                    SetFieldValue(fieldTypeInfo, instance, NormalizeCellValue2String(cell));
+                    m_context.m_curParsingFieldName = string.Empty;
                 }
                 else
                 {
                     throw new ParseExcelException($"字段列号不匹配,Class:{classMetaData.m_classname}");
                 }
             }
+            var configData = instance as ConfigData.IConfigData;
+            if (configData != null)
+            {
+                var id = configData.id;
+                foreach (var sourceInfo in m_context.m_sourceInfos)
+                {
+                    sourceInfo.m_rowID = id;
+                    AddLanguageText(sourceInfo);
+                }
+            }
+            m_context.m_sourceInfos.Clear();
             return instance;
+        }
+
+        private void AddLanguageText(SourceInfo sourceInfo)
+        {
+            if (string.IsNullOrEmpty(m_context.m_curParsingExcelName) || string.IsNullOrEmpty(m_context.m_curParsingClassName))
+            {
+                throw new ParseExcelException("当前没有正在解析的Excel或Class型的Sheet!");
+            }
+            m_mutiLanguageProcess.AddText(m_context.m_curParsingExcelName, m_context.m_curParsingClassName, sourceInfo);
         }
 
         /// <summary>
@@ -351,7 +354,7 @@ namespace ConfigDataExpoter
         /// <param name="fieldTypeInfo"></param>
         /// <param name="value"></param>
         /// <param name="curClassName"></param>
-        private void SetKeyInfo(FieldTypeInfo fieldTypeInfo, int value, string curClassName)
+        private void SetKeyInfoIfPossible(FieldTypeInfo fieldTypeInfo, int value, string curClassName)
         {
             // 如果是主键，添加主键值，配置类有且仅有一个主键，且类型为整型
             if (fieldTypeInfo.m_keyType == KeyType.Primary)
@@ -360,7 +363,7 @@ namespace ConfigDataExpoter
             }
             else if (fieldTypeInfo.m_keyType == KeyType.Foreign)
             {
-                if (ConfigFieldMetaData.ParseForeignKey(fieldTypeInfo.FieldMetaData.m_foreignKey, out var foreignClass, out var foreignKey))
+                if (ConfigFieldMetaData.ParseForeignKey(fieldTypeInfo.FieldMetaData.ForeignKey, out var foreignClass, out var foreignKey))
                 {
                     m_keyRelations.AddForeignKey(curClassName, foreignClass, value);
                 }
@@ -371,14 +374,19 @@ namespace ConfigDataExpoter
         /// <summary>
         /// 设置域值
         /// </summary>
-        private void SetFieldValue(FieldTypeInfo fieldTypeInfo, object instance, string value, string foreignKeys = "", bool checkKeys = false)
+        private void SetFieldValue(FieldTypeInfo fieldTypeInfo, object instance, string value)
         {
             var fieldInfo = fieldTypeInfo.m_fieldInfo;
             var dataType = fieldTypeInfo.m_dataType;
+            var fieldMetaData = fieldTypeInfo.FieldMetaData;
+            var fieldName = fieldTypeInfo.m_fieldName;
+            var foreignKeys = fieldTypeInfo.FieldMetaData == null ? ConfigFieldMetaData.None : fieldTypeInfo.FieldMetaData.ForeignKey;
+
             var isList = fieldTypeInfo.m_listType > ListType.None;
             const char seperator = ConfigFieldMetaData.ListSeperator;
             const string listStringSeperator = ConfigFieldMetaData.ListStringSeperator;
             string[] values = null;
+            // 如果是数组，需要分解字符串
             if (isList)
             {
                 if (string.IsNullOrEmpty(value))
@@ -421,6 +429,7 @@ namespace ConfigDataExpoter
                     throw new ParseExcelException($"{fieldTypeInfo.m_fieldName}的类型为固定长度列表，但长度不匹配，目标长度：{fieldTypeInfo.m_listCount}，实际长度{values.Length}");
                 }
             }
+            // 每种类型都分成List和非List两种处理
             switch (dataType)
             {
                 case DataType.Enum:
@@ -513,20 +522,14 @@ namespace ConfigDataExpoter
                         {
                             var intValue = Int32.Parse(v);
                             realValues.Add(intValue);
-                            if (checkKeys)
-                            {
-                                SetKeyInfo(fieldTypeInfo, intValue, fieldTypeInfo.FieldMetaData.BelongClassName);
-                            }
+                            SetKeyInfoIfPossible(fieldTypeInfo, intValue, fieldTypeInfo.m_fieldMetaData.BelongClassName);
                         }
                         fieldInfo.SetValue(instance, realValues);
                     }
                     else
                     {
                         var intValue = Int32.Parse(value);
-                        if (checkKeys)
-                        {
-                            SetKeyInfo(fieldTypeInfo, intValue, fieldTypeInfo.FieldMetaData.BelongClassName);
-                        }
+                        SetKeyInfoIfPossible(fieldTypeInfo, intValue, fieldTypeInfo.m_fieldMetaData.BelongClassName);
                         fieldInfo.SetValue(instance, intValue);
                     }
                     break;
@@ -591,7 +594,6 @@ namespace ConfigDataExpoter
                     }
                     break;
                 case DataType.String:
-                case DataType.Text:
                     if (isList)
                     {
                         List<string> realValues = new List<string>(values.Length);
@@ -606,8 +608,67 @@ namespace ConfigDataExpoter
                         fieldInfo.SetValue(instance, value);
                     }
                     break;
+                case DataType.Text:
+                    string sourceInfoFieldName = string.Empty;
+                    if (isList)
+                    {
+                        List<string> realValues = new List<string>(values.Length);
+                        for (int i = 0; i < values.Length; ++i)
+                        {
+                            realValues.Add(values[i]);
+                            m_context.m_sourceInfos.Add(new SourceInfo()
+                            {
+                                m_fieldListIndex = i,
+                                m_fieldName = m_context.m_curParsingFieldName,
+                                m_sourceText = values[i],
+                            });
+                        }
+                        fieldInfo.SetValue(instance, realValues);
+                    }
+                    else
+                    {
+                        m_context.m_sourceInfos.Add(new SourceInfo()
+                        {
+                            m_fieldListIndex = 0,
+                            m_fieldName = m_context.m_curParsingFieldName,
+                            m_sourceText = value,
+                        });
+                        fieldInfo.SetValue(instance, value);
+                    }
+                    break;
                 case DataType.NestedClass:
-                    throw new ParseExcelException("无法直接解析内嵌类");
+                    if (!m_nestedClassTypes.TryGetValue(fieldName, out var nestedFieldType))
+                    {
+                        throw new ParseExcelException($"不存在该内嵌类{fieldMetaData.FieldName}");
+                    }
+                    // 暂存状态
+                    var belongFieldName = m_context.m_curParsingFieldName;
+                    if (isList)
+                    {
+                        var listInstance = Activator.CreateInstance(fieldInfo.FieldType);
+                        var addMethod = fieldTypeInfo.m_addMethod;
+                        if (addMethod == null)
+                        {
+                            throw new ParseExcelException($"{fieldTypeInfo.m_fieldName}字段不存在Add方法");
+                        }
+                        for (int i = 0; i < values.Length; ++i)
+                        {
+                            var obj = ParseNestedClassData(m_nestedClassFieldTypeInfos, values[i], fieldMetaData, nestedFieldType);
+                            // 恢复状态
+                            m_context.m_curParsingFieldName = belongFieldName;
+                            addMethod.Invoke(listInstance, new object[] { obj });
+                        }
+                        fieldInfo.SetValue(instance, listInstance);
+                    }
+                    else
+                    {
+                        var nestedClassInstance = ParseNestedClassData(m_nestedClassFieldTypeInfos, value, fieldMetaData, nestedFieldType);
+                        // 恢复状态
+                        m_context.m_curParsingFieldName = belongFieldName;
+                        fieldInfo.SetValue(instance, nestedClassInstance);
+                    }
+                    break;
+                    //throw new ParseExcelException("无法直接解析内嵌类");
             }
         }
 
@@ -663,21 +724,51 @@ namespace ConfigDataExpoter
             }
         }
 
-        private KeyRelations m_keyRelations = new KeyRelations();
+        public class Context
+        {
+            #region 逐表
+            public string m_curParsingExcelName;
+            #endregion
+
+            #region 逐Sheet
+            public string m_curParsingClassName;
+            #endregion
+
+            #region 逐行
+            /// <summary>
+            /// 收集需要翻译的文本来源
+            /// </summary>
+            public readonly List<SourceInfo> m_sourceInfos = new List<SourceInfo>();
+            #endregion
+
+            public string m_curParsingFieldName;
+        }
+
+        private readonly Context m_context = new Context();
+
+        /// <summary>
+        /// 主键外键关系收集
+        /// </summary>
+        private readonly KeyRelations m_keyRelations = new KeyRelations();
+
+        /// <summary>
+        /// 多语言处理
+        /// </summary>
+        private MutiLanguageProcess m_mutiLanguageProcess;
 
         /// <summary>
         /// 每一列的域类型信息
         /// </summary>
-        private Dictionary<int, FieldTypeInfo> m_fieldTypeInfos = new Dictionary<int, FieldTypeInfo>();
+        private readonly Dictionary<int, FieldTypeInfo> m_fieldTypeInfos = new Dictionary<int, FieldTypeInfo>();
 
         /// <summary>
         /// 内嵌类及其域信息
         /// </summary>
-        private Dictionary<string, List<FieldTypeInfo>> m_nestedClassFieldTypeInfos = new Dictionary<string, List<FieldTypeInfo>>();
+        private readonly Dictionary<string, List<FieldTypeInfo>> m_nestedClassFieldTypeInfos = new Dictionary<string, List<FieldTypeInfo>>();
 
         /// <summary>
         /// 内嵌类及其类信息
         /// </summary>
-        private Dictionary<string, Type> m_nestedClassTypes = new Dictionary<string, Type>();
+        private readonly Dictionary<string, Type> m_nestedClassTypes = new Dictionary<string, Type>();
     }
 }

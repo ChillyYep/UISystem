@@ -27,7 +27,7 @@ namespace ConfigDataExpoter
         public Dictionary<string, List<ConfigSheetData>> ParseAllMetaData(string directory)
         {
             var sheetsDataDict = new Dictionary<string, List<ConfigSheetData>>();
-            var files = Directory.GetFiles(directory, "*.xlsx", SearchOption.AllDirectories);
+            var files = GetAllTopDirectoryExcelFiles(directory);
             foreach (var file in files)
             {
                 sheetsDataDict[file] = ParseMetaData(file);
@@ -79,7 +79,7 @@ namespace ConfigDataExpoter
                 case SheetType.Enum:
                     {
                         var enumMetaData = ParseEnumHeader(sheet);
-                        if ((m_settings.CodeVisiblity == CodeType.Client && (enumMetaData.m_visiblity & Visiblity.Client) != Visiblity.Client)||
+                        if ((m_settings.CodeVisiblity == CodeType.Client && (enumMetaData.m_visiblity & Visiblity.Client) != Visiblity.Client) ||
                             (m_settings.CodeVisiblity == CodeType.Server && (enumMetaData.m_visiblity & Visiblity.Server) != Visiblity.Server))
                         {
                             return new ConfigSheetData()
@@ -326,13 +326,13 @@ namespace ConfigDataExpoter
                                 nestedClassCommentsCell.StringCellValue, nestedClassIsListCell.StringCellValue);
                             if (isNestedClass)
                             {
-                                fieldMetaData.DataType = DataType.NestedClass;
-                                fieldMetaData.m_nestedClassMetaData.m_classname = fieldTypeCell.StringCellValue;
+                                fieldMetaData.OwnDataType = DataType.NestedClass;
+                                fieldMetaData.OwnNestedClassMetaData.m_classname = fieldTypeCell.StringCellValue;
                                 //fieldMetaData.m_nestedClassMetaData.m_comment = fieldMetaData.m_comment;
                             }
                             else
                             {
-                                fieldMetaData.DataType = tempFieldDataType;
+                                fieldMetaData.OwnDataType = tempFieldDataType;
                             }
                         }
                         else
@@ -353,9 +353,9 @@ namespace ConfigDataExpoter
                             }
                         }
                         // 域的实际类名
-                        fieldMetaData.RealTypeName = ConfigFieldMetaData.GetTypeName(fieldMetaData, fieldMetaData.DataType, fieldMetaData.ListType);
+                        fieldMetaData.RealTypeName = ConfigFieldMetaData.GetTypeName(fieldMetaData, fieldMetaData.OwnDataType, fieldMetaData.ListType);
                         // 表中第几列
-                        fieldMetaData.m_columnIndex = i;
+                        fieldMetaData.ColumnIndex = i;
                     }
                     else
                     {
@@ -369,14 +369,14 @@ namespace ConfigDataExpoter
             }
 
             var fieldList = fieldsDict.Values.ToList();
-            fieldList.Sort((a, b) =>
-            {
-                if (a.FieldName.Length != b.FieldName.Length)
-                {
-                    return a.FieldName.Length.CompareTo(b.FieldName.Length);
-                }
-                return a.FieldName.CompareTo(b.FieldName);
-            });
+            //fieldList.Sort((a, b) =>
+            //{
+            //    if (a.FieldName.Length != b.FieldName.Length)
+            //    {
+            //        return a.FieldName.Length.CompareTo(b.FieldName.Length);
+            //    }
+            //    return a.FieldName.CompareTo(b.FieldName);
+            //});
             classMetaData.m_fieldsInfo.Clear();
             classMetaData.m_fieldsInfo.AddRange(fieldList);
         }
