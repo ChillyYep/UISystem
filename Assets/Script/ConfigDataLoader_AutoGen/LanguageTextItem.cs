@@ -5,8 +5,10 @@ namespace ConfigData
 {
     public enum Language
     {
-        CN = 0,
-        EN = 1
+        Defaut,
+        CN,
+        EN,
+        Count
     }
 
     public class LanguageTextItem : IBinarySerializer, IBinaryDeserializer

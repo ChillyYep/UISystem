@@ -107,8 +107,9 @@
   <ItemGroup>
     <Compile Include="ExporterParser\CodeExpoter.cs" />
     <Compile Include="CopyFromDirectory\LanguageTextItem.cs" />
-    <Compile Include="MultiLanguageProcess\MultiLanguageParser.cs" />
-    <Compile Include="MultiLanguageProcess\MultiLanguageWriter.cs" />
+    <Compile Include="MultiLanguageProcess\MultiLanguageCollector.cs" />
+    <Compile Include="MultiLanguageProcess\MultiLanguageExchanger.cs" />
+    <Compile Include="MultiLanguageProcess\MultiLanguageProducer.cs" />
     <Compile Include="MetaData\ExcelTypeMetaDataParser.cs" />
     <Compile Include="MetaData\ConfigClassMetaData.cs" />
     <Compile Include="CopyFromDirectory\ConfigDataLoader.cs" />
@@ -130,9 +131,8 @@
     <Compile Include="ExcelProcess.cs" />
     <Compile Include="Formatter.cs" />
     <Compile Include="KeyRelations.cs" />
-    <Compile Include="MultiLanguageProcess\MultiLanguageExporter.cs" />
-    <Compile Include="MultiLanguageProcess\MutiLanguageCollector.cs" />
     <Compile Include="CopyFromDirectory\MutiLanguageReader.cs" />
+    <Compile Include="MultiLanguageProcess\SerializedMultiLanguageExporter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="DataExpoterForm.resx">

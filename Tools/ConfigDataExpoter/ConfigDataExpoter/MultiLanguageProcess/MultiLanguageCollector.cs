@@ -10,14 +10,46 @@ using System.Text.RegularExpressions;
 namespace ConfigDataExpoter
 {
     /// <summary>
-    /// 每一个翻译项信息
+    /// 每一个翻译项信息,所有语言的翻译项共用一个LanguageItem，以保证各语种翻译表id和来源信息同步
     /// </summary>
     public class LanguageItem
     {
+        public LanguageItem()
+        {
+            m_translateText = new string[(int)Language.Count];
+            for (int i = 0; i < m_translateText.Length; ++i)
+            {
+                m_translateText[i] = string.Empty;
+            }
+        }
+
         public const char fieldSeperator = '.';
         public int m_id;
         public SourceInfo m_source;
-        public string m_translateText;
+        private string[] m_translateText;
+
+        public void SetTranslateTextIfEmpty(Language language, string translateText)
+        {
+            var index = (int)language;
+            if (index < m_translateText.Length)
+            {
+                // 不能覆盖已经有的翻译，要相关人员手动填表修改
+                if (string.IsNullOrEmpty(m_translateText[index]))
+                {
+                    m_translateText[index] = translateText;
+                }
+            }
+        }
+
+        public string GetTranslateText(Language language)
+        {
+            var index = (int)language;
+            if (index < m_translateText.Length)
+            {
+                return m_translateText[index];
+            }
+            return string.Empty;
+        }
     }
 
     /// <summary>
@@ -101,25 +133,37 @@ namespace ConfigDataExpoter
     {
         public const string MutiLanguageMark = "MutiLanguage";
 
-        public MultiLanguageCollector(Language language, MultiLanguageExchanger multiLanguageWriter)
+        public MultiLanguageCollector(MultiLanguageExchanger multiLanguageWriter)
         {
             m_multiLanguageWriter = multiLanguageWriter;
-            m_language = language;
             m_curID = 0;
         }
 
+        /// <summary>
+        /// 加载翻译文件夹下所有翻译文件
+        /// </summary>
+        /// <param name="directory"></param>
         public void Load(string directory)
         {
-            m_languageCollector.Clear();
-
-            directory = GetLanguageDirectory(directory);
-            if (!Directory.Exists(directory))
+            // 以默认翻译表为基准，其ID和sourceInfo同步到其他翻译表
+            LoadOneLanguage(Language.Defaut, directory, true);
+            for (int i = 1; i < (int)Language.Count; ++i)
             {
-                return;
+                LoadOneLanguage((Language)i, directory, false);
             }
-            var files = Directory.GetFiles(directory);
-            List<ISheet> allLanguageSheets = new List<ISheet>();
-            List<string> excelNames = new List<string>();
+        }
+
+        /// <summary>
+        /// 检测语言表合法性
+        /// </summary>
+        /// <param name="directory"></param>
+        /// <param name="excelNames"></param>
+        /// <param name="allLanguageSheets"></param>
+        private void CheckLanguageTableLegality(string directory, out List<string> excelNames, out List<ISheet> allLanguageSheets)
+        {
+            var files = GetAllTopDirectoryExcelFiles(directory);
+            allLanguageSheets = new List<ISheet>();
+            excelNames = new List<string>();
             foreach (var file in files)
             {
                 excelNames.Add(Path.GetFileNameWithoutExtension(file));
@@ -148,6 +192,62 @@ namespace ConfigDataExpoter
                     continue;
                 }
             }
+        }
+
+        /// <summary>
+        /// 获取或如果不存在则创建语言表
+        /// </summary>
+        /// <returns></returns>
+        private LanguageTable GetOrCreateLanguageTable(string className, string filename, bool enableCreate)
+        {
+            if (!m_languageCollector.TryGetValue(className, out var languageTable) && enableCreate)
+            {
+                languageTable = new LanguageTable()
+                {
+                    m_excelName = filename,
+                    m_className = className
+                };
+                m_languageCollector[className] = languageTable;
+            }
+            return languageTable;
+        }
+
+        /// <summary>
+        /// 获取或如果不存在则创建翻译项
+        /// </summary>
+        /// <param name="languageItems"></param>
+        /// <param name="sourceInfoStr"></param>
+        /// <param name="sourceInfo"></param>
+        /// <param name="enableCreate"></param>
+        /// <returns></returns>
+        private LanguageItem GetOrCreateLanguageItem(Dictionary<string, LanguageItem> languageItems, string sourceInfoStr, SourceInfo sourceInfo, bool enableCreate)
+        {
+            if (!languageItems.TryGetValue(sourceInfoStr, out var languageItem) && enableCreate)
+            {
+                languageItem = new LanguageItem()
+                {
+                    m_id = ++m_curID,
+                    m_source = sourceInfo
+                };
+                languageItems[sourceInfoStr] = languageItem;
+            }
+            return languageItem;
+        }
+
+        /// <summary>
+        /// 加载某一种语言的翻译表
+        /// </summary>
+        /// <param name="directory"></param>
+        /// <returns></returns>
+        private void LoadOneLanguage(Language language, string directory, bool enableCreate)
+        {
+            var languageName = language.ToString();
+            directory = Path.Combine(directory, languageName);
+            if (!Directory.Exists(directory))
+            {
+                return;
+            }
+            CheckLanguageTableLegality(directory, out var excelNames, out var allLanguageSheets);
             // 读取翻译数据
             for (int i = 0; i < allLanguageSheets.Count; ++i)
             {
@@ -159,14 +259,20 @@ namespace ConfigDataExpoter
                 {
                     throw new ParseExcelException($"{sheet.SheetName}语言表第二行标记配置类来源，现格式不正确");
                 }
-                var languageTable = new LanguageTable()
+                var languageTable = GetOrCreateLanguageTable(classCell.StringCellValue, filename, enableCreate);
+                if (languageTable == null)
                 {
-                    m_excelName = filename,
-                    m_className = classCell.StringCellValue
-                };
+                    continue;
+                }
+                // 去除后缀，防止后续重复添加后缀
+                var suffix = "_" + languageName;
+                if (languageTable.m_excelName.EndsWith(suffix))
+                {
+                    languageTable.m_excelName = languageTable.m_excelName.Substring(0, languageTable.m_excelName.LastIndexOf(suffix));
+                }
+
                 var languageItems = languageTable.m_allLanguageItems;
 
-                m_languageCollector[languageTable.m_className] = languageTable;
                 // 第三行是域名，不用读取，跳过
 
                 // 从第四行开始是真正的数据
@@ -185,12 +291,13 @@ namespace ConfigDataExpoter
                     }
                     var sourceInfo = SourceInfo.ParseSourceIDStr(sourceInfoCell.StringCellValue);
                     sourceInfo.m_sourceText = sourceTextCell.StringCellValue;
-                    languageItems[sourceInfoCell.StringCellValue] = new LanguageItem()
+                    var languageItem = GetOrCreateLanguageItem(languageItems, sourceInfoCell.StringCellValue, sourceInfo, enableCreate);
+                    // 根据Default表创建LanguageItem，如果GetOrCreateLanguageItem的结果为空，说明不同语种的翻译表与Default表不同步
+                    if (languageItem == null)
                     {
-                        m_id = ++m_curID,
-                        m_source = sourceInfo,
-                        m_translateText = translateText
-                    };
+                        continue;
+                    }
+                    languageItem.SetTranslateTextIfEmpty(language, translateText);
                 }
             }
         }
@@ -204,29 +311,32 @@ namespace ConfigDataExpoter
         /// <returns></returns>
         public string AddText(string excelName, string className, SourceInfo sourceInfo)
         {
-            if (!m_languageCollector.TryGetValue(className, out var languageTable))
-            {
-                languageTable = new LanguageTable()
-                {
-                    m_excelName = $"{excelName}_{m_language.ToString()}",
-                    m_className = className
-                };
-                m_languageCollector[className] = languageTable;
-            }
             var source = sourceInfo.GetIDStr();
-            if (!languageTable.m_allLanguageItems.TryGetValue(source, out var languageItem))
-            {
-                languageItem = new LanguageItem()
-                {
-                    m_id = ++m_curID,
-                    m_source = sourceInfo,
-                    m_translateText = string.Empty
-                };
-                languageTable.m_allLanguageItems[source] = languageItem;
-            }
+            var id = AddTextForAllLanguage(excelName, className, sourceInfo, source);
             // 添加KeyValuePair
-            m_multiLanguageWriter.AddIDTextPair(languageItem.m_id, source);
+            m_multiLanguageWriter.AddIDTextPair(id, source);
             return source;
+        }
+
+        /// <summary>
+        /// 向所有语种的翻译表添加翻译项
+        /// </summary>
+        /// <param name="excelName"></param>
+        /// <param name="className"></param>
+        /// <param name="sourceInfo"></param>
+        /// <param name="sourceinfoStr"></param>
+        /// <returns></returns>
+        private int AddTextForAllLanguage(string excelName, string className, SourceInfo sourceInfo, string sourceinfoStr)
+        {
+            var languageTable = GetOrCreateLanguageTable(className, excelName, true);
+            var languageItem = GetOrCreateLanguageItem(languageTable.m_allLanguageItems, sourceinfoStr, sourceInfo, true);
+            for (int i = 0; i < (int)Language.Count; ++i)
+            {
+                languageItem.SetTranslateTextIfEmpty((Language)i, string.Empty);
+                languageItem.m_source.m_sourceText = sourceInfo.m_sourceText;
+
+            }
+            return languageItem.m_id;
         }
 
         /// <summary>
@@ -235,7 +345,20 @@ namespace ConfigDataExpoter
         /// <param name="directory"></param>
         public void Save(string directory)
         {
-            directory = GetLanguageDirectory(directory);
+            for (int i = 0; i < (int)Language.Count; ++i)
+            {
+                SaveOneLanguage((Language)i, directory);
+            }
+        }
+
+        /// <summary>
+        /// 保存某种语言的翻译表
+        /// </summary>
+        /// <param name="language"></param>
+        /// <param name="directory"></param>
+        private void SaveOneLanguage(Language language, string directory)
+        {
+            directory = Path.Combine(directory, language.ToString());
             if (!Directory.Exists(directory))
             {
                 Directory.CreateDirectory(directory);
@@ -254,7 +377,7 @@ namespace ConfigDataExpoter
             foreach (var excelName2ClassNamesPair in excelName2ClassNames)
             {
                 var excelName = excelName2ClassNamesPair.Key;
-                var excelPath = Path.Combine(directory, excelName + ".xlsx");
+                var excelPath = Path.Combine(directory, $"{excelName}_{language}.xlsx");
                 var classNames = excelName2ClassNamesPair.Value;
                 XSSFWorkbook workBook = new XSSFWorkbook();
                 foreach (var className in classNames)
@@ -298,7 +421,7 @@ namespace ConfigDataExpoter
 
                         idCell.SetCellValue(item.m_id.ToString());
                         sourceTextCell.SetCellValue(item.m_source.m_sourceText);
-                        translateTextCell.SetCellValue(item.m_translateText);
+                        translateTextCell.SetCellValue(item.GetTranslateText(language));
                         sourceInfoCell.SetCellValue(item.m_source.GetIDStr());
                     }
                 }
@@ -316,34 +439,7 @@ namespace ConfigDataExpoter
 
         private MultiLanguageExchanger m_multiLanguageWriter;
 
-        public string GetLanguageDirectory(string directory)
-        {
-            if (m_language == Language.CN)
-            {
-                directory = Path.Combine(directory, "CN");
-            }
-            else if (m_language == Language.EN)
-            {
-                directory = Path.Combine(directory, "EN");
-            }
-            return directory;
-        }
-
-        /// <summary>
-        /// 获取语言表目录
-        /// </summary>
-        /// <param name="directory"></param>
-        /// <returns></returns>
-        public string[] GetLanguageDirectories(string directory)
-        {
-            var languageNames = Enum.GetNames(typeof(Language));
-            var directories = languageNames.Select(languageName => Path.Combine(directory, languageName)).ToArray();
-            return directories;
-        }
-
-        private readonly Dictionary<string, LanguageTable> m_languageCollector = new Dictionary<string, LanguageTable>();
-
-        private Language m_language;
+        private Dictionary<string, LanguageTable> m_languageCollector = new Dictionary<string, LanguageTable>();
 
         private int m_curID = 0;
     }

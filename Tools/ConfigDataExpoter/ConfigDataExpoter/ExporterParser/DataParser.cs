@@ -266,6 +266,7 @@ namespace ConfigDataExpoter
             for (int x = 0; x < nestedClassFieldInfos.Count; ++x)
             {
                 var fieldTypeInfo = nestedClassFieldInfos[x];
+                m_context.m_curParsingNestedClassFieldName = fieldTypeInfo.NestedClassFieldMetaData.FieldName;
                 SetFieldValue(fieldTypeInfo, nestedClassInstance, values[x]);
             }
             return nestedClassInstance;
@@ -634,8 +635,15 @@ namespace ConfigDataExpoter
                         List<string> realValues = new List<string>(values.Length);
                         for (int i = 0; i < values.Length; ++i)
                         {
-                            m_context.m_curFieldListIndex = i;
-                            realValues.Add(AddLanguageSourceKey(value));
+                            if (fieldTypeInfo.m_isNestedClassField)
+                            {
+                                m_context.m_curNestedClassFieldListIndex = i;
+                            }
+                            else
+                            {
+                                m_context.m_curFieldListIndex = i;
+                            }
+                            realValues.Add(AddLanguageSourceKey(values[i]));
                         }
                         fieldInfo.SetValue(instance, realValues);
                     }
@@ -660,7 +668,7 @@ namespace ConfigDataExpoter
                         }
                         for (int i = 0; i < values.Length; ++i)
                         {
-                            m_context.m_curNestedClassFieldListIndex = i;
+                            m_context.m_curFieldListIndex = i;
                             var obj = ParseNestedClassData(m_nestedClassFieldTypeInfos, values[i], fieldMetaData, nestedFieldType);
                             // 恢复状态
                             addMethod.Invoke(listInstance, new object[] { obj });
