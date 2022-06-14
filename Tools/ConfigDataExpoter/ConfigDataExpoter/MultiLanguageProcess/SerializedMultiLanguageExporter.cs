@@ -19,9 +19,9 @@ namespace ConfigDataExpoter
 
         public void ExportData(string dstDirectory)
         {
-            var languageNames = Enum.GetNames(typeof(Language));
-            foreach (var languageName in languageNames)
+            for (int i = 0; i < (int)Language.Count; ++i)
             {
+                var languageName = ((Language)i).ToString();
                 var languageDir = Path.Combine(dstDirectory, languageName);
                 // 一个语言一个二进制文件
                 using (MemoryStream ms = new MemoryStream())

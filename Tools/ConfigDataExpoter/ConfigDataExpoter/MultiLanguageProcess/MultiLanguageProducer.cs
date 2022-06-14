@@ -19,10 +19,10 @@ namespace ConfigDataExpoter
         public Dictionary<string, List<LanguageTextItem>> ProduceMultiLanguageItems(string srcDirectory)
         {
             var languageTextItemsDict = new Dictionary<string, List<LanguageTextItem>>();
-            var languageNames = Enum.GetNames(typeof(Language));
             List<ISheet> sheets = new List<ISheet>();
-            foreach (var languageName in languageNames)
+            for (int language = 0; language < (int)Language.Count; ++language)
             {
+                var languageName = ((Language)language).ToString();
                 sheets.Clear();
                 // 某种语言
                 var languageDirPath = Path.Combine(srcDirectory, languageName);

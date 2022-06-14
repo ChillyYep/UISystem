@@ -114,7 +114,6 @@
     <None Include="Assets\ConfigData\Language\Defaut\Defaut.txt" />
     <None Include="Assets\ConfigData\Language\EN\EN.txt" />
     <None Include="Assets\ConfigData\ConfigPP.txt" />
-    <None Include="Assets\ConfigData\Language\Count\Count.txt" />
     <None Include="Assets\ConfigData\ConfigPP2.txt" />
     <None Include="Assets\ConfigData\Language\CN\CN.txt" />
     <Reference Include="UnityEngine">
