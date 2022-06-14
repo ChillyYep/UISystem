@@ -28,8 +28,10 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.button1 = new System.Windows.Forms.Button();
+            this.exportAllExcelBtn = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.languageDirectoryText = new System.Windows.Forms.TextBox();
+            this.label11 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
             this.codeTypeDropDown = new System.Windows.Forms.ComboBox();
             this.unityDataDirectoryText = new System.Windows.Forms.TextBox();
@@ -50,20 +52,23 @@
             this.label2 = new System.Windows.Forms.Label();
             this.rootDirectoryText = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.languageDirectoryText = new System.Windows.Forms.TextBox();
-            this.label11 = new System.Windows.Forms.Label();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.unityLanguageDirectoryText = new System.Windows.Forms.TextBox();
+            this.label12 = new System.Windows.Forms.Label();
+            this.exportLanguageBtn = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
+            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(59, 347);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "全部导出";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.ParseAllExcel);
+            this.exportAllExcelBtn.Location = new System.Drawing.Point(83, 359);
+            this.exportAllExcelBtn.Name = "button1";
+            this.exportAllExcelBtn.Size = new System.Drawing.Size(75, 23);
+            this.exportAllExcelBtn.TabIndex = 0;
+            this.exportAllExcelBtn.Text = "全部导出";
+            this.exportAllExcelBtn.UseVisualStyleBackColor = true;
+            this.exportAllExcelBtn.Click += new System.EventHandler(this.ParseAllExcel);
             // 
             // groupBox1
             // 
@@ -89,7 +94,7 @@
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.rootDirectoryText);
             this.groupBox1.Controls.Add(this.label1);
-            this.groupBox1.Controls.Add(this.button1);
+            this.groupBox1.Controls.Add(this.exportAllExcelBtn);
             this.groupBox1.Location = new System.Drawing.Point(12, 24);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(371, 400);
@@ -97,6 +102,24 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "自动生成设置";
             this.groupBox1.Enter += new System.EventHandler(this.groupBox1_Enter);
+            // 
+            // languageDirectoryText
+            // 
+            this.languageDirectoryText.Location = new System.Drawing.Point(105, 122);
+            this.languageDirectoryText.Name = "languageDirectoryText";
+            this.languageDirectoryText.Size = new System.Drawing.Size(244, 21);
+            this.languageDirectoryText.TabIndex = 22;
+            this.languageDirectoryText.TextChanged += new System.EventHandler(this._TextChanged);
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(20, 125);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(65, 12);
+            this.label11.TabIndex = 21;
+            this.label11.Text = "语言文件夹";
+            this.label11.Click += new System.EventHandler(this.label11_Click);
             // 
             // label10
             // 
@@ -269,41 +292,67 @@
             this.label1.TabIndex = 2;
             this.label1.Text = "导出目录";
             // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.exportLanguageBtn);
+            this.groupBox2.Controls.Add(this.unityLanguageDirectoryText);
+            this.groupBox2.Controls.Add(this.label12);
+            this.groupBox2.Location = new System.Drawing.Point(418, 34);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(343, 100);
+            this.groupBox2.TabIndex = 2;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "翻译表导入Unity";
+            this.groupBox2.Enter += new System.EventHandler(this.groupBox2_Enter);
+            // 
             // textBox1
             // 
-            this.languageDirectoryText.Location = new System.Drawing.Point(105, 122);
-            this.languageDirectoryText.Name = "textBox1";
-            this.languageDirectoryText.Size = new System.Drawing.Size(244, 21);
-            this.languageDirectoryText.TabIndex = 22;
-            this.languageDirectoryText.TextChanged += new System.EventHandler(this._TextChanged);
+            this.unityLanguageDirectoryText.Location = new System.Drawing.Point(93, 20);
+            this.unityLanguageDirectoryText.Name = "textBox1";
+            this.unityLanguageDirectoryText.Size = new System.Drawing.Size(244, 21);
+            this.unityLanguageDirectoryText.TabIndex = 24;
+            this.unityLanguageDirectoryText.TextChanged += new System.EventHandler(this._TextChanged);
             // 
-            // label11
+            // label12
             // 
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(20, 125);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(65, 12);
-            this.label11.TabIndex = 21;
-            this.label11.Text = "语言文件夹";
-            this.label11.Click += new System.EventHandler(this.label11_Click);
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(8, 23);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(53, 12);
+            this.label12.TabIndex = 23;
+            this.label12.Text = "输出目录";
+            this.label12.Click += new System.EventHandler(this.label12_Click);
+            // 
+            // exportLanguageBtn
+            // 
+            this.exportLanguageBtn.Location = new System.Drawing.Point(144, 61);
+            this.exportLanguageBtn.Name = "button2";
+            this.exportLanguageBtn.Size = new System.Drawing.Size(75, 23);
+            this.exportLanguageBtn.TabIndex = 3;
+            this.exportLanguageBtn.Text = "导出翻译";
+            this.exportLanguageBtn.UseVisualStyleBackColor = true;
+            this.exportLanguageBtn.Click += new System.EventHandler(this.ParseLanguageExcel);
             // 
             // DataExpoterForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Name = "DataExpoterForm";
             this.Text = "Form1";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button exportAllExcelBtn;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.TextBox loaderCodeNameText;
         private System.Windows.Forms.Label label5;
@@ -327,6 +376,10 @@
         private System.Windows.Forms.ComboBox codeTypeDropDown;
         private System.Windows.Forms.TextBox languageDirectoryText;
         private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.TextBox unityLanguageDirectoryText;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.Button exportLanguageBtn;
     }
 }
 

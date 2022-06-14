@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ConfigDataExpoter
 {
-    class FileExporter
+    public class FileExporter
     {
         public void ExportFile(string filePath, string code, bool recreateDirectory = true)
         {
@@ -29,14 +29,22 @@ namespace ConfigDataExpoter
                 throw new ParseExcelException(e.Message);
             }
         }
+
         public void ExportFile(string filePath, byte[] bytes, bool recreateDirectory = true)
         {
             var directoryName = Path.GetDirectoryName(filePath);
             try
             {
-                if (Directory.Exists(directoryName) && recreateDirectory)
+                if (Directory.Exists(directoryName))
                 {
-                    Directory.Delete(directoryName, true);
+                    if (recreateDirectory)
+                    {
+                        Directory.Delete(directoryName, true);
+                        Directory.CreateDirectory(directoryName);
+                    }
+                }
+                else
+                {
                     Directory.CreateDirectory(directoryName);
                 }
                 using (var fs = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.Write))

@@ -8,7 +8,7 @@ namespace ConfigData
     {
         public void Init()
         {
-            ConfigDataLoader = new ConfigDataLoader("Assets/ConfigData", "txt");
+            ConfigDataLoader = new ConfigDataLoader("Assets/ConfigData", "txt", new MutiLanguageReader(new MultiLanguageTextReaderImp(Language.CN, "Assets/ConfigData/Language", "txt")));
             ConfigDataLoader.LoadAllTableData();
         }
 

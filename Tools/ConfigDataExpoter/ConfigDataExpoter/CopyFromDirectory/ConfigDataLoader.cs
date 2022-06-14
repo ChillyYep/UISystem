@@ -6,10 +6,11 @@ namespace ConfigData
 {
     public partial class ConfigDataLoader
     {
-        public ConfigDataLoader(string directory, string suffix)
+        public ConfigDataLoader(string directory, string suffix, MutiLanguageReader mutiLanguageReader)
         {
             m_directory = directory;
             m_suffix = suffix;
+            m_mutiLanguageReader = mutiLanguageReader;
         }
 
         private Dictionary<int, T> LoadConfigDataDict<T>(string filename) where T : IBinaryDeserializer, IConfigData, new()
@@ -17,7 +18,7 @@ namespace ConfigData
             var testDict = new Dictionary<int, T>();
             using (FileStream sr = new FileStream(Path.Combine(m_directory, string.Format("{0}.{1}", filename, m_suffix)), FileMode.Open, FileAccess.Read))
             {
-                BinaryParser binaryParser = new BinaryParser(sr);
+                BinaryParser binaryParser = new BinaryParser(sr, m_mutiLanguageReader);
                 var list = binaryParser.ReadObjectList<T>();
                 foreach (var item in list)
                 {
@@ -28,9 +29,11 @@ namespace ConfigData
 
         }
 
-        public string m_directory;
+        private MutiLanguageReader m_mutiLanguageReader;
 
-        public string m_suffix;
+        private string m_directory;
+
+        private string m_suffix;
 
     }
 }

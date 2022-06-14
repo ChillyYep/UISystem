@@ -369,14 +369,6 @@ namespace ConfigDataExpoter
             }
 
             var fieldList = fieldsDict.Values.ToList();
-            //fieldList.Sort((a, b) =>
-            //{
-            //    if (a.FieldName.Length != b.FieldName.Length)
-            //    {
-            //        return a.FieldName.Length.CompareTo(b.FieldName.Length);
-            //    }
-            //    return a.FieldName.CompareTo(b.FieldName);
-            //});
             classMetaData.m_fieldsInfo.Clear();
             classMetaData.m_fieldsInfo.AddRange(fieldList);
         }

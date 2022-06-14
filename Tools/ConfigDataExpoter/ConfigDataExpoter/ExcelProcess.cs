@@ -153,13 +153,13 @@ namespace ConfigDataExpoter
             CheckMetaDataSafety();
 
             // 3、导出代码
-            CodeExpoter codeExporter = new CodeExpoter();
             var sheetDatas = new List<ConfigSheetData>();
             foreach (var fileSheetDatas in m_configSheetDict.Values)
             {
                 sheetDatas.AddRange(fileSheetDatas);
             }
-            codeExporter.Setup(sheetDatas);
+
+            CodeExpoter codeExporter = new CodeExpoter(sheetDatas);
             codeExporter.ExportConfigCode(m_exportCodePath);
             codeExporter.ExportTypeEnumCode(m_exportTypeEnumCodePath);
             codeExporter.ExportConfigDataLoaderCode(m_configDataLoaderAutoGenPath);
@@ -174,21 +174,23 @@ namespace ConfigDataExpoter
             codeExporter.CopyDirectory(m_exportCodeDirectory, m_unityCodeDirectory, false);
 
             // 5、读取数据体，穿插多语言收集
-            MutiLanguageProcess mutiLanguageProcess = new MutiLanguageProcess(ConfigData.Language.CN);
+            MultiLanguageExchanger languageWriter = new MultiLanguageExchanger();
+            MultiLanguageCollector mutiLanguageProcess = new MultiLanguageCollector(ConfigData.Language.CN, languageWriter);
             mutiLanguageProcess.Load(m_exportLanguageDirectory);
 
             ExcelDataRowParser dataParser = new ExcelDataRowParser(mutiLanguageProcess);
             var allTableDatas = dataParser.ParseAllExcelTableDatas(assembly, m_mainDirectory, m_configSheetDict);
 
             // 6、导出数据，序列化
-            DataExporter dataExporter = new DataExporter();
-            dataExporter.Setup(allTableDatas, FormatterType.Binary);
+            DataExporter dataExporter = new DataExporter(allTableDatas, FormatterType.Binary, languageWriter);
             dataExporter.ExportData(m_exportDataDirectory);
             dataExporter.CopyDirectory(m_exportDataDirectory, m_unityDataDirectory, false);
 
             // 7、多语言处理
             mutiLanguageProcess.Save(m_exportLanguageDirectory);
         }
+
+        //private MultiLanguageWriter m_languageWriter;
 
         /// <summary>
         /// Excel路径/名称为key

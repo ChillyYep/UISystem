@@ -15,8 +15,8 @@ namespace ConfigDataExpoter
     {
         public DataExpoterForm()
         {
-            string directory = AppDomain.CurrentDomain.BaseDirectory;
-            m_settingPath = Path.Combine(directory, nameof(ExportConfigDataSettings) + ".settings");
+            m_baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            m_settingPath = Path.Combine(m_baseDirectory, nameof(ExportConfigDataSettings) + ".settings");
             if (!File.Exists(m_settingPath))
             {
                 using (FileStream fs = new FileStream(m_settingPath, FileMode.OpenOrCreate, FileAccess.Write))
@@ -39,17 +39,20 @@ namespace ConfigDataExpoter
             }
             InitializeComponent();
             InitializeFromSetting();
-            m_parseProcess = new ExcelProcess(directory);
         }
 
         private void ParseAllExcel(object sender, EventArgs e)
         {
-            using (FileStream fs = new FileStream(m_settingPath, FileMode.OpenOrCreate, FileAccess.Write))
-            {
-                var formatter = new ConfigData.BinaryFormatter(fs);
-                formatter.WriteObject(settings);
-            }
+            m_parseProcess = new ExcelProcess(m_baseDirectory);
             m_parseProcess.ParseAllExcel(settings);
+        }
+
+        private void ParseLanguageExcel(object sender, EventArgs e)
+        {
+            string srcDir = Path.Combine(m_baseDirectory, settings.ExportRootDirectoryPath, settings.ExportLanguageDirectoryName);
+            string dstDir = Path.Combine(m_baseDirectory, settings.UnityLanaguageDirectory);
+            SerializedMultiLanguageExporter expoter = new SerializedMultiLanguageExporter(srcDir);
+            expoter.ExportData(dstDir);
         }
 
         private void groupBox1_Enter(object sender, EventArgs e)
@@ -77,6 +80,7 @@ namespace ConfigDataExpoter
             copyFromDirectoryPathText.Text = settings.CopyFromDirectoryPath;
             unityCodeDirectoryText.Text = settings.UnityCodeDirectory;
             unityDataDirectoryText.Text = settings.UnityDataDirectory;
+            unityLanguageDirectoryText.Text = settings.UnityLanaguageDirectory;
             m_dropDownItems = Enum.GetNames(typeof(CodeType));
             codeTypeDropDown.Items.AddRange(m_dropDownItems);
             codeTypeDropDown.SelectedItem = settings.CodeVisiblity.ToString();
@@ -124,6 +128,15 @@ namespace ConfigDataExpoter
             {
                 settings.ExportLanguageDirectoryName = textBox.Text;
             }
+            else if (textBox == unityLanguageDirectoryText)
+            {
+                settings.UnityLanaguageDirectory = textBox.Text;
+            }
+            using (FileStream fs = new FileStream(m_settingPath, FileMode.OpenOrCreate, FileAccess.Write))
+            {
+                var formatter = new ConfigData.BinaryFormatter(fs);
+                formatter.WriteObject(settings);
+            }
         }
 
         private void splitContainer1_Panel2_Paint(object sender, PaintEventArgs e)
@@ -144,6 +157,8 @@ namespace ConfigDataExpoter
 
         private string[] m_dropDownItems;
 
+        private string m_baseDirectory;
+
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             var dropdown = sender as ComboBox;
@@ -161,6 +176,16 @@ namespace ConfigDataExpoter
         }
 
         private void label11_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void groupBox2_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label12_Click(object sender, EventArgs e)
         {
 
         }

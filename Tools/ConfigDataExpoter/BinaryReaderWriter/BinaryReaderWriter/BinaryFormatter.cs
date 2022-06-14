@@ -12,7 +12,7 @@ namespace ConfigData
 
     public interface ITextWriter
     {
-        string Encode(string sourceText);
+        int Encode(string sourceText);
     }
 
     public class BinaryFormatter
@@ -21,11 +21,13 @@ namespace ConfigData
         {
             m_bw = new BinaryWriter(stream);
         }
+
         public BinaryFormatter(Stream stream, ITextWriter textWriter)
         {
             m_bw = new BinaryWriter(stream);
-            m_textwriter = textWriter;
+            m_textWriter = textWriter;
         }
+
         public void WriteObjectNoGeneric(object data)
         {
             Type type = data.GetType();
@@ -273,8 +275,8 @@ namespace ConfigData
 
         public void WriteText(string value)
         {
-            value = m_textwriter?.Encode(value) ?? value;
-            m_bw.Write(value);
+            var intValue = m_textWriter?.Encode(value) ?? default(int);
+            m_bw.Write(intValue);
         }
 
         public void WriteTextList(List<string> value)
@@ -322,8 +324,8 @@ namespace ConfigData
             m_bw.Close();
         }
 
-        private ITextWriter m_textwriter;
-
         private BinaryWriter m_bw;
+
+        private ITextWriter m_textWriter;
     }
 }

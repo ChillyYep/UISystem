@@ -1,12 +1,8 @@
 ﻿using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ConfigDataExpoter
 {
@@ -44,6 +40,11 @@ namespace ConfigDataExpoter
         public string[] GetAllTopDirectoryExcelFiles(string directory)
         {
             return Directory.GetFiles(directory, "*.xlsx", SearchOption.TopDirectoryOnly);
+        }
+
+        public string[] GetAllDirectoryExcelFiles(string directory)
+        {
+            return Directory.GetFiles(directory, "*.xlsx", SearchOption.AllDirectories);
         }
     }
 }

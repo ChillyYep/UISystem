@@ -42,12 +42,12 @@ namespace ConfigData
             public void Deserialize(BinaryParser reader)
             {
 				_id = reader.ReadInt32();
-				_name = reader.ReadString();
+				_name = reader.ReadText();
             }
             public void Serialize(BinaryFormatter writer)
             {
 				writer.WriteInt32(_id);
-				writer.WriteString(_name);
+				writer.WriteText(_name);
             }
             private Int32 _id;
             /// <summary>
@@ -104,7 +104,7 @@ namespace ConfigData
 			_nesttt = reader.ReadObjectList<NestedClasss>();
 			_flags = reader.ReadBooleanList();
 			_color2 = reader.ReadEnumList<Color>();
-			_comment = reader.ReadStringList();
+			_comment = reader.ReadTextList();
         }
         public void Serialize(BinaryFormatter writer)
         {
@@ -115,7 +115,7 @@ namespace ConfigData
 			writer.WriteObjectList<NestedClasss>(_nesttt);
 			writer.WriteBooleanList(_flags);
 			writer.WriteEnumList<Color>(_color2);
-			writer.WriteStringList(_comment);
+			writer.WriteTextList(_comment);
         }
         private Int32 _id;
         /// <summary>

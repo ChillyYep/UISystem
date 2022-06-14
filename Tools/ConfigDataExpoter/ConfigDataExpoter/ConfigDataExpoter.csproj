@@ -105,32 +105,34 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CodeExpoter.cs" />
-    <Compile Include="ExcelTypeMetaDataParser.cs" />
-    <Compile Include="ConfigClassMetaData.cs" />
+    <Compile Include="ExporterParser\CodeExpoter.cs" />
+    <Compile Include="CopyFromDirectory\LanguageTextItem.cs" />
+    <Compile Include="MultiLanguageProcess\MultiLanguageParser.cs" />
+    <Compile Include="MultiLanguageProcess\MultiLanguageWriter.cs" />
+    <Compile Include="MetaData\ExcelTypeMetaDataParser.cs" />
+    <Compile Include="MetaData\ConfigClassMetaData.cs" />
     <Compile Include="CopyFromDirectory\ConfigDataLoader.cs" />
-    <Compile Include="ConfigEnumMetaData.cs" />
-    <Compile Include="ConfigFieldMetaData.cs" />
-    <Compile Include="ConfigSheetData.cs" />
-    <Compile Include="ConfigDataLoader_AutoGen.cs" />
-    <Compile Include="DataExporter.cs" />
+    <Compile Include="MetaData\ConfigEnumMetaData.cs" />
+    <Compile Include="MetaData\ConfigFieldMetaData.cs" />
+    <Compile Include="MetaData\ConfigSheetData.cs" />
+    <Compile Include="ExporterParser\DataExporter.cs" />
     <Compile Include="DataExpoterForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="DataExpoterForm.Designer.cs">
       <DependentUpon>DataExpoterForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="DataParser.cs" />
+    <Compile Include="ExporterParser\DataParser.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="ExportConfigDataSettings.cs" />
-    <Compile Include="FileExporter.cs" />
-    <Compile Include="FileParser.cs" />
+    <Compile Include="ExporterParser\FileExporter.cs" />
+    <Compile Include="ExporterParser\FileParser.cs" />
     <Compile Include="ExcelProcess.cs" />
     <Compile Include="Formatter.cs" />
     <Compile Include="KeyRelations.cs" />
-    <Compile Include="MutiLanguageProcess.cs" />
-    <Compile Include="MutiLanguageReader.cs" />
-    <Compile Include="MutiLanguageWriter.cs" />
+    <Compile Include="MultiLanguageProcess\MultiLanguageExporter.cs" />
+    <Compile Include="MultiLanguageProcess\MutiLanguageCollector.cs" />
+    <Compile Include="CopyFromDirectory\MutiLanguageReader.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="DataExpoterForm.resx">
@@ -177,5 +179,6 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

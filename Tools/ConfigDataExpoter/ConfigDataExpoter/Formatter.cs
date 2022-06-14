@@ -43,6 +43,11 @@ namespace ConfigDataExpoter
 
     public class BinaryFormatterImp : FormatterImpBase
     {
+        public BinaryFormatterImp(MultiLanguageExchanger multiLanguageWriter)
+        {
+            m_multiLanguageWriter = multiLanguageWriter;
+        }
+
         public override List<T> DeSerializeDataTable<T>(Stream stream)
         {
             binaryParser = new ConfigData.BinaryParser(stream);
@@ -55,12 +60,14 @@ namespace ConfigDataExpoter
             byte[] bytes = new byte[0];
             using (MemoryStream ms = new MemoryStream())
             {
-                binaryFormatter = new ConfigData.BinaryFormatter(ms);
+                binaryFormatter = new ConfigData.BinaryFormatter(ms, m_multiLanguageWriter);
                 binaryFormatter.WriteObjectNoGeneric(dataTable);
                 bytes = ms.GetBuffer();
             }
             return bytes;
         }
+
+        private MultiLanguageExchanger m_multiLanguageWriter;
 
         private ConfigData.BinaryParser binaryParser;
 
@@ -70,12 +77,12 @@ namespace ConfigDataExpoter
 
     class Formatter : IFormatter
     {
-        public static FormatterImpBase CreateFormatterImp(FormatterType formatterType)
+        public static FormatterImpBase CreateFormatterImp(FormatterType formatterType, MultiLanguageExchanger multiLanguageWriter)
         {
             switch (formatterType)
             {
                 case FormatterType.Binary:
-                    return new BinaryFormatterImp();
+                    return new BinaryFormatterImp(multiLanguageWriter);
             }
             return null;
         }
@@ -84,10 +91,10 @@ namespace ConfigDataExpoter
 
         private FormatterType m_formatterType;
 
-        public Formatter(FormatterType formatterType)
+        public Formatter(FormatterType formatterType, MultiLanguageExchanger multiLanguageWriter)
         {
             m_formatterType = formatterType;
-            m_formatterImp = CreateFormatterImp(formatterType);
+            m_formatterImp = CreateFormatterImp(formatterType, multiLanguageWriter);
         }
 
         public List<T> DeSerializeDataTable<T>(Stream stream) where T : ConfigData.IBinaryDeserializer, new()

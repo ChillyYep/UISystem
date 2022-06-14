@@ -11,7 +11,7 @@ namespace ConfigData
 
     public interface ITextReader
     {
-        string DeCode(string codeStr);
+        string DeCode(int id);
     }
     public class BinaryParser
     {
@@ -198,12 +198,12 @@ namespace ConfigData
 
         public string ReadText()
         {
-            var readStr = m_br.ReadString();
-            readStr = m_textReader?.DeCode(readStr) ?? readStr;
-            return readStr;
+            var id = m_br.ReadInt32();
+            var str = m_textReader?.DeCode(id) ?? "Error";
+            return str;
         }
 
-        public List<string> ReadTextist()
+        public List<string> ReadTextList()
         {
             List<string> list = new List<string>();
             var size = GetLength();

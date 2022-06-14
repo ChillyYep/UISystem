@@ -2,17 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Reflection;
 using System.CodeDom.Compiler;
 using System.IO;
-using Microsoft.CSharp;
 
 namespace ConfigDataExpoter
 {
-    class CodeExpoter : FileExporter
+    public class CodeExpoter : FileExporter
     {
-        public void Setup(IEnumerable<ConfigSheetData> configSheetDatas)
+        public CodeExpoter(IEnumerable<ConfigSheetData> configSheetDatas)
         {
             m_configSheetDatas = configSheetDatas;
         }
@@ -321,9 +319,13 @@ namespace ConfigDataExpoter
                 if (ConfigFieldMetaData.GetListType(fieldInfo.BelongClassName, fieldInfo.FieldName, fieldInfo.ListType, out _) == ListType.None)
                 {
                     var classType = ConfigFieldMetaData.GetTypeName(fieldInfo, fieldInfo.OwnDataType, ConfigFieldMetaData.None);
-                    if (fieldInfo.OwnDataType >= DataType.Int8 && fieldInfo.OwnDataType <= DataType.Text)
+                    if (fieldInfo.OwnDataType >= DataType.Int8 && fieldInfo.OwnDataType <= DataType.String)
                     {
                         sb.Append(string.Format(writeCodeFormat, classType, fieldInfo.PrivateFieldName));
+                    }
+                    if (fieldInfo.OwnDataType == DataType.Text)
+                    {
+                        sb.Append(string.Format(writeCodeFormat, "Text", fieldInfo.PrivateFieldName));
                     }
                     else if (fieldInfo.OwnDataType == DataType.Enum)
                     {
@@ -337,9 +339,13 @@ namespace ConfigDataExpoter
                 else
                 {
                     var classType = ConfigFieldMetaData.GetTypeName(fieldInfo, fieldInfo.OwnDataType, ConfigFieldMetaData.None);
-                    if (fieldInfo.OwnDataType >= DataType.Int8 && fieldInfo.OwnDataType <= DataType.Text)
+                    if (fieldInfo.OwnDataType >= DataType.Int8 && fieldInfo.OwnDataType <= DataType.String)
                     {
                         sb.Append(string.Format(writeCodeFormat, $"{classType}List", fieldInfo.PrivateFieldName));
+                    }
+                    if (fieldInfo.OwnDataType == DataType.Text)
+                    {
+                        sb.Append(string.Format(writeCodeFormat, "TextList", fieldInfo.PrivateFieldName));
                     }
                     else if (fieldInfo.OwnDataType == DataType.Enum)
                     {
@@ -369,9 +375,13 @@ namespace ConfigDataExpoter
                 if (ConfigFieldMetaData.GetListType(fieldInfo.BelongClassName, fieldInfo.FieldName, fieldInfo.ListType, out _) == ListType.None)
                 {
                     var classType = ConfigFieldMetaData.GetTypeName(fieldInfo, fieldInfo.OwnDataType, ConfigFieldMetaData.None/*, fieldInfo.m_dataType == DataType.NestedClass*/);
-                    if (fieldInfo.OwnDataType >= DataType.Int8 && fieldInfo.OwnDataType <= DataType.Text)
+                    if (fieldInfo.OwnDataType >= DataType.Int8 && fieldInfo.OwnDataType <= DataType.String)
                     {
                         sb.Append(string.Format(readCodeFormat, fieldInfo.PrivateFieldName, "", classType));
+                    }
+                    if (fieldInfo.OwnDataType == DataType.Text)
+                    {
+                        sb.Append(string.Format(readCodeFormat, fieldInfo.PrivateFieldName, "", "Text"));
                     }
                     else if (fieldInfo.OwnDataType == DataType.Enum)
                     {
@@ -385,9 +395,13 @@ namespace ConfigDataExpoter
                 else
                 {
                     var classType = ConfigFieldMetaData.GetTypeName(fieldInfo, fieldInfo.OwnDataType, ConfigFieldMetaData.None/*, fieldInfo.m_dataType == DataType.NestedClass*/);
-                    if (fieldInfo.OwnDataType >= DataType.Int8 && fieldInfo.OwnDataType <= DataType.Text)
+                    if (fieldInfo.OwnDataType >= DataType.Int8 && fieldInfo.OwnDataType <= DataType.String)
                     {
                         sb.Append(string.Format(readCodeFormat, fieldInfo.PrivateFieldName, "", $"{classType}List"));
+                    }
+                    if (fieldInfo.OwnDataType == DataType.Text)
+                    {
+                        sb.Append(string.Format(readCodeFormat, fieldInfo.PrivateFieldName, "", "TextList"));
                     }
                     else if (fieldInfo.OwnDataType == DataType.Enum)
                     {

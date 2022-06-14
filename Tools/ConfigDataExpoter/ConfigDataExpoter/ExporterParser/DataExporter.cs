@@ -4,12 +4,12 @@ using System.IO;
 
 namespace ConfigDataExpoter
 {
-    class DataExporter : FileExporter
+    public class DataExporter : FileExporter
     {
-        public void Setup(Dictionary<Type, List<object>> allTableDatas, FormatterType formatterType)
+        public DataExporter(Dictionary<Type, List<object>> allTableDatas, FormatterType formatterType, MultiLanguageExchanger multiLanguageWriter)
         {
             m_allTableDatas = allTableDatas;
-            formatter = new Formatter(formatterType);
+            formatter = new Formatter(formatterType, multiLanguageWriter);
         }
 
         public void ExportData(string directory)
