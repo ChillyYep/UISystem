@@ -15,6 +15,11 @@ MonoBehaviour:
   m_generateMode: 3
   m_bundleDescExplain: "\u666E\u901ABundle"
   m_outputBundleName: configdata
-  m_assetList: []
+  m_assetList:
+  - Assets/ConfigData/ConfigPP.txt
+  - Assets/ConfigData/ConfigPP2.txt
+  - Assets/ConfigData/Language/CN/CN.txt
+  - Assets/ConfigData/Language/Defaut/Defaut.txt
+  - Assets/ConfigData/Language/EN/EN.txt
   m_childBundleDescs: []
   m_searchAssetTypes: 8192

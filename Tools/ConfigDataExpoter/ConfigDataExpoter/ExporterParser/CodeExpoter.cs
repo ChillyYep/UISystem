@@ -8,6 +8,9 @@ using System.IO;
 
 namespace ConfigDataExpoter
 {
+    /// <summary>
+    /// 代码生成导出工具
+    /// </summary>
     public class CodeExpoter : FileExporter
     {
         public CodeExpoter(IEnumerable<ConfigSheetData> configSheetDatas)

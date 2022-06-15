@@ -29,12 +29,12 @@ namespace ConfigData
     /// </summary>
     public partial class ConfigPP: IConfigData, IBinarySerializer, IBinaryDeserializer
     {
-        public class NestedClasss: IBinarySerializer, IBinaryDeserializer
+        public class IDNamePair: IBinarySerializer, IBinaryDeserializer
         {
-            public NestedClasss()
+            public IDNamePair()
             {
             }
-            public NestedClasss(Int32 id, String name)
+            public IDNamePair(Int32 id, String name)
             {
 				this._id = id;
 				this._name = name;
@@ -84,7 +84,7 @@ namespace ConfigData
         public ConfigPP()
         {
         }
-        public ConfigPP(Int32 id, String name, List<Single> ratio, List<Color> color, List<NestedClasss> nesttt, List<Boolean> flags, List<Color> color2, List<String> comment)
+        public ConfigPP(Int32 id, String name, List<Single> ratio, List<Color> color, List<IDNamePair> nesttt, List<Boolean> flags, List<Color> color2, List<String> comment)
         {
 			this._id = id;
 			this._name = name;
@@ -101,7 +101,7 @@ namespace ConfigData
 			_name = reader.ReadString();
 			_ratio = reader.ReadSingleList();
 			_color = reader.ReadEnumList<Color>();
-			_nesttt = reader.ReadObjectList<NestedClasss>();
+			_nesttt = reader.ReadObjectList<IDNamePair>();
 			_flags = reader.ReadBooleanList();
 			_color2 = reader.ReadEnumList<Color>();
 			_comment = reader.ReadTextList();
@@ -112,7 +112,7 @@ namespace ConfigData
 			writer.WriteString(_name);
 			writer.WriteSingleList(_ratio);
 			writer.WriteEnumList<Color>(_color);
-			writer.WriteObjectList<NestedClasss>(_nesttt);
+			writer.WriteObjectList<IDNamePair>(_nesttt);
 			writer.WriteBooleanList(_flags);
 			writer.WriteEnumList<Color>(_color2);
 			writer.WriteTextList(_comment);
@@ -177,11 +177,11 @@ namespace ConfigData
                 _color = value;
             }
         }
-        private List<NestedClasss> _nesttt;
+        private List<IDNamePair> _nesttt;
         /// <summary>
         /// 内嵌类
         /// </summary>
-        public List<NestedClasss> nesttt
+        public List<IDNamePair> nesttt
         {
             get
             {

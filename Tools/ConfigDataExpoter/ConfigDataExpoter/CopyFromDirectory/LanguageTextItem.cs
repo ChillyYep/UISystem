@@ -3,14 +3,9 @@ using System.Collections.Generic;
 
 namespace ConfigData
 {
-    public enum Language
-    {
-        Defaut,
-        CN,
-        EN,
-        Count
-    }
-
+    /// <summary>
+    /// 输出后翻译项，包含ID和翻译文本
+    /// </summary>
     public class LanguageTextItem : IBinarySerializer, IBinaryDeserializer
     {
         public int m_id;

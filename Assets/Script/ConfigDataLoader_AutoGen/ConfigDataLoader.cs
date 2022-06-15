@@ -4,6 +4,9 @@ using System.IO;
 
 namespace ConfigData
 {
+    /// <summary>
+    /// 配置表加载器，自定义部分
+    /// </summary>
     public partial class ConfigDataLoader
     {
         public ConfigDataLoader(string directory, string suffix, MutiLanguageReader mutiLanguageReader)

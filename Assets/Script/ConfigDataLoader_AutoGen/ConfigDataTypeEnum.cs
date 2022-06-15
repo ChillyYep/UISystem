@@ -53,7 +53,7 @@ namespace ConfigData
         /// <summary>
         /// 
         /// </summary>
-        ConfigPP_NestedClasss = 11,
+        ConfigPP_IDNamePair = 11,
         /// <summary>
         /// 测试数据类
         /// </summary>

@@ -4,6 +4,9 @@ using System.IO;
 
 namespace ConfigDataExpoter
 {
+    /// <summary>
+    /// 表数据导出工具
+    /// </summary>
     public class DataExporter : FileExporter
     {
         public DataExporter(Dictionary<Type, List<object>> allTableDatas, FormatterType formatterType, MultiLanguageExchanger multiLanguageWriter)

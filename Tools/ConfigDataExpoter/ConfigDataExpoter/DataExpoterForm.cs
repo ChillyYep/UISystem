@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace ConfigDataExpoter
 {
+    /// <summary>
+    /// 可视化窗口类
+    /// </summary>
     public partial class DataExpoterForm : Form
     {
         public DataExpoterForm()

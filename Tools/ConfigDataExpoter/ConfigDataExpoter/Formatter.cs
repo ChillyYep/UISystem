@@ -33,14 +33,18 @@ namespace ConfigDataExpoter
         /// <returns></returns>
         List<T> DeSerializeDataTable<T>(Stream stream) where T : ConfigData.IBinaryDeserializer, new();
     }
-
+    /// <summary>
+    /// 序列化反序列化中间装置
+    /// </summary>
     public abstract class FormatterImpBase : IFormatter
     {
         public abstract List<T> DeSerializeDataTable<T>(Stream stream) where T : ConfigData.IBinaryDeserializer, new();
 
         public abstract byte[] SerializeDataTable(List<object> dataTable, Type classType);
     }
-
+    /// <summary>
+    /// 字节流序列化反序列化实现
+    /// </summary>
     public class BinaryFormatterImp : FormatterImpBase
     {
         public BinaryFormatterImp(MultiLanguageExchanger multiLanguageWriter)
@@ -75,7 +79,7 @@ namespace ConfigDataExpoter
 
     }
 
-    class Formatter : IFormatter
+    public class Formatter : IFormatter
     {
         public static FormatterImpBase CreateFormatterImp(FormatterType formatterType, MultiLanguageExchanger multiLanguageWriter)
         {

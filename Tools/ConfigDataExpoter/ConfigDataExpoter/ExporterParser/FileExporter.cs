@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ConfigDataExpoter
 {
+    /// <summary>
+    /// 文件导出工具
+    /// </summary>
     public class FileExporter
     {
         public void ExportFile(string filePath, string code, bool recreateDirectory = true)

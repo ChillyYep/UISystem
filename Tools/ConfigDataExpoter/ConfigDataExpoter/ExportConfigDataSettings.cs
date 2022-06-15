@@ -10,7 +10,9 @@ namespace ConfigDataExpoter
         Client,
         Server
     }
-    [Serializable]
+    /// <summary>
+    /// 程序配置
+    /// </summary>
     public class ExportConfigDataSettings : IBinarySerializer, IBinaryDeserializer
     {
         public string ExportRootDirectoryPath = "../../../Design";

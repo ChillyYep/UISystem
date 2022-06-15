@@ -1,20 +1,13 @@
-﻿using NPOI.HSSF.UserModel;
-using NPOI.SS.UserModel;
-using NPOI.XSSF.UserModel;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ConfigDataExpoter
 {
-    class ExcelProcess
+    /// <summary>
+    /// Excel数据处理
+    /// </summary>
+    public class ExcelProcess
     {
         public ExcelProcess(string baseDirecotry)
         {

@@ -105,8 +105,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CopyFromDirectory\ILanguageLoader.cs" />
+    <Compile Include="CopyFromDirectory\Language.cs" />
+    <Compile Include="CopyFromDirectory\LanguageLoaderImpBase.cs" />
     <Compile Include="ExporterParser\CodeExpoter.cs" />
     <Compile Include="CopyFromDirectory\LanguageTextItem.cs" />
+    <Compile Include="MetaData\ConfigClassFieldHeader.cs" />
+    <Compile Include="MetaData\ConfigFieldMetaDataBase.cs" />
+    <Compile Include="MetaData\DataType.cs" />
+    <Compile Include="MetaData\ListType.cs" />
+    <Compile Include="MetaData\Visiblity.cs" />
+    <Compile Include="MultiLanguageProcess\LanguageItem.cs" />
+    <Compile Include="MultiLanguageProcess\LanguageTable.cs" />
     <Compile Include="MultiLanguageProcess\MultiLanguageCollector.cs" />
     <Compile Include="MultiLanguageProcess\MultiLanguageExchanger.cs" />
     <Compile Include="MultiLanguageProcess\MultiLanguageProducer.cs" />
@@ -127,12 +137,13 @@
     <Compile Include="Exceptions.cs" />
     <Compile Include="ExportConfigDataSettings.cs" />
     <Compile Include="ExporterParser\FileExporter.cs" />
-    <Compile Include="ExporterParser\FileParser.cs" />
+    <Compile Include="ExporterParser\ExcelParserBase.cs" />
     <Compile Include="ExcelProcess.cs" />
     <Compile Include="Formatter.cs" />
     <Compile Include="KeyRelations.cs" />
     <Compile Include="CopyFromDirectory\MutiLanguageReader.cs" />
     <Compile Include="MultiLanguageProcess\SerializedMultiLanguageExporter.cs" />
+    <Compile Include="MultiLanguageProcess\SourceInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="DataExpoterForm.resx">

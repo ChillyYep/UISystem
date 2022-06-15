@@ -3,28 +3,9 @@ using System.Collections.Generic;
 
 namespace ConfigData
 {
-    public interface ILanguageLoader
-    {
-        void LoadAllTexts();
-    }
-
-    public abstract class LanguageLoaderImpBase : ILanguageLoader
-    {
-        public LanguageLoaderImpBase(Language language)
-        {
-            m_language = language;
-        }
-
-        public abstract void LoadAllTexts();
-
-        /// <summary>
-        /// key:className.ID.FieldName.FieldListIndex.NestedClassFieldIndex.NestdClassFieldListIndex
-        /// </summary>
-        public readonly Dictionary<int, string> m_languageParser = new Dictionary<int, string>();
-
-        protected Language m_language;
-    }
-
+    /// <summary>
+    /// 多语言解码，读取器
+    /// </summary>
     public class MutiLanguageReader : ITextReader
     {
         public MutiLanguageReader(LanguageLoaderImpBase languageLoaderImp)
