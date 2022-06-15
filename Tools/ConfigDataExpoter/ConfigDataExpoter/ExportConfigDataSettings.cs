@@ -25,6 +25,7 @@ namespace ConfigDataExpoter
         public CodeType CodeVisiblity = CodeType.Client;
         public string ExportLanguageDirectoryName = "Language";
         public string UnityLanaguageDirectory = "";
+        public bool RemoveExpiredLanguageItem = true;
 
         private string ReadString(BinaryParser reader)
         {
@@ -48,6 +49,17 @@ namespace ConfigDataExpoter
                 return default(int);
             }
         }
+        private bool ReadBoolean(BinaryParser reader)
+        {
+            try
+            {
+                return reader.ReadBoolean();
+            }
+            catch
+            {
+                return default(bool);
+            }
+        }
         public void Deserialize(BinaryParser reader)
         {
             ExportRootDirectoryPath = ReadString(reader);
@@ -62,6 +74,7 @@ namespace ConfigDataExpoter
             CodeVisiblity = (CodeType)ReadEnum(reader);
             ExportLanguageDirectoryName = ReadString(reader);
             UnityLanaguageDirectory = ReadString(reader);
+            RemoveExpiredLanguageItem = ReadBoolean(reader);
         }
 
         public void Serialize(BinaryFormatter formatter)
@@ -78,6 +91,7 @@ namespace ConfigDataExpoter
             formatter.WriteEnum((int)CodeVisiblity);
             formatter.WriteString(ExportLanguageDirectoryName);
             formatter.WriteString(UnityLanaguageDirectory);
+            formatter.WriteBoolean(RemoveExpiredLanguageItem);
         }
     }
 }

@@ -175,7 +175,7 @@ namespace ConfigDataExpoter
 
             // 5、读取数据体，穿插多语言收集
             MultiLanguageExchanger languageWriter = new MultiLanguageExchanger();
-            MultiLanguageCollector mutiLanguageProcess = new MultiLanguageCollector(languageWriter);
+            MultiLanguageCollector mutiLanguageProcess = new MultiLanguageCollector(languageWriter, settings.RemoveExpiredLanguageItem);
             mutiLanguageProcess.Load(m_exportLanguageDirectory);
 
             ExcelDataRowParser dataParser = new ExcelDataRowParser(mutiLanguageProcess);
@@ -189,8 +189,6 @@ namespace ConfigDataExpoter
             // 7、多语言处理
             mutiLanguageProcess.Save(m_exportLanguageDirectory);
         }
-
-        //private MultiLanguageWriter m_languageWriter;
 
         /// <summary>
         /// Excel路径/名称为key

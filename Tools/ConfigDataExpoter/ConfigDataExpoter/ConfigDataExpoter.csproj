@@ -110,7 +110,7 @@
     <Compile Include="MultiLanguageProcess\MultiLanguageCollector.cs" />
     <Compile Include="MultiLanguageProcess\MultiLanguageExchanger.cs" />
     <Compile Include="MultiLanguageProcess\MultiLanguageProducer.cs" />
-    <Compile Include="MetaData\ExcelTypeMetaDataParser.cs" />
+    <Compile Include="ExporterParser\ExcelTypeMetaDataParser.cs" />
     <Compile Include="MetaData\ConfigClassMetaData.cs" />
     <Compile Include="CopyFromDirectory\ConfigDataLoader.cs" />
     <Compile Include="MetaData\ConfigEnumMetaData.cs" />

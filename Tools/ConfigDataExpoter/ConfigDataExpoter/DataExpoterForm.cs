@@ -55,19 +55,6 @@ namespace ConfigDataExpoter
             expoter.ExportData(dstDir);
         }
 
-        private void groupBox1_Enter(object sender, EventArgs e)
-        {
-        }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void flowLayoutPanel1_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
         private void InitializeFromSetting()
         {
             rootDirectoryText.Text = settings.ExportRootDirectoryPath;
@@ -84,7 +71,10 @@ namespace ConfigDataExpoter
             m_dropDownItems = Enum.GetNames(typeof(CodeType));
             codeTypeDropDown.Items.AddRange(m_dropDownItems);
             codeTypeDropDown.SelectedItem = settings.CodeVisiblity.ToString();
+
+            removeExpiredLanguageItemChecked.Checked = settings.RemoveExpiredLanguageItem;
         }
+
         private void _TextChanged(object sender, EventArgs e)
         {
             var textBox = sender as TextBox;
@@ -132,34 +122,21 @@ namespace ConfigDataExpoter
             {
                 settings.UnityLanaguageDirectory = textBox.Text;
             }
+            SaveSettings();
+        }
+
+        private void SaveSettings()
+        {
             using (FileStream fs = new FileStream(m_settingPath, FileMode.OpenOrCreate, FileAccess.Write))
             {
                 var formatter = new ConfigData.BinaryFormatter(fs);
                 formatter.WriteObject(settings);
+                formatter.Flush();
+                formatter.Close();
             }
         }
 
-        private void splitContainer1_Panel2_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private void splitContainer1_Panel1_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private string m_settingPath;
-
-        private ExportConfigDataSettings settings = new ExportConfigDataSettings();
-
-        private ExcelProcess m_parseProcess;
-
-        private string[] m_dropDownItems;
-
-        private string m_baseDirectory;
-
-        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        private void _SelectedIndexChanged(object sender, EventArgs e)
         {
             var dropdown = sender as ComboBox;
             if (dropdown == codeTypeDropDown)
@@ -175,19 +152,24 @@ namespace ConfigDataExpoter
             }
         }
 
-        private void label11_Click(object sender, EventArgs e)
+        private void _CheckedChanged(object sender, EventArgs e)
         {
-
+            var checkBox = sender as CheckBox;
+            if (removeExpiredLanguageItemChecked == checkBox)
+            {
+                settings.RemoveExpiredLanguageItem = checkBox.Checked;
+            }
+            SaveSettings();
         }
 
-        private void groupBox2_Enter(object sender, EventArgs e)
-        {
+        private string m_settingPath;
 
-        }
+        private ExportConfigDataSettings settings = new ExportConfigDataSettings();
 
-        private void label12_Click(object sender, EventArgs e)
-        {
+        private ExcelProcess m_parseProcess;
 
-        }
+        private string[] m_dropDownItems;
+
+        private string m_baseDirectory;
     }
 }

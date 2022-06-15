@@ -131,10 +131,9 @@ namespace ConfigDataExpoter
     /// </summary>
     public class MultiLanguageCollector : ExcelParserBase
     {
-        public const string MutiLanguageMark = "MutiLanguage";
-
-        public MultiLanguageCollector(MultiLanguageExchanger multiLanguageWriter)
+        public MultiLanguageCollector(MultiLanguageExchanger multiLanguageWriter, bool autoRemoveExpiredLanguageItem)
         {
+            m_autoRemoveExpiredLanguageItem = autoRemoveExpiredLanguageItem;
             m_multiLanguageWriter = multiLanguageWriter;
             m_curID = 0;
         }
@@ -345,6 +344,11 @@ namespace ConfigDataExpoter
         /// <param name="directory"></param>
         public void Save(string directory)
         {
+            if (m_autoRemoveExpiredLanguageItem)
+            {
+                // 保存前删除过期的翻译项，不会修改翻译项的ID，所以不影响数据读取，在下次导出时会重新整理ID，自动解决零碎的ID分布
+                RemoveExpiredLanguageItems();
+            }
             for (int i = 0; i < (int)Language.Count; ++i)
             {
                 SaveOneLanguage((Language)i, directory);
@@ -437,10 +441,56 @@ namespace ConfigDataExpoter
             }
         }
 
+        /// <summary>
+        /// 删除过期翻译项
+        /// </summary>
+        private void RemoveExpiredLanguageItems()
+        {
+            // className-sourceInfoList键值对
+            var wait2Remove = new Dictionary<string, List<string>>();
+            // 按表收集过期项
+            foreach (var languagePair in m_languageCollector)
+            {
+                var className = languagePair.Key;
+                var languageTable = languagePair.Value;
+                foreach (var languageItemPair in languageTable.m_allLanguageItems)
+                {
+                    var sourceInfoStr = languageItemPair.Key;
+                    if (!m_multiLanguageWriter.m_sourceInfo2ID.ContainsKey(sourceInfoStr))
+                    {
+                        if (!wait2Remove.TryGetValue(className, out var removeList))
+                        {
+                            removeList = new List<string>();
+                            wait2Remove[className] = removeList;
+                        }
+                        removeList.Add(sourceInfoStr);
+                    }
+                }
+            }
+            // 按表删除过期项
+            foreach (var removeItemPair in wait2Remove)
+            {
+                var removeTable = removeItemPair.Key;
+                var removeSourceInfoList = removeItemPair.Value;
+                var targetLanguageTable = m_languageCollector[removeTable];
+                foreach (var waitRemoveSourceInfo in removeSourceInfoList)
+                {
+                    if (targetLanguageTable.m_allLanguageItems.ContainsKey(waitRemoveSourceInfo))
+                    {
+                        targetLanguageTable.m_allLanguageItems.Remove(waitRemoveSourceInfo);
+                    }
+                }
+            }
+        }
+
+        public const string MutiLanguageMark = "MutiLanguage";
+
         private MultiLanguageExchanger m_multiLanguageWriter;
 
         private Dictionary<string, LanguageTable> m_languageCollector = new Dictionary<string, LanguageTable>();
 
         private int m_curID = 0;
+
+        private bool m_autoRemoveExpiredLanguageItem;
     }
 }

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_generateMode: 3
   m_bundleDescExplain: "\u666E\u901ABundle"
-  m_outputBundleName: 
+  m_outputBundleName: configdata
   m_assetList: []
   m_childBundleDescs: []
-  m_searchAssetTypes: 4159
+  m_searchAssetTypes: 8192
