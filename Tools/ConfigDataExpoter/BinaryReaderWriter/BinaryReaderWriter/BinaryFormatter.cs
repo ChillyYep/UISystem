@@ -5,16 +5,25 @@ using System.IO;
 
 namespace ConfigData
 {
+    /// <summary>
+    /// 每个配置类数据都需继承实现的序列化接口
+    /// </summary>
     public interface IBinarySerializer
     {
         void Serialize(BinaryFormatter formatter);
     }
 
+    /// <summary>
+    /// 翻译sourceInfo-id转换器
+    /// </summary>
     public interface ITextWriter
     {
         int Encode(string sourceText);
     }
 
+    /// <summary>
+    /// 二进制序列化器
+    /// </summary>
     public class BinaryFormatter
     {
         public BinaryFormatter(Stream stream)

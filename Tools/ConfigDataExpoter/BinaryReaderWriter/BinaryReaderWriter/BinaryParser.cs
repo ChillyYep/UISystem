@@ -4,15 +4,25 @@ using System.IO;
 
 namespace ConfigData
 {
+    /// <summary>
+    /// 每个配置类数据都需继承实现的反序列化接口
+    /// </summary>
     public interface IBinaryDeserializer
     {
         void Deserialize(BinaryParser reader);
     }
 
+    /// <summary>
+    /// 翻译id-sourceInfo转换器
+    /// </summary>
     public interface ITextReader
     {
         string DeCode(int id);
     }
+
+    /// <summary>
+    /// 二进制反序列化器
+    /// </summary>
     public class BinaryParser
     {
         public BinaryParser(Stream stream)
