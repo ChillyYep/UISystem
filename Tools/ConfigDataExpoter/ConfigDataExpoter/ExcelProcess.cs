@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace ConfigDataExpoter
 {
@@ -42,6 +43,13 @@ namespace ConfigDataExpoter
                     {
                         throw new ParseExcelException("配置类数据异常！");
                     }
+                    // 名称合法性
+                    var matchValue = Regex.Match(className, "[a-zA-Z_]+[0-9a-zA-Z_]").Value;
+                    if (!matchValue.Equals(className))
+                    {
+                        throw new ParseExcelException("类型名称只能包含英文字母大小写和下划线");
+                    }
+                    // 重复性判断
                     if (!className2SheetData.ContainsKey(className))
                     {
                         className2SheetData[className] = metaData;
@@ -62,15 +70,6 @@ namespace ConfigDataExpoter
                     var classMetaData = sheetData.Value.m_configMetaData as ConfigClassMetaData;
                     foreach (var fieldInfo in classMetaData.m_fieldsInfo)
                     {
-                        // 暂时不支持枚举数组
-                        //if (fieldInfo.DataType == DataType.Enum)
-                        //{
-                        //    var listType = ConfigFieldMetaData.GetListType(fieldInfo.ListType);
-                        //    if (listType != ListType.None)
-                        //    {
-                        //        throw new ParseExcelException($"Enum不能数组化");
-                        //    }
-                        //}
                         // 判断类型有ID列
                         if (fieldInfo.FieldName.Equals(ConfigClassMetaData.IDPrimaryKey, StringComparison.OrdinalIgnoreCase))
                         {
