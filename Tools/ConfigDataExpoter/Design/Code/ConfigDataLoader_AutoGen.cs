@@ -15,6 +15,7 @@ namespace ConfigData
 
             ConfigDataConfigPPTable = LoadConfigDataDict<ConfigPP>("ConfigPP");
             ConfigDataConfigPP2Table = LoadConfigDataDict<ConfigPP2>("ConfigPP2");
+            ConfigDataUITranslateTextItemTable = LoadConfigDataDict<UITranslateTextItem>("UITranslateTextItem");
         }
 
         /// <summary>
@@ -25,5 +26,9 @@ namespace ConfigData
         /// 测试数据类
         /// </summary>
         public Dictionary<int, ConfigPP2> ConfigDataConfigPP2Table { get; private set; }
+        /// <summary>
+        /// 来自UI的翻译项
+        /// </summary>
+        public Dictionary<int, UITranslateTextItem> ConfigDataUITranslateTextItemTable { get; private set; }
     }
 }

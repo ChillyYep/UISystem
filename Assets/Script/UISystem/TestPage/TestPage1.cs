@@ -15,7 +15,7 @@ public class TestPage1 : Page
         base.DoOpen();
         var localParams = Params as Tuple<string>;
         titleName = localParams.Item1;
-        titleTxt.text = titleName;
+        //titleTxt.text = titleName;
         Debug.Log(string.Format("{0}:Opened!", titleName));
     }
     protected override void DoClose()

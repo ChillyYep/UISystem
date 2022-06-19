@@ -51,8 +51,8 @@ MonoBehaviour:
         m_bundleName: prefabs_page.ab
         m_singleAssetCaches:
         - m_assetPath: Assets/RuntimeAssets/Prefabs/Page/Test/TestPage4.prefab
-          m_assetSize: 15530
-          m_assetHash: 41d973bbe182deb3b6dea2db144b6aac
+          m_assetSize: 15990
+          m_assetHash: 286c5bf4bfe6470030a5b5e747dc74b3
         - m_assetPath: Assets/RuntimeAssets/Prefabs/Page/Test2DPage.prefab
           m_assetSize: 4333
           m_assetHash: e35421ee46af8513982475416b75c736
@@ -85,13 +85,6 @@ MonoBehaviour:
         - m_assetPath: Assets/RuntimeAssets/Prefabs/Page/ChildPage/ChildPage/TestPage3.prefab
           m_assetSize: 17084
           m_assetHash: 76fc5c3e5d90dec0bb350d6a72827e76
-    - key: sssss.ab
-      value:
-        m_bundleName: sssss.ab
-        m_singleAssetCaches:
-        - m_assetPath: Assets/ConfigData/sssss/sssss.txt
-          m_assetSize: 38
-          m_assetHash: c39cae804746387a163462573a7ec319
     - key: StandaloneWindows64
       value:
         m_bundleName: StandaloneWindows64

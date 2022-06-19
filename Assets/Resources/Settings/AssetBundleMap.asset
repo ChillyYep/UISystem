@@ -13,9 +13,141 @@ MonoBehaviour:
   m_Name: AssetBundleMap
   m_EditorClassIdentifier: 
   m_inverseBundleMap:
-    pairs: []
+    pairs:
+    - key: AssetBundleManifest
+      value: StandaloneWindows64
+    - key: Assets/RuntimeAssets/Common/Image/cat1.jpeg
+      value: common.ab
+    - key: Assets/RuntimeAssets/Common/Image/cat2.png
+      value: common.ab
+    - key: Assets/RuntimeAssets/Common/Image/cat3.png
+      value: common.ab
+    - key: Assets/RuntimeAssets/Common/Material/Custom_NewSurfaceShader.mat
+      value: common.ab
+    - key: Assets/RuntimeAssets/Common/Test/New Animation.anim
+      value: common.ab
+    - key: Assets/RuntimeAssets/Prefabs/CameraManager.prefab
+      value: prefabs.ab
+    - key: Assets/RuntimeAssets/Prefabs/Page/ChildPage/ChildPage/TestPage3.prefab
+      value: prefabs_page_childpage_childpage.ab
+    - key: Assets/RuntimeAssets/Prefabs/Page/ChildPage/TestPage2.prefab
+      value: prefabs_page_childpage.ab
+    - key: Assets/RuntimeAssets/Prefabs/Page/Test/TestPage4.prefab
+      value: prefabs_page.ab
+    - key: Assets/RuntimeAssets/Prefabs/Page/Test2DPage.prefab
+      value: prefabs_page.ab
+    - key: Assets/RuntimeAssets/Prefabs/Page/Test3DPage.prefab
+      value: prefabs_page.ab
+    - key: Assets/RuntimeAssets/Prefabs/Page/TestPage1.prefab
+      value: prefabs_page.ab
+    - key: Assets/RuntimeAssets/Prefabs/Page/TownPage.prefab
+      value: prefabs_page.ab
+    - key: Assets/RuntimeAssets/Prefabs/Page/TownPage2.prefab
+      value: prefabs_page.ab
+    - key: Assets/RuntimeAssets/Prefabs/Page/TownPage3.prefab
+      value: prefabs_page.ab
+    - key: Assets/RuntimeAssets/Prefabs/TestPage3.prefab
+      value: prefabs.ab
+    - key: Assets/RuntimeAssets/Prefabs/UIRoot.prefab
+      value: prefabs.ab
   m_bundleMap:
-    pairs: []
+    pairs:
+    - key: common.ab
+      value:
+        m_bundleNameWithSuffix: common.ab
+        m_assetList:
+        - Assets/RuntimeAssets/Common/Image/cat1.jpeg
+        - Assets/RuntimeAssets/Common/Image/cat2.png
+        - Assets/RuntimeAssets/Common/Image/cat3.png
+        - Assets/RuntimeAssets/Common/Material/Custom_NewSurfaceShader.mat
+        - Assets/RuntimeAssets/Common/Test/New Animation.anim
+        m_crc: 2987580204
+        m_hash: a4473b8c355db27f2a0c541add5ab5c4
+        m_version: 1
+        m_size: 1394978
+        m_setting:
+          m_location: 0
+    - key: prefabs.ab
+      value:
+        m_bundleNameWithSuffix: prefabs.ab
+        m_assetList:
+        - Assets/RuntimeAssets/Prefabs/CameraManager.prefab
+        - Assets/RuntimeAssets/Prefabs/TestPage3.prefab
+        - Assets/RuntimeAssets/Prefabs/UIRoot.prefab
+        m_crc: 1949719570
+        m_hash: 2c8dbf497b5a0ab70ce7c6fb6b40516c
+        m_version: 1
+        m_size: 14047
+        m_setting:
+          m_location: 0
+    - key: prefabs_page.ab
+      value:
+        m_bundleNameWithSuffix: prefabs_page.ab
+        m_assetList:
+        - Assets/RuntimeAssets/Prefabs/Page/Test/TestPage4.prefab
+        - Assets/RuntimeAssets/Prefabs/Page/Test2DPage.prefab
+        - Assets/RuntimeAssets/Prefabs/Page/Test3DPage.prefab
+        - Assets/RuntimeAssets/Prefabs/Page/TestPage1.prefab
+        - Assets/RuntimeAssets/Prefabs/Page/TownPage.prefab
+        - Assets/RuntimeAssets/Prefabs/Page/TownPage2.prefab
+        - Assets/RuntimeAssets/Prefabs/Page/TownPage3.prefab
+        m_crc: 813685614
+        m_hash: 4ecdf0c35a6958871c1f43c9af786319
+        m_version: 1
+        m_size: 19509
+        m_setting:
+          m_location: 0
+    - key: prefabs_page_childpage.ab
+      value:
+        m_bundleNameWithSuffix: prefabs_page_childpage.ab
+        m_assetList:
+        - Assets/RuntimeAssets/Prefabs/Page/ChildPage/TestPage2.prefab
+        m_crc: 3755049378
+        m_hash: 75317d8a8c1eac16f6dac2e4585c7a11
+        m_version: 1
+        m_size: 10602
+        m_setting:
+          m_location: 0
+    - key: prefabs_page_childpage_childpage.ab
+      value:
+        m_bundleNameWithSuffix: prefabs_page_childpage_childpage.ab
+        m_assetList:
+        - Assets/RuntimeAssets/Prefabs/Page/ChildPage/ChildPage/TestPage3.prefab
+        m_crc: 499648630
+        m_hash: 92d5ff8ed4b1d8aba7444eb3ea196936
+        m_version: 1
+        m_size: 10594
+        m_setting:
+          m_location: 0
+    - key: StandaloneWindows64
+      value:
+        m_bundleNameWithSuffix: StandaloneWindows64
+        m_assetList:
+        - AssetBundleManifest
+        m_crc: 1189891164
+        m_hash: 1a77dba408d1e796e057b97392402a88
+        m_version: 1
+        m_size: 1726
+        m_setting:
+          m_location: 0
   m_dependencies:
     m_dependenciesDict:
-      pairs: []
+      pairs:
+      - key: common.ab
+        value:
+        - common.ab
+      - key: prefabs.ab
+        value:
+        - common.ab
+      - key: prefabs_page.ab
+        value:
+        - common.ab
+        - prefabs_page_childpage_childpage.ab
+      - key: prefabs_page_childpage.ab
+        value:
+        - prefabs_page.ab
+        - common.ab
+      - key: prefabs_page_childpage_childpage.ab
+        value:
+        - common.ab
+        - prefabs_page_childpage.ab

@@ -23,7 +23,7 @@ public class TownPage : Page
             case "ChildPage/ChildPage/TestPage3":
                 Open(pageName, new Tuple<string>("TestPage3"), PageType.Cover);
                 break;
-            case "Test/TestPage4":
+            case "TestPage4":
                 Open(pageName, new Tuple<string>("TestPage4"), PageType.Cover);
                 break;
             case "TestPage5":

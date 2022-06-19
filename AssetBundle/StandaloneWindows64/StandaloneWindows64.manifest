@@ -1,5 +1,5 @@
 ManifestFileVersion: 0
-CRC: 4057923560
+CRC: 1189891164
 AssetBundleManifest:
   AssetBundleInfos:
     Info_0:
@@ -23,7 +23,4 @@ AssetBundleManifest:
         Dependency_0: common.ab
     Info_4:
       Name: common.ab
-      Dependencies: {}
-    Info_5:
-      Name: sssss.ab
       Dependencies: {}

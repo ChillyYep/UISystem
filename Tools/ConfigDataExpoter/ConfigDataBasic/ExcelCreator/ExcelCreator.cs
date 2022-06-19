@@ -12,16 +12,17 @@ namespace ConfigDataExpoter
         {
             m_fileExcel = filePath;
         }
-        public void CreateSheet(ConfigSheetData configSheetData)
+        public ISheet CreateSheet(ConfigSheetData configSheetData)
         {
             if (configSheetData.m_sheetType == SheetType.Enum)
             {
-                CreateEnumSheet(configSheetData.m_configMetaData as ConfigEnumMetaData);
+                return CreateEnumSheet(configSheetData.m_configMetaData as ConfigEnumMetaData);
             }
             else if (configSheetData.m_sheetType == SheetType.Class)
             {
-                CreateClassSheet(configSheetData.m_configMetaData as ConfigClassMetaData);
+                return CreateClassSheet(configSheetData.m_configMetaData as ConfigClassMetaData);
             }
+            return null;
         }
         /// <summary>
         /// 创建Enum Sheet
@@ -68,7 +69,7 @@ namespace ConfigDataExpoter
         /// 创建Class
         /// </summary>
         /// <param name="configClassMetaData"></param>
-        public void CreateClassSheet(ConfigClassMetaData configClassMetaData)
+        public ISheet CreateClassSheet(ConfigClassMetaData configClassMetaData)
         {
             var className = configClassMetaData.m_classname;
             var classComment = configClassMetaData.m_comment;
@@ -77,7 +78,7 @@ namespace ConfigDataExpoter
             // Sheet类型
             sheet.CreateRow(0).CreateCell(0).SetCellValue(SheetType.Class.ToString());
             // 类型和注释
-            var classRow = sheet.CreateRow(0);
+            var classRow = sheet.CreateRow(1);
             classRow.CreateCell(0).SetCellValue(className);
             classRow.CreateCell(1).SetCellValue(classComment);
             // 创建行
@@ -96,6 +97,7 @@ namespace ConfigDataExpoter
                 }
                 CreateFieldInfo(fieldInfos[i], sheet, i);
             }
+            return sheet;
         }
         /// <summary>
         /// 创建域
@@ -148,7 +150,7 @@ namespace ConfigDataExpoter
         }
         private string m_fileExcel;
 
-        private XSSFWorkbook workBook = new XSSFWorkbook();
+        public XSSFWorkbook workBook = new XSSFWorkbook();
 
     }
 }

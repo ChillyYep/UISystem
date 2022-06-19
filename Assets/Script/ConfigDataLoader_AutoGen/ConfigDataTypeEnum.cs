@@ -62,6 +62,10 @@ namespace ConfigData
         /// 
         /// </summary>
         ConfigPP2_NestedClasss = 13,
+        /// <summary>
+        /// 来自UI的翻译项
+        /// </summary>
+        UITranslateTextItem = 14,
 
     }
 }

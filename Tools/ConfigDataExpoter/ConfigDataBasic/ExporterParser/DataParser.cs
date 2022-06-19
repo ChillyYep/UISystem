@@ -12,7 +12,7 @@ namespace ConfigDataExpoter
     /// </summary>
     public class ExcelDataRowParser : ExcelParserBase
     {
-        public ExcelDataRowParser(MultiLanguageCollector mutiLanguageProcess)
+        public ExcelDataRowParser(MultiLanguageCollector mutiLanguageProcess = null)
         {
             m_mutiLanguageProcess = mutiLanguageProcess;
         }
@@ -332,6 +332,10 @@ namespace ConfigDataExpoter
 
         private string AddLanguageSourceKey(string sourceText)
         {
+            if (m_mutiLanguageProcess == null)
+            {
+                return sourceText;
+            }
             if (string.IsNullOrEmpty(m_context.m_curParsingExcelName) || string.IsNullOrEmpty(m_context.m_curParsingClassName))
             {
                 throw new ParseExcelException("当前没有正在解析的Excel或Class型的Sheet!");

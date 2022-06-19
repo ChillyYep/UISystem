@@ -418,5 +418,79 @@ namespace ConfigData
         }
 
     }
+    /// <summary>
+    /// 来自UI的翻译项
+    /// </summary>
+    public partial class UITranslateTextItem: IConfigData, IBinarySerializer, IBinaryDeserializer
+    {
+
+        public UITranslateTextItem()
+        {
+        }
+        public UITranslateTextItem(Int32 id, String sourcetext, String sourceinfo)
+        {
+			this._id = id;
+			this._sourcetext = sourcetext;
+			this._sourceinfo = sourceinfo;
+        }
+        public void Deserialize(BinaryParser reader)
+        {
+			_id = reader.ReadInt32();
+			_sourcetext = reader.ReadText();
+			_sourceinfo = reader.ReadString();
+        }
+        public void Serialize(BinaryFormatter writer)
+        {
+			writer.WriteInt32(_id);
+			writer.WriteText(_sourcetext);
+			writer.WriteString(_sourceinfo);
+        }
+        private Int32 _id;
+        /// <summary>
+        /// ID
+        /// </summary>
+        public Int32 id
+        {
+            get
+            {
+                return _id;
+            }
+            private set
+            {
+                _id = value;
+            }
+        }
+        private String _sourcetext;
+        /// <summary>
+        /// 原始文本
+        /// </summary>
+        public String sourcetext
+        {
+            get
+            {
+                return _sourcetext;
+            }
+            private set
+            {
+                _sourcetext = value;
+            }
+        }
+        private String _sourceinfo;
+        /// <summary>
+        /// 来源信息
+        /// </summary>
+        public String sourceinfo
+        {
+            get
+            {
+                return _sourceinfo;
+            }
+            private set
+            {
+                _sourceinfo = value;
+            }
+        }
+
+    }
 
 }
