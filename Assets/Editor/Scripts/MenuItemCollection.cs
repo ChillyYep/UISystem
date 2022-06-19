@@ -27,6 +27,12 @@ public static class MenuItemCollection
         public const string Copy2StreamingAssets = ProjectCustomMotherMenuItem + "/" + nameof(AssetBundleBuilder) + "/" + "Split Step 4 : " + nameof(Copy2StreamingAssets);
     }
 
+    public static class ExcelProcess
+    {
+        public const string CollectUIText = ProjectCustomMotherMenuItem + "/" + nameof(ExcelProcess) + "/" + nameof(CollectUIText);
+
+    }
+
     public static class Create
     {
         public const string BundleDescription = AssetMenuItem + "/" + nameof(Create) + "/" + nameof(BundleDescription);

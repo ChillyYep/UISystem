@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{C6FCDF21-8982-43D2-ACCF-235AA64098E4}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ConfigDataBasic</RootNamespace>
+    <AssemblyName>ConfigDataBasic</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\ConfigDataExpoter\CopyFromDirectory\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="BouncyCastle.Crypto, Version=1.8.9.0, Culture=neutral, PublicKeyToken=0e99375e54769942, processorArchitecture=MSIL">
+      <HintPath>..\packages\Portable.BouncyCastle.1.8.9\lib\net40\BouncyCastle.Crypto.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=1.3.3.11, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpZipLib.1.3.3\lib\net45\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI, Version=2.5.6.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\NPOI.2.5.6\lib\net45\NPOI.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI.OOXML, Version=2.5.6.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\NPOI.2.5.6\lib\net45\NPOI.OOXML.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI.OpenXml4Net, Version=2.5.6.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\NPOI.2.5.6\lib\net45\NPOI.OpenXml4Net.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI.OpenXmlFormats, Version=2.5.6.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\NPOI.2.5.6\lib\net45\NPOI.OpenXmlFormats.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Common\ExcelProcess.cs" />
+    <Compile Include="Common\Exceptions.cs" />
+    <Compile Include="Common\ExportConfigDataSettings.cs" />
+    <Compile Include="Common\ExportConfigDataSettingsOperator.cs" />
+    <Compile Include="Common\Formatter.cs" />
+    <Compile Include="Common\KeyRelations.cs" />
+    <Compile Include="ExcelCreator\ExcelCreator.cs" />
+    <Compile Include="ExporterParser\CodeExpoter.cs" />
+    <Compile Include="ExporterParser\DataExporter.cs" />
+    <Compile Include="ExporterParser\DataParser.cs" />
+    <Compile Include="ExporterParser\ExcelParserBase.cs" />
+    <Compile Include="ExporterParser\ExcelTypeMetaDataParser.cs" />
+    <Compile Include="ExporterParser\FileExporter.cs" />
+    <Compile Include="ILanguageLoader.cs" />
+    <Compile Include="Language.cs" />
+    <Compile Include="LanguageLoaderImpBase.cs" />
+    <Compile Include="LanguageTextItem.cs" />
+    <Compile Include="MetaData\ConfigClassFieldHeader.cs" />
+    <Compile Include="MetaData\ConfigClassMetaData.cs" />
+    <Compile Include="MetaData\ConfigEnumMetaData.cs" />
+    <Compile Include="MetaData\ConfigFieldMetaData.cs" />
+    <Compile Include="MetaData\ConfigFieldMetaDataBase.cs" />
+    <Compile Include="MetaData\ConfigSheetData.cs" />
+    <Compile Include="MetaData\DataType.cs" />
+    <Compile Include="MetaData\ListType.cs" />
+    <Compile Include="MetaData\Visiblity.cs" />
+    <Compile Include="MultiLanguageProcess\LanguageItem.cs" />
+    <Compile Include="MultiLanguageProcess\LanguageTable.cs" />
+    <Compile Include="MultiLanguageProcess\MultiLanguageCollector.cs" />
+    <Compile Include="MultiLanguageProcess\MultiLanguageExchanger.cs" />
+    <Compile Include="MultiLanguageProcess\MultiLanguageProducer.cs" />
+    <Compile Include="MultiLanguageProcess\SerializedMultiLanguageExporter.cs" />
+    <Compile Include="MultiLanguageProcess\SourceInfo.cs" />
+    <Compile Include="MutiLanguageReader.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BinaryReaderWriter\BinaryReaderWriter\BinaryReaderWriter.csproj">
+      <Project>{1924433a-12ac-4810-8d82-73803981892e}</Project>
+      <Name>BinaryReaderWriter</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

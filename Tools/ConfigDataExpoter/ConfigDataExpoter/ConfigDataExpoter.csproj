@@ -105,45 +105,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CopyFromDirectory\ILanguageLoader.cs" />
-    <Compile Include="CopyFromDirectory\Language.cs" />
-    <Compile Include="CopyFromDirectory\LanguageLoaderImpBase.cs" />
-    <Compile Include="ExporterParser\CodeExpoter.cs" />
-    <Compile Include="CopyFromDirectory\LanguageTextItem.cs" />
-    <Compile Include="MetaData\ConfigClassFieldHeader.cs" />
-    <Compile Include="MetaData\ConfigFieldMetaDataBase.cs" />
-    <Compile Include="MetaData\DataType.cs" />
-    <Compile Include="MetaData\ListType.cs" />
-    <Compile Include="MetaData\Visiblity.cs" />
-    <Compile Include="MultiLanguageProcess\LanguageItem.cs" />
-    <Compile Include="MultiLanguageProcess\LanguageTable.cs" />
-    <Compile Include="MultiLanguageProcess\MultiLanguageCollector.cs" />
-    <Compile Include="MultiLanguageProcess\MultiLanguageExchanger.cs" />
-    <Compile Include="MultiLanguageProcess\MultiLanguageProducer.cs" />
-    <Compile Include="ExporterParser\ExcelTypeMetaDataParser.cs" />
-    <Compile Include="MetaData\ConfigClassMetaData.cs" />
     <Compile Include="CopyFromDirectory\ConfigDataLoader.cs" />
-    <Compile Include="MetaData\ConfigEnumMetaData.cs" />
-    <Compile Include="MetaData\ConfigFieldMetaData.cs" />
-    <Compile Include="MetaData\ConfigSheetData.cs" />
-    <Compile Include="ExporterParser\DataExporter.cs" />
     <Compile Include="DataExpoterForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="DataExpoterForm.Designer.cs">
       <DependentUpon>DataExpoterForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="ExporterParser\DataParser.cs" />
-    <Compile Include="Exceptions.cs" />
-    <Compile Include="ExportConfigDataSettings.cs" />
-    <Compile Include="ExporterParser\FileExporter.cs" />
-    <Compile Include="ExporterParser\ExcelParserBase.cs" />
-    <Compile Include="ExcelProcess.cs" />
-    <Compile Include="Formatter.cs" />
-    <Compile Include="KeyRelations.cs" />
-    <Compile Include="CopyFromDirectory\MutiLanguageReader.cs" />
-    <Compile Include="MultiLanguageProcess\SerializedMultiLanguageExporter.cs" />
-    <Compile Include="MultiLanguageProcess\SourceInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="DataExpoterForm.resx">
@@ -173,12 +141,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BinaryReaderWriter\BinaryReaderWriter\BinaryReaderWriter.csproj">
-      <Project>{1924433a-12ac-4810-8d82-73803981892e}</Project>
-      <Name>BinaryReaderWriter</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">
       <Visible>False</Visible>
       <ProductName>Microsoft .NET Framework 4.7.2 %28x86 和 x64%29</ProductName>
@@ -191,5 +153,15 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\BinaryReaderWriter\BinaryReaderWriter\BinaryReaderWriter.csproj">
+      <Project>{1924433a-12ac-4810-8d82-73803981892e}</Project>
+      <Name>BinaryReaderWriter</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ConfigDataBasic\ConfigDataBasic.csproj">
+      <Project>{c6fcdf21-8982-43d2-accf-235aa64098e4}</Project>
+      <Name>ConfigDataBasic</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

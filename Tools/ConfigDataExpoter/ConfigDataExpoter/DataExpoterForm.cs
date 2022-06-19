@@ -12,27 +12,11 @@ namespace ConfigDataExpoter
         public DataExpoterForm()
         {
             m_baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            m_settingPath = Path.Combine(m_baseDirectory, nameof(ExportConfigDataSettings) + ".settings");
-            if (!File.Exists(m_settingPath))
-            {
-                using (FileStream fs = new FileStream(m_settingPath, FileMode.OpenOrCreate, FileAccess.Write))
-                {
-                    var formatter = new ConfigData.BinaryFormatter(fs);
-                    formatter.WriteObject(settings);
-                    formatter.Flush();
-                    formatter.Close();
-                }
-            }
-            else
-            {
-                using (FileStream fs = new FileStream(m_settingPath, FileMode.Open, FileAccess.Read))
-                {
-                    var parser = new ConfigData.BinaryParser(fs);
-                    settings = parser.ReadObject<ExportConfigDataSettings>();
-                    parser.Close();
-                }
+            m_settingPath = Path.Combine(m_baseDirectory, "../../", nameof(ExportConfigDataSettings) + ".settings");
 
-            }
+            m_exportConfigDataSettingsOperator = new ExportConfigDataSettingsOperator(m_settingPath);
+            settings = m_exportConfigDataSettingsOperator.Load();
+
             InitializeComponent();
             InitializeFromSetting();
         }
@@ -123,13 +107,7 @@ namespace ConfigDataExpoter
 
         private void SaveSettings()
         {
-            using (FileStream fs = new FileStream(m_settingPath, FileMode.OpenOrCreate, FileAccess.Write))
-            {
-                var formatter = new ConfigData.BinaryFormatter(fs);
-                formatter.WriteObject(settings);
-                formatter.Flush();
-                formatter.Close();
-            }
+            m_exportConfigDataSettingsOperator?.Save();
         }
 
         private void _SelectedIndexChanged(object sender, EventArgs e)
@@ -160,7 +138,9 @@ namespace ConfigDataExpoter
 
         private string m_settingPath;
 
-        private ExportConfigDataSettings settings = new ExportConfigDataSettings();
+        private ExportConfigDataSettingsOperator m_exportConfigDataSettingsOperator;
+
+        private ExportConfigDataSettings settings;
 
         private ExcelProcess m_parseProcess;
 
