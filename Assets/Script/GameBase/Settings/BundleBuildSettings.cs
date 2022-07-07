@@ -59,8 +59,9 @@ namespace GameBase.Settings
 
     }
 
-    [Serializable]
-    public class BundleBuildSettings
+    [CreateAssetMenu(fileName = nameof(BundleBuildSettings), menuName = nameof(GameClientSettings) + "/" + nameof(BundleBuildSettings))]
+    [UniqueResourcesAsset("Resources/Settings/BundleBuildSettings")]
+    public class BundleBuildSettings : Singleton_ScriptableObject<BundleBuildSettings>
     {
         public BundleBuildMode BundleBuildMode;
 

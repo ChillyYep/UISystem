@@ -12,32 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e0eaac12cec32af45b4213e62e9878a9, type: 3}
   m_Name: GameClientSetting
   m_EditorClassIdentifier: 
-  m_logSetting:
-    IsNeedFileLog: 1
-    IsNeedEngineLog: 1
-    IsInPersistentDir: 1
-    LogNameRule: 3
-    LogFileDir: ../GameRunningLog
-  m_resPathSettings:
-    EditorBundleDirectoryRelativeToAssets: ../AssetBundle
-    StreamingAssetsRelativeToAssets: StreamingAssets
-    ResourcesDir: Assets/Resources
-    AssetBundleMapPathRelativeResources: Settings/AssetBundleMap
-    StreamingAssetsAssetBundleMapPathRelativeResources: Settings/StreamingAssetsAssetBundleMap
-    RuntimeReadBundleInStreamingAssets: 1
-    PageResPath: Assets/RuntimeAssets/Prefabs/Page
-    PrefabPath: Assets/RuntimeAssets/Prefabs
-    StartUnloadUnusedAssetTimer: 0
-    UnloadUnusedAssetInverval: 60
-    MaxBundleWorkers: 1
-  m_bundleBuildSettings:
-    BundleBuildMode: 0
-    BundleSuffix: ab
-    VersionStep: 1
-    UseAssetBundleManifestCollectDependencies: 0
-    AssetDirs:
-    - Assets/RuntimeAssets
-    - Assets/ConfigData
-    RuntimeAssetsDir: Assets/RuntimeAssets
-    DefaultAbName: runtimeassets
-    BuildCachePath: Assets/Editor/Cache/BundleBuildCache.asset
+  m_logSetting: {fileID: 11400000, guid: 41b6ca6ed0683b84bbd002c3f894fc39, type: 2}
+  m_resPathSettings: {fileID: 11400000, guid: 4e90eb1a02a7a8a43842fd3baa18496c, type: 2}
+  m_bundleBuildSettings: {fileID: 11400000, guid: ce5ced4d7b0a51d44949dcdfb3e69b58,
+    type: 2}

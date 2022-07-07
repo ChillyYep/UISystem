@@ -13,13 +13,12 @@ public class GameMain : MonoBehaviour
 {
     void Start()
     {
-        GameSettings = GameClientSettings.LoadMainGameClientSettings();
         // 1、日志
-        LogManager.Instance.Initialize(GameSettings.m_logSetting);
+        LogManager.Instance.Initialize(LogSettings.GetInstance());
         // 2、计时器
         TimerManager.Instance.Initialize();
         // 3、资源管理器
-        AssetManager.Instance.Initialize(GameSettings.m_resPathSettings, IndepedentCoroutineHelper.Instance);
+        AssetManager.Instance.Initialize(IndepedentCoroutineHelper.Instance);
         // 4、配置数据
         ConfigData.ConfigDataManager.Instance.Init();
         foreach (var item in ConfigData.ConfigDataManager.Instance.ConfigDataLoader.ConfigDataConfigPPTable)
@@ -54,7 +53,7 @@ public class GameMain : MonoBehaviour
     }
     private void InitUIModules()
     {
-        UIModuleManagementCentre.Instance.Init();
+        UIModuleManagementCentre.Instance.Init(AssetManager.Instance);
         UIModuleManagementCentre.Instance.Show();
     }
     private void UnInitUIModules()
@@ -66,6 +65,4 @@ public class GameMain : MonoBehaviour
     {
         UIModuleManagementCentre.Instance.ResetModule(UIModuleEnum.UIPage);
     }
-
-    public GameClientSettings GameSettings { get; private set; }
 }

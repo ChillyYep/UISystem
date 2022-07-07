@@ -11,26 +11,14 @@ namespace GameBase.Settings
     /// <summary>
     /// 游戏内设置
     /// </summary>
-    [CreateAssetMenu(fileName = nameof(GameClientSettings), menuName = nameof(GameClientSettings))]
-    public class GameClientSettings : ScriptableObject
+    [CreateAssetMenu(fileName = nameof(GameClientSettings), menuName = nameof(GameClientSettings) + "/" + nameof(GameClientSettings))]
+    [UniqueResourcesAsset("Resources/Settings/GameClientSetting")]
+    public class GameClientSettings : Singleton_ScriptableObject<GameClientSettings>
     {
         public LogSettings m_logSetting;
 
         public ResSettings m_resPathSettings;
 
         public BundleBuildSettings m_bundleBuildSettings;
-
-        public const string MainGameClientSettingsAssetPath = "Settings/GameClientSetting";
-
-        public static GameClientSettings m_instance;
-
-        public static GameClientSettings LoadMainGameClientSettings()
-        {
-            if (m_instance == null)
-            {
-                m_instance = CommonUtils.LoadResource<GameClientSettings>(MainGameClientSettingsAssetPath);
-            }
-            return m_instance;
-        }
     }
 }

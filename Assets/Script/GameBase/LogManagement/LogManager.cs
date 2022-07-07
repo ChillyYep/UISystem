@@ -10,8 +10,9 @@ namespace GameBase.Log
     /// <summary>
     /// 日志相关设置
     /// </summary>
-    [Serializable]
-    public class LogSettings
+    [CreateAssetMenu(fileName = nameof(LogSettings), menuName = "GameClientSettings/" + nameof(LogSettings))]
+    [UniqueResourcesAsset("Resources/Settings/LogSettings")]
+    public class LogSettings : Singleton_ScriptableObject<LogSettings>
     {
         public bool IsNeedFileLog = false;
         public bool IsNeedEngineLog = false;
@@ -34,7 +35,7 @@ namespace GameBase.Log
                 try
                 {
 #if UNITY_EDITOR
-                    m_fileLogger = new FileLogger(logSettings.LogFileDir, logSettings.LogNameRule);
+                    m_fileLogger = new FileLogger(Path.Combine(Application.dataPath, logSettings.LogFileDir), logSettings.LogNameRule);
 #else
                     m_fileLogger = new FileLogger(Path.Combine(logSettings.IsInPersistentDir ? Application.persistentDataPath : Application.temporaryCachePath, logSettings.LogFileDir), logSettings.LogNameRule);
 #endif

@@ -91,10 +91,10 @@ namespace GameBase.Asset
     /// </summary>
     public class BundleModeAssetManager : AssetManagerImp
     {
-        public override void Initialize(ResSettings resSettings, ICouroutineHelper couroutineHelper)
+        public override void Initialize(ICouroutineHelper couroutineHelper)
         {
-            base.Initialize(resSettings, couroutineHelper);
-            if (resSettings.RuntimeReadBundleInStreamingAssets)
+            base.Initialize(couroutineHelper);
+            if (m_resSettings.RuntimeReadBundleInStreamingAssets)
             {
                 m_assetBundleMap = AssetBundleMap.LoadStreamingAssetsAssetBundleMap();
                 m_assetBundleMap.SetLocation(Location.StreamingAssetDir);

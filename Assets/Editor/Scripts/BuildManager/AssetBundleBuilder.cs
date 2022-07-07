@@ -858,7 +858,7 @@ namespace GameBase.BundleBuilder
         /// <returns></returns>
         private static bool GetBundleBuildSettings(out BundleBuildSettings bundleBuildSettings, out string bundleDirRoot, out ResSettings resSettings)
         {
-            var gameSettings = GameClientSettings.LoadMainGameClientSettings();
+            var gameSettings = GameClientSettings.GetInstance();
             if (gameSettings == null)
             {
                 bundleBuildSettings = null;

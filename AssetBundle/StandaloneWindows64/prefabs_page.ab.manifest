@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 813685614
+CRC: 689780234
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: d6c3f77549cf245e49e208520b88bee7
+    Hash: ac119da26f884de14f0bf2009b57a6f8
   TypeTreeHash:
     serializedVersion: 2
     Hash: 2eb61c532d617f73777c45ba8a1c7e0e
@@ -53,7 +53,7 @@ Assets:
 - Assets/RuntimeAssets/Prefabs/Page/Test3DPage.prefab
 - Assets/RuntimeAssets/Prefabs/Page/TownPage2.prefab
 - Assets/RuntimeAssets/Prefabs/Page/TestPage1.prefab
-- Assets/RuntimeAssets/Prefabs/Page/Test/TestPage4.prefab
+- Assets/RuntimeAssets/Prefabs/Page/TestPage4.prefab
 - Assets/RuntimeAssets/Prefabs/Page/TownPage.prefab
 - Assets/RuntimeAssets/Prefabs/Page/TownPage3.prefab
 Dependencies:

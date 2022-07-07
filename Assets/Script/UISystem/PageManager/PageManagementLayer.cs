@@ -79,7 +79,7 @@ namespace GameBase.UI
                     Debug.LogError("当前页面栈为空，不能添加Cover类型的页面");
                     return;
                 }
-                var obj = AssetManager.Instance.LoadAssetSync<GameObject>(AssetPathType.UIPagePrefab, pageName);
+                var obj = m_assetManager.LoadAssetSync<GameObject>(AssetPathType.UIPagePrefab, pageName);
                 if (obj == null)
                 {
                     Debug.LogError($"页面资源不存在:{pageName}");
@@ -271,9 +271,9 @@ namespace GameBase.UI
         #endregion
 
         #region UI模块通用接口
-        public override void Init(IUICentreState state)
+        public override void Init(IUICentreState state, IAssetManager assetManager)
         {
-            base.Init(state);
+            base.Init(state, assetManager);
             openedPageStack = new PageStack(0);
         }
         public override void Hide()

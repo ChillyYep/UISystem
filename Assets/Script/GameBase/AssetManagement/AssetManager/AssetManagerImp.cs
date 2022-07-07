@@ -11,9 +11,9 @@ namespace GameBase.Asset
     /// </summary>
     public abstract class AssetManagerImp : IAssetManager
     {
-        public virtual void Initialize(ResSettings resSettingss, ICouroutineHelper couroutineHelper)
+        public virtual void Initialize(ICouroutineHelper couroutineHelper)
         {
-            m_resSettings = resSettingss;
+            m_resSettings = ResSettings.GetInstance();
             m_couroutineHelper = couroutineHelper;
             m_assetCache.Clear();
         }

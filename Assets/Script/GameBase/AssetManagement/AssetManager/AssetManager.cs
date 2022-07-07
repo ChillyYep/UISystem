@@ -20,8 +20,9 @@ namespace GameBase.Asset
     /// <summary>
     /// 资源相关设置
     /// </summary>
-    [Serializable]
-    public class ResSettings
+    [CreateAssetMenu(fileName = nameof(ResSettings), menuName = "GameClientSettings/" + nameof(ResSettings))]
+    [UniqueResourcesAsset("Resources/Settings/ResSettings")]
+    public class ResSettings : Singleton_ScriptableObject<ResSettings>
     {
         public string EditorBundleDirectoryRelativeToAssets = @"../AssetBundle";
 
@@ -157,7 +158,7 @@ namespace GameBase.Asset
         /// <summary>
         /// 资源管理器初始化
         /// </summary>
-        void Initialize(ResSettings resSettings, ICouroutineHelper couroutineHelper);
+        void Initialize(ICouroutineHelper couroutineHelper);
 
         /// <summary>
         /// 卸载
@@ -229,14 +230,22 @@ namespace GameBase.Asset
     /// </summary>
     public class AssetManager : Singleton_CSharp<AssetManager>, IAssetManager
     {
-        public void Initialize(ResSettings resSettings, ICouroutineHelper couroutineHelper)
+        public AssetManager()
+        {
+#if UNITY_EDITOR
+            m_editorManagerImp = new EditorModeAssetManager();
+            m_assetManagerImp = m_editorManagerImp;
+#endif
+        }
+        public void Initialize(ICouroutineHelper couroutineHelper)
         {
 #if UNITY_EDITOR && !IN_BUNDLE
-            m_assetManagerImp = new EditorModeAssetManager();
+            m_assetManagerImp = m_editorManagerImp;
 #else
             m_assetManagerImp = new BundleModeAssetManager();
 #endif
-            m_assetManagerImp.Initialize(resSettings, couroutineHelper);
+            m_assetManagerImp.Initialize(couroutineHelper);
+            var resSettings = ResSettings.GetInstance();
             StartUnloadUnusedAssetTimer(resSettings.StartUnloadUnusedAssetTimer, resSettings.UnloadUnusedAssetInverval);
         }
 
@@ -321,6 +330,11 @@ namespace GameBase.Asset
         /// 资源管理器实现类
         /// </summary>
         private AssetManagerImp m_assetManagerImp;
+
+        /// <summary>
+        /// 编辑器环境下的资源管理器实现类
+        /// </summary>
+        private readonly AssetManagerImp m_editorManagerImp;
 
         /// <summary>
         /// 定时任务

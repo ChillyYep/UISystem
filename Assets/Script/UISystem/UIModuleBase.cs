@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using GameBase.Asset;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 namespace GameBase.UI
@@ -14,7 +15,7 @@ namespace GameBase.UI
     public interface IUIModule : IUIState
     {
         UIModuleEnum uiModuleType { get; }
-        void Init(IUICentreState state);
+        void Init(IUICentreState state, IAssetManager assetManager);
         void ResetModule();
         void Open(UIModuleParam moduleParam);
         void Hide();
@@ -32,12 +33,15 @@ namespace GameBase.UI
     {
         protected IUICentreState uICentre;//UI总管理器状态接口
 
+        protected IAssetManager m_assetManager;
+
         public bool isActive { get; protected set; }
 
         public abstract UIModuleEnum uiModuleType { get; }
 
-        public virtual void Init(IUICentreState state)
+        public virtual void Init(IUICentreState state, IAssetManager assetManager)
         {
+            m_assetManager = assetManager;
             uICentre = state;
         }
         public virtual void Hide()

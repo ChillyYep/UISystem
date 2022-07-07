@@ -20,7 +20,7 @@ public static class LanguageItemsCollector
     [MenuItem(MenuItemCollection.ExcelProcess.CollectUIText)]
     public static void CollectAllUIText()
     {
-        var dir = GameClientSettings.LoadMainGameClientSettings().m_bundleBuildSettings.RuntimeAssetsDir;
+        var dir = BundleBuildSettings.GetInstance().RuntimeAssetsDir;
         var prefabs = AssetDatabase.FindAssets("t:prefab", new string[] { dir }).Select(guid => AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(guid)));
 
         int incrementID = 0;

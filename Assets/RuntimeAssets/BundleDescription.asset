@@ -15,7 +15,13 @@ MonoBehaviour:
   m_generateMode: 3
   m_bundleDescExplain: "\u666E\u901ABundle"
   m_outputBundleName: runtimeassets
-  m_assetList: []
+  m_assetList:
+  - Assets/RuntimeAssets/Scenes/RaycastTest/Lightmap-0_comp_dir.png
+  - Assets/RuntimeAssets/Scenes/RaycastTest/Lightmap-0_comp_light.exr
+  - Assets/RuntimeAssets/Scenes/RaycastTest/Lightmap-1_comp_dir.png
+  - Assets/RuntimeAssets/Scenes/RaycastTest/Lightmap-1_comp_light.exr
+  - Assets/RuntimeAssets/Scenes/RaycastTest/ReflectionProbe-0.exr
+  - Assets/RuntimeAssets/Scenes/RaycastTest/ReflectionProbe-1.exr
   m_childBundleDescs:
   - {fileID: 11400000, guid: 25654d829f869e240aa1c63768192638, type: 2}
   - {fileID: 11400000, guid: c45a2302622df7d47b4f4a45bc195d20, type: 2}

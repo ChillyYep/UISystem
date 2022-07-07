@@ -16,10 +16,10 @@ MonoBehaviour:
   m_bundleDescExplain: "\u666E\u901ABundle"
   m_outputBundleName: prefabs_page
   m_assetList:
-  - Assets/RuntimeAssets/Prefabs/Page/Test/TestPage4.prefab
   - Assets/RuntimeAssets/Prefabs/Page/Test2DPage.prefab
   - Assets/RuntimeAssets/Prefabs/Page/Test3DPage.prefab
   - Assets/RuntimeAssets/Prefabs/Page/TestPage1.prefab
+  - Assets/RuntimeAssets/Prefabs/Page/TestPage4.prefab
   - Assets/RuntimeAssets/Prefabs/Page/TownPage.prefab
   - Assets/RuntimeAssets/Prefabs/Page/TownPage2.prefab
   - Assets/RuntimeAssets/Prefabs/Page/TownPage3.prefab

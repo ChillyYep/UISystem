@@ -1,0 +1,24 @@
+ManifestFileVersion: 0
+CRC: 2766724542
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 0200e0739aa16dc18b20bed203c0da3a
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 12b06384357cab2714abea47e9d90750
+HashAppended: 0
+ClassTypes:
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 89
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/RuntimeAssets/Scenes/RaycastTest/ReflectionProbe-1.exr
+- Assets/RuntimeAssets/Scenes/RaycastTest/ReflectionProbe-0.exr
+- Assets/RuntimeAssets/Scenes/RaycastTest/Lightmap-0_comp_dir.png
+- Assets/RuntimeAssets/Scenes/RaycastTest/Lightmap-1_comp_light.exr
+- Assets/RuntimeAssets/Scenes/RaycastTest/Lightmap-0_comp_light.exr
+- Assets/RuntimeAssets/Scenes/RaycastTest/Lightmap-1_comp_dir.png
+Dependencies: []

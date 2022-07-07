@@ -99,7 +99,7 @@ namespace GameBase.Asset
 
         public string GetBundleNameWithSuffix()
         {
-            var bundleBuildSetting = GameClientSettings.LoadMainGameClientSettings().m_bundleBuildSettings;
+            var bundleBuildSetting = BundleBuildSettings.GetInstance();
             return m_outputBundleName + "." + bundleBuildSetting.BundleSuffix;
         }
         /// <summary>
@@ -180,8 +180,7 @@ namespace GameBase.Asset
         /// </summary>
         public void AutoGenOutputBundleName()
         {
-            var gameSettings = GameClientSettings.LoadMainGameClientSettings();
-            var bundleBuildSettings = gameSettings.m_bundleBuildSettings;
+            var bundleBuildSettings = BundleBuildSettings.GetInstance();
             var defaultABName = bundleBuildSettings.DefaultAbName;
             var descAssetPath = AssetDatabase.GetAssetPath(this);
             // 必须是RuntimeAssetsDir之下的

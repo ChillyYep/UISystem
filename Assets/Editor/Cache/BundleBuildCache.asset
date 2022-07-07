@@ -50,9 +50,6 @@ MonoBehaviour:
       value:
         m_bundleName: prefabs_page.ab
         m_singleAssetCaches:
-        - m_assetPath: Assets/RuntimeAssets/Prefabs/Page/Test/TestPage4.prefab
-          m_assetSize: 15990
-          m_assetHash: 286c5bf4bfe6470030a5b5e747dc74b3
         - m_assetPath: Assets/RuntimeAssets/Prefabs/Page/Test2DPage.prefab
           m_assetSize: 4333
           m_assetHash: e35421ee46af8513982475416b75c736
@@ -62,9 +59,12 @@ MonoBehaviour:
         - m_assetPath: Assets/RuntimeAssets/Prefabs/Page/TestPage1.prefab
           m_assetSize: 28599
           m_assetHash: b0986211e650bd3398167bd91f1aa07b
+        - m_assetPath: Assets/RuntimeAssets/Prefabs/Page/TestPage4.prefab
+          m_assetSize: 15990
+          m_assetHash: 7696c4f94e684cfb8da0e4e74416c732
         - m_assetPath: Assets/RuntimeAssets/Prefabs/Page/TownPage.prefab
-          m_assetSize: 53851
-          m_assetHash: 4682893aeceb6b31ad252bd66a02ddae
+          m_assetSize: 53846
+          m_assetHash: c190c2170d641bbebc808cb04af242b5
         - m_assetPath: Assets/RuntimeAssets/Prefabs/Page/TownPage2.prefab
           m_assetSize: 54057
           m_assetHash: 055c7911ccbd7b9f1ec284206a3ab54a
@@ -76,8 +76,8 @@ MonoBehaviour:
         m_bundleName: prefabs_page_childpage.ab
         m_singleAssetCaches:
         - m_assetPath: Assets/RuntimeAssets/Prefabs/Page/ChildPage/TestPage2.prefab
-          m_assetSize: 17096
-          m_assetHash: 82eac593fac00cbc6368affb3efa2e02
+          m_assetSize: 17558
+          m_assetHash: 64000dd839f73b6fd5700929770fb182
     - key: prefabs_page_childpage_childpage.ab
       value:
         m_bundleName: prefabs_page_childpage_childpage.ab
@@ -85,6 +85,28 @@ MonoBehaviour:
         - m_assetPath: Assets/RuntimeAssets/Prefabs/Page/ChildPage/ChildPage/TestPage3.prefab
           m_assetSize: 17084
           m_assetHash: 76fc5c3e5d90dec0bb350d6a72827e76
+    - key: runtimeassets.ab
+      value:
+        m_bundleName: runtimeassets.ab
+        m_singleAssetCaches:
+        - m_assetPath: Assets/RuntimeAssets/Scenes/RaycastTest/Lightmap-0_comp_dir.png
+          m_assetSize: 115979
+          m_assetHash: f5967849af3bfa50ba32dba1be60128a
+        - m_assetPath: Assets/RuntimeAssets/Scenes/RaycastTest/Lightmap-0_comp_light.exr
+          m_assetSize: 708408
+          m_assetHash: 502da6c2b448a362a0180593d38eb111
+        - m_assetPath: Assets/RuntimeAssets/Scenes/RaycastTest/Lightmap-1_comp_dir.png
+          m_assetSize: 5149
+          m_assetHash: 86944ff09ea3f3872a7a9c32371afca1
+        - m_assetPath: Assets/RuntimeAssets/Scenes/RaycastTest/Lightmap-1_comp_light.exr
+          m_assetSize: 30075
+          m_assetHash: 94dc9b92ca81e91004a5f812e281c155
+        - m_assetPath: Assets/RuntimeAssets/Scenes/RaycastTest/ReflectionProbe-0.exr
+          m_assetSize: 3683160
+          m_assetHash: 700156e557e1c7589b333a4fdef3471e
+        - m_assetPath: Assets/RuntimeAssets/Scenes/RaycastTest/ReflectionProbe-1.exr
+          m_assetSize: 135680
+          m_assetHash: bc53e42e6504eeb10f39e5b1d43ce857
     - key: StandaloneWindows64
       value:
         m_bundleName: StandaloneWindows64

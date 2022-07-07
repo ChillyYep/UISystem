@@ -83,7 +83,7 @@ namespace GameBase.Asset
         /// </summary>
         public void SetLocation(Location location)
         {
-            var gameClientSettings = GameClientSettings.LoadMainGameClientSettings();
+            var gameClientSettings = GameClientSettings.GetInstance();
             var resSetting = gameClientSettings.m_resPathSettings;
 
             var useManifest = gameClientSettings.m_bundleBuildSettings.UseAssetBundleManifestCollectDependencies;
@@ -276,8 +276,8 @@ namespace GameBase.Asset
         /// <returns></returns>
         public static AssetBundleMap LoadAssetBundleMap()
         {
-            var gameClientSettings = GameClientSettings.LoadMainGameClientSettings();
-            return CommonUtils.LoadResource<AssetBundleMap>(gameClientSettings.m_resPathSettings.AssetBundleMapPathRelativeResources);
+            var resSettings = ResSettings.GetInstance();
+            return CommonUtils.LoadResource<AssetBundleMap>(resSettings.AssetBundleMapPathRelativeResources);
         }
 
         /// <summary>
@@ -286,15 +286,15 @@ namespace GameBase.Asset
         /// <returns></returns>
         public static AssetBundleMap LoadStreamingAssetsAssetBundleMap()
         {
-            var gameClientSettings = GameClientSettings.LoadMainGameClientSettings();
-            return CommonUtils.LoadResource<AssetBundleMap>(gameClientSettings.m_resPathSettings.StreamingAssetsAssetBundleMapPathRelativeResources);
+            var resSettings = ResSettings.GetInstance();
+            return CommonUtils.LoadResource<AssetBundleMap>(resSettings.StreamingAssetsAssetBundleMapPathRelativeResources);
         }
 
         public static string AssetBundleMapPath
         {
             get
             {
-                var gameClientSettings = GameClientSettings.LoadMainGameClientSettings();
+                var gameClientSettings = GameClientSettings.GetInstance();
                 return Path.Combine(gameClientSettings.m_resPathSettings.ResourcesDir, gameClientSettings.m_resPathSettings.AssetBundleMapPathRelativeResources + ".asset");
             }
         }
@@ -303,7 +303,7 @@ namespace GameBase.Asset
         {
             get
             {
-                var gameClientSettings = GameClientSettings.LoadMainGameClientSettings();
+                var gameClientSettings = GameClientSettings.GetInstance();
                 return Path.Combine(gameClientSettings.m_resPathSettings.ResourcesDir, gameClientSettings.m_resPathSettings.StreamingAssetsAssetBundleMapPathRelativeResources + ".asset");
             }
         }

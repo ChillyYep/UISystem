@@ -32,13 +32,13 @@ MonoBehaviour:
       value: prefabs_page_childpage_childpage.ab
     - key: Assets/RuntimeAssets/Prefabs/Page/ChildPage/TestPage2.prefab
       value: prefabs_page_childpage.ab
-    - key: Assets/RuntimeAssets/Prefabs/Page/Test/TestPage4.prefab
-      value: prefabs_page.ab
     - key: Assets/RuntimeAssets/Prefabs/Page/Test2DPage.prefab
       value: prefabs_page.ab
     - key: Assets/RuntimeAssets/Prefabs/Page/Test3DPage.prefab
       value: prefabs_page.ab
     - key: Assets/RuntimeAssets/Prefabs/Page/TestPage1.prefab
+      value: prefabs_page.ab
+    - key: Assets/RuntimeAssets/Prefabs/Page/TestPage4.prefab
       value: prefabs_page.ab
     - key: Assets/RuntimeAssets/Prefabs/Page/TownPage.prefab
       value: prefabs_page.ab
@@ -50,6 +50,18 @@ MonoBehaviour:
       value: prefabs.ab
     - key: Assets/RuntimeAssets/Prefabs/UIRoot.prefab
       value: prefabs.ab
+    - key: Assets/RuntimeAssets/Scenes/RaycastTest/Lightmap-0_comp_dir.png
+      value: runtimeassets.ab
+    - key: Assets/RuntimeAssets/Scenes/RaycastTest/Lightmap-0_comp_light.exr
+      value: runtimeassets.ab
+    - key: Assets/RuntimeAssets/Scenes/RaycastTest/Lightmap-1_comp_dir.png
+      value: runtimeassets.ab
+    - key: Assets/RuntimeAssets/Scenes/RaycastTest/Lightmap-1_comp_light.exr
+      value: runtimeassets.ab
+    - key: Assets/RuntimeAssets/Scenes/RaycastTest/ReflectionProbe-0.exr
+      value: runtimeassets.ab
+    - key: Assets/RuntimeAssets/Scenes/RaycastTest/ReflectionProbe-1.exr
+      value: runtimeassets.ab
   m_bundleMap:
     pairs:
     - key: common.ab
@@ -84,17 +96,17 @@ MonoBehaviour:
       value:
         m_bundleNameWithSuffix: prefabs_page.ab
         m_assetList:
-        - Assets/RuntimeAssets/Prefabs/Page/Test/TestPage4.prefab
         - Assets/RuntimeAssets/Prefabs/Page/Test2DPage.prefab
         - Assets/RuntimeAssets/Prefabs/Page/Test3DPage.prefab
         - Assets/RuntimeAssets/Prefabs/Page/TestPage1.prefab
+        - Assets/RuntimeAssets/Prefabs/Page/TestPage4.prefab
         - Assets/RuntimeAssets/Prefabs/Page/TownPage.prefab
         - Assets/RuntimeAssets/Prefabs/Page/TownPage2.prefab
         - Assets/RuntimeAssets/Prefabs/Page/TownPage3.prefab
-        m_crc: 813685614
-        m_hash: 4ecdf0c35a6958871c1f43c9af786319
+        m_crc: 689780234
+        m_hash: cf89e4d56b5b35653471e9bf23b5b0a9
         m_version: 1
-        m_size: 19509
+        m_size: 19492
         m_setting:
           m_location: 0
     - key: prefabs_page_childpage.ab
@@ -102,10 +114,10 @@ MonoBehaviour:
         m_bundleNameWithSuffix: prefabs_page_childpage.ab
         m_assetList:
         - Assets/RuntimeAssets/Prefabs/Page/ChildPage/TestPage2.prefab
-        m_crc: 3755049378
-        m_hash: 75317d8a8c1eac16f6dac2e4585c7a11
+        m_crc: 2264715472
+        m_hash: e6cdabe7509b65996f0103df76620ab1
         m_version: 1
-        m_size: 10602
+        m_size: 10744
         m_setting:
           m_location: 0
     - key: prefabs_page_childpage_childpage.ab
@@ -119,15 +131,31 @@ MonoBehaviour:
         m_size: 10594
         m_setting:
           m_location: 0
+    - key: runtimeassets.ab
+      value:
+        m_bundleNameWithSuffix: runtimeassets.ab
+        m_assetList:
+        - Assets/RuntimeAssets/Scenes/RaycastTest/Lightmap-0_comp_dir.png
+        - Assets/RuntimeAssets/Scenes/RaycastTest/Lightmap-0_comp_light.exr
+        - Assets/RuntimeAssets/Scenes/RaycastTest/Lightmap-1_comp_dir.png
+        - Assets/RuntimeAssets/Scenes/RaycastTest/Lightmap-1_comp_light.exr
+        - Assets/RuntimeAssets/Scenes/RaycastTest/ReflectionProbe-0.exr
+        - Assets/RuntimeAssets/Scenes/RaycastTest/ReflectionProbe-1.exr
+        m_crc: 2766724542
+        m_hash: 8834958a4c6f252d4ce45a778f851554
+        m_version: 1
+        m_size: 4845014
+        m_setting:
+          m_location: 0
     - key: StandaloneWindows64
       value:
         m_bundleNameWithSuffix: StandaloneWindows64
         m_assetList:
         - AssetBundleManifest
-        m_crc: 1189891164
-        m_hash: 1a77dba408d1e796e057b97392402a88
+        m_crc: 2340827967
+        m_hash: 780b090eacf53a19fc8cea1eafff1dc9
         m_version: 1
-        m_size: 1726
+        m_size: 1760
         m_setting:
           m_location: 0
   m_dependencies:
@@ -151,3 +179,5 @@ MonoBehaviour:
         value:
         - common.ab
         - prefabs_page_childpage.ab
+      - key: runtimeassets.ab
+        value: []
