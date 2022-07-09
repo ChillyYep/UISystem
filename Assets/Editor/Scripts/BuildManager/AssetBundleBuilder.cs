@@ -177,7 +177,23 @@ namespace GameBase.BundleBuilder
                     return false;
                 }
 
-                // 4、检测Bundle和BundleDescription是否一一对应
+                // 4、清除资源列表为空的BundleDesc（不能删除BundleDesc资源，只是将其从打包流程中剔除，避开空Bundle的影响）
+                // 从后往前删除
+                for (int i = descs.Count - 1; i >= 0; --i)
+                {
+                    // 与打包的目标方案不同的BundleDesc会被剔除
+                    if ((descs[i].m_solution & bundleBuildSettings.CurSolution) != bundleBuildSettings.CurSolution)
+                    {
+                        descs.RemoveAt(i);
+                    }
+                    else if (descs[i].m_assetList.Count <= 0)
+                    {
+                        Debug.Log($"BundleDescription's assetList is empty.BundleDesc:{AssetDatabase.GetAssetPath(descs[i])}.Skip this bundleDescription.");
+                        descs.RemoveAt(i);
+                    }
+                }
+
+                // 5、检测Bundle和BundleDescription是否一一对应
                 EditorUtility.DisplayProgressBar(nameof(CheckBundleDescsLegality), string.Format("3/{0:1}", totalSteps), 3f / totalSteps);
                 foreach (var desc in descs)
                 {
@@ -211,16 +227,6 @@ namespace GameBase.BundleBuilder
 
                 EditorUtility.DisplayProgressBar(nameof(CheckBundleDescsLegality), string.Format("4/{0:0}", totalSteps), 4f / totalSteps);
 
-                // 5、清除资源列表为空的BundleDesc（不能删除BundleDesc资源，只是将其从打包流程中剔除，避开空Bundle的影响）
-                // 从后往前删除
-                for (int i = descs.Count - 1; i >= 0; --i)
-                {
-                    if (descs[i].m_assetList.Count <= 0)
-                    {
-                        Debug.Log($"BundleDescription's assetList is empty.BundleDesc:{AssetDatabase.GetAssetPath(descs[i])}.Skip this bundleDescription.");
-                        descs.RemoveAt(i);
-                    }
-                }
             }
             finally
             {
@@ -444,7 +450,7 @@ namespace GameBase.BundleBuilder
                 }
                 foreach (var dependency in dependencies)
                 {
-                    if (!bundleBuildSettings.IsFileAllowedInBundle(dependency, out _))
+                    if (!bundleBuildSettings.IsAssetAllowedToBundle(dependency, out _))
                     {
                         passCheck = false;
                         Debug.LogError($"Asset \"{dependency}\" is out of the appointed directory \"{bundleBuildSettings.RuntimeAssetsDir}\"!");

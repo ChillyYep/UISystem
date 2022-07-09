@@ -33,6 +33,7 @@ namespace GameBase.Asset
         Default = Texture | Material | Prefab | AnimationClip | AnimatorController | PlayableAsset | Mesh,
         All = Texture | Material | Prefab | AnimationClip | AnimatorController | PlayableAsset | AudioMixer | AudioClip | Font | Shader | ComputeShader | RenderTexture | Mesh | TextAsset
     }
+
     /// <summary>
     /// 打Bundle依赖的设置
     /// </summary>
@@ -40,6 +41,8 @@ namespace GameBase.Asset
     {
         #region Fields
         public GenerateMode m_generateMode = GenerateMode.AutoCollectAsset | GenerateMode.AutoGenOutoutBundleName;
+
+        public Solution m_solution = Solution.SolutionA;
 
         public string m_bundleDescExplain = "普通Bundle";
 
@@ -61,6 +64,7 @@ namespace GameBase.Asset
             AutoCollectAsset = 1,
             AutoGenOutoutBundleName = 2
         }
+
         #endregion
 
         [MenuItem(MenuItemCollection.Create.BundleDescription, priority = 0)]
@@ -184,7 +188,7 @@ namespace GameBase.Asset
             var defaultABName = bundleBuildSettings.DefaultAbName;
             var descAssetPath = AssetDatabase.GetAssetPath(this);
             // 必须是RuntimeAssetsDir之下的
-            if (!bundleBuildSettings.IsFileAllowedInBundle(descAssetPath, out var outputBundleDdirectory))
+            if (!bundleBuildSettings.IsAssetAllowedToBundle(descAssetPath, out var outputBundleDdirectory))
             {
                 Debug.LogError($"Fail to {nameof(AutoGenOutputBundleName)}!\"{descAssetPath}\" is't under \"{string.Join("\",\"", bundleBuildSettings.AssetDirs)}\".");
                 return;
@@ -248,6 +252,7 @@ namespace GameBase.Asset
                 bundleDesc.AutoCollectAsset();
             }
             bundleDesc.m_bundleDescExplain = EditorGUILayout.TextField("BundleDesc解释说明", bundleDesc.m_bundleDescExplain);
+            bundleDesc.m_solution = (Solution)EditorGUILayout.EnumFlagsField("参与方案", bundleDesc.m_solution);
             bundleDesc.m_searchAssetTypes = (AssetType)EditorGUILayout.EnumFlagsField("收集的资源类型", bundleDesc.m_searchAssetTypes);
             bundleDesc.m_generateMode = (BundleDescription.GenerateMode)EditorGUILayout.EnumFlagsField("BundleDesc生成模式", bundleDesc.m_generateMode);
             bundleDesc.m_outputBundleName = EditorGUILayout.TextField("Bundle名称", bundleDesc.m_outputBundleName);

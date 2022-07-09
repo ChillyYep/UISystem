@@ -2,11 +2,22 @@
 using GameBase.Editor;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
+using UnityEditorInternal;
 using UnityEngine;
 
 namespace GameBase.Asset
 {
+
+    public class BundleGlobalSolution
+    {
+        /// <summary>
+        /// 方案名
+        /// </summary>
+        public string solutionName;
+    }
+
     [CustomEditor(typeof(AssetBundleMap))]
     public class AssetBundleMapInspector : UnityEditor.Editor
     {
@@ -15,18 +26,23 @@ namespace GameBase.Asset
             if (GUILayout.Button("Edit BundleInfo Settings"))
             {
                 var assetBundleMap = target as AssetBundleMap;
-                AssetBundleMapBundleSettingEditor.CreateWindow(assetBundleMap);
+                BundleSettingEditor.CreateWindow(assetBundleMap);
             }
             GUI.enabled = false;
             base.OnInspectorGUI();
         }
     }
-
-    public class AssetBundleMapBundleSettingEditor : EditorWindow
+    /// <summary>
+    /// Bundle相关设置
+    /// </summary>
+    public class BundleSettingEditor : TabsWindow
     {
+        protected override List<TabItem> EditorTools { get; set; }
+
         public static void CreateWindow(AssetBundleMap assetBundleMap)
         {
-            var window = CreateWindow<AssetBundleMapBundleSettingEditor>();
+            var window = CreateWindow<BundleSettingEditor>();
+            window.titleContent = new GUIContent("Bundle管理");
             window.Load(assetBundleMap);
             window.Show();
         }
@@ -34,69 +50,88 @@ namespace GameBase.Asset
         private void Load(AssetBundleMap assetBundleMap)
         {
             m_assetBundleMap = assetBundleMap;
-            m_bundleName2BundleInfo = assetBundleMap.GetBundleMap();
+            EditorTools = new List<TabItem>() {
+                new TabItem("逐Bundle设置", 200f, new PerBundleSettingWindow(m_assetBundleMap)),
+                new TabItem("Empty", 200f),
+                new TabItem("Empty", 200f),
+                new TabItem("Empty", 200f),
+                new TabItem("Empty", 200f),
+                new TabItem("Empty", 200f),
+            };
         }
-
-        private void Initialize()
-        {
-            m_initialized = true;
-            m_foldouts.Clear();
-            foreach (var pair in m_bundleName2BundleInfo)
-            {
-                m_foldouts[pair.Key] = false;
-            }
-
-        }
-        private void OnGUI()
-        {
-            if (!m_initialized)
-            {
-                Initialize();
-            }
-            m_changed = false;
-            SingleBundleSetting tempSettings;
-            m_scrollPos = EditorGUILayout.BeginScrollView(m_scrollPos);
-            foreach (var bundlePair in m_bundleName2BundleInfo)
-            {
-                var settings = bundlePair.Value.m_setting;
-                m_foldouts[bundlePair.Key] = EditorGUILayout.Foldout(m_foldouts[bundlePair.Key], bundlePair.Key, true);
-                if (m_foldouts[bundlePair.Key])
-                {
-                    try
-                    {
-                        EditorGUI.indentLevel++;
-                        EditorGUILayout.BeginVertical();
-                        tempSettings = settings;
-                        settings.m_location = (SetupLocation)EditorGUILayout.EnumPopup(nameof(SetupLocation), settings.m_location);
-                        if (!tempSettings.IsSame(settings))
-                        {
-                            m_changed = true;
-                        }
-                        EditorGUILayout.Space();
-                        EditorGUILayout.EndVertical();
-                    }
-                    finally
-                    {
-                        EditorGUI.indentLevel--;
-                    }
-                }
-            }
-            EditorGUILayout.EndScrollView();
-            if (GUI.changed && m_changed)
-            {
-                EditorUtils.SaveAndReimport(m_assetBundleMap);
-            }
-        }
-        private Vector2 m_scrollPos;
 
         private AssetBundleMap m_assetBundleMap;
+    }
+
+    /// <summary>
+    /// 逐Bundle相关设置子页签
+    /// </summary>
+    public class PerBundleSettingWindow : TabSubWindowBase
+    {
+        public PerBundleSettingWindow(AssetBundleMap assetBundleMap)
+        {
+            m_assetBundleMap = assetBundleMap;
+            m_bundleName2BundleInfo = assetBundleMap.GetBundleMap();
+        }
+        class PerBundleSetting
+        {
+            public string bundleName;
+            public SingleBundleSetting setting;
+        }
 
         private Dictionary<string, SingleBundleInfo> m_bundleName2BundleInfo;
 
-        private bool m_initialized;
+        private List<PerBundleSetting> m_allBundleSettings;
 
-        private bool m_changed;
+        private AssetBundleMap m_assetBundleMap;
 
-        private Dictionary<string, bool> m_foldouts = new Dictionary<string, bool>();
+        private ReorderableList m_bundleList;
+
+        private Vector2 m_scrollPos;
+
+        private List<float> m_colWithList = new List<float>()
+        {
+            200f,150f
+        };
+        private float offset = 10f;
+
+        public override void OnOpen()
+        {
+            if (m_allBundleSettings == null)
+            {
+                m_allBundleSettings = m_bundleName2BundleInfo.Select(pair => new PerBundleSetting() { bundleName = pair.Key, setting = pair.Value.m_setting }).ToList();
+                m_bundleList = new ReorderableList(m_allBundleSettings, typeof(PerBundleSetting), false, true, false, false)
+                {
+                    drawHeaderCallback = (rect) =>
+                    {
+                        rect.width = m_colWithList[0];
+                        EditorGUI.LabelField(rect, "Bundle名");
+                        rect.x += m_colWithList[0] + offset;
+                        rect.width = m_colWithList[1] - offset;
+                        EditorGUI.LabelField(rect, "SetupLocation");
+                    },
+                    drawElementCallback = (rect, index, isActive, isFocused) =>
+                      {
+                          EditorGUI.BeginChangeCheck();
+                          rect.width = m_colWithList[0];
+                          EditorGUI.LabelField(rect, m_allBundleSettings[index].bundleName);
+                          rect.x += rect.width;
+                          rect.width = m_colWithList[1];
+                          m_allBundleSettings[index].setting.m_location = (SetupLocation)EditorGUI.EnumPopup(rect, m_allBundleSettings[index].setting.m_location);
+                          if (EditorGUI.EndChangeCheck())
+                          {
+                              EditorUtils.SaveAndReimport(m_assetBundleMap);
+                          }
+                      }
+                };
+            }
+        }
+        public override void OnGUI()
+        {
+            m_scrollPos = EditorGUILayout.BeginScrollView(m_scrollPos);
+
+            m_bundleList.DoLayoutList();
+            EditorGUILayout.EndScrollView();
+        }
     }
 }

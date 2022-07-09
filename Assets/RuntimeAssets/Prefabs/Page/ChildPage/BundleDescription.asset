@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: BundleDescription
   m_EditorClassIdentifier: 
   m_generateMode: 3
+  m_solution: 1
   m_bundleDescExplain: "\u666E\u901ABundle"
   m_outputBundleName: prefabs_page_childpage
   m_assetList:

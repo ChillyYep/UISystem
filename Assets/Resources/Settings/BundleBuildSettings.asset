@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1a7fb15ed67ea44dbb2529bba94b5b4, type: 3}
   m_Name: BundleBuildSettings
   m_EditorClassIdentifier: 
-  BundleBuildMode: 383
+  BundleBuildMode: 319
+  CurSolution: 1
   BundleSuffix: ab
   VersionStep: 1
   UseAssetBundleManifestCollectDependencies: 0

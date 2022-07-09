@@ -704,7 +704,16 @@
       <HintPath>J:/unity/UISystem/Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>
     </Reference>
   </ItemGroup>
-  <ItemGroup></ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="XNode.csproj">
+      <Project>{29A3610F-9551-842E-7B9E-23DACD155427}</Project>
+      <Name>XNode</Name>
+    </ProjectReference>
+    <ProjectReference Include="XNodeEditor.csproj">
+      <Project>{33B918E7-3B54-8E3B-FDAC-2B6E80032C1C}</Project>
+      <Name>XNodeEditor</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

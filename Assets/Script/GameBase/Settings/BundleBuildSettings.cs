@@ -59,11 +59,24 @@ namespace GameBase.Settings
 
     }
 
+    /// <summary>
+    /// 当前BundleDesc参与哪种打Bundle方案，可以针对不同配置的机器有不同的资源打包方案，
+    /// 通过BundleDescription进行筛选
+    /// </summary>
+    public enum Solution
+    {
+        SolutionA = 1,
+        SolutionB = 2,
+        SolutionC = 4,
+    }
+
     [CreateAssetMenu(fileName = nameof(BundleBuildSettings), menuName = nameof(GameClientSettings) + "/" + nameof(BundleBuildSettings))]
     [UniqueResourcesAsset("Resources/Settings/BundleBuildSettings")]
     public class BundleBuildSettings : Singleton_ScriptableObject<BundleBuildSettings>
     {
         public BundleBuildMode BundleBuildMode;
+
+        public Solution CurSolution = Solution.SolutionA;
 
         public string BundleSuffix = "ab";
 
@@ -83,7 +96,7 @@ namespace GameBase.Settings
 
         public string BuildCachePath = "Assets/Editor/Cache/BundleBuildCache.asset";
 
-        public bool IsFileAllowedInBundle(string assetPath, out string outputBundleDdirectory)
+        public bool IsAssetAllowedToBundle(string assetPath, out string outputBundleDdirectory)
         {
             foreach (var dir in AssetDirs)
             {
