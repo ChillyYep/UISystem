@@ -8,7 +8,7 @@ namespace ConfigData
     /// </summary>
     public partial class ConfigDataLoader
     {
-        public ConfigDataLoader(string directory, string suffix, MutiLanguageReader mutiLanguageReader)
+        public ConfigDataLoader(string directory, string suffix, ConfigData.MutiLanguageReader mutiLanguageReader)
         {
             m_directory = directory;
             m_suffix = suffix;

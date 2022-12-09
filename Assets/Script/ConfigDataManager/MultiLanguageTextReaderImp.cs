@@ -7,9 +7,9 @@ namespace ConfigData
     /// <summary>
     /// 多语言加载，翻译转换逻辑
     /// </summary>
-    public class MultiLanguageTextReaderImp : LanguageLoaderImpBase
+    public class MultiLanguageTextReaderImp : ConfigData.LanguageLoaderImpBase
     {
-        public MultiLanguageTextReaderImp(Language language, string directory, string suffix) : base(language)
+        public MultiLanguageTextReaderImp(ConfigData.Language language, string directory, string suffix) : base(language)
         {
             m_filename = language.ToString();
             m_suffix = suffix;
