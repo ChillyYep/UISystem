@@ -10,6 +10,7 @@ public class GraphEditorWindow : EditorWindow
         graphWindow?.Initialize();
         graphWindow?.Show();
     }
+
     private GraphContainer m_graphContainer;
 
     public void Initialize()

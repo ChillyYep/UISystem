@@ -1,0 +1,90 @@
+﻿/* THIS FILE IS FROM GRAPHVIEW BUT CONTAINS MODIFICATIONS */
+
+Port {
+    height: 24px;
+    align-items: center;
+    padding-left: 4px;
+    padding-right: 4px;
+    --port-color: rgb(200, 200, 200);
+    --disabled-port-color: rgb(70, 70, 70);
+}
+
+Port.input {
+    flex-direction: row;
+}
+
+Port.output {
+    flex-direction: row-reverse;
+}
+
+Port > #connector {
+    border-color: rgb(70, 70, 70);
+    background-color: #212121;
+    width: 8px;
+    height: 8px;
+    border-radius: 8px;
+    align-items: center;
+    justify-content: center;
+
+    margin-left: 4px;
+    margin-right: 4px;
+    border-left-width: 1px;
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+}
+
+Port > #connector:hover {
+    border-color: #f0f0f0
+}
+
+Port > #connector > #cap
+{
+    background-color: #212121;
+    width: 4px;
+    height: 4px;
+    border-radius: 4px;
+}
+
+Port > #type {
+    color: #c1c1c1;
+    font-size: 11px;
+    height: 16px;
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: 4px;
+    margin-right: 4px;
+    margin-top: 4px;
+}
+
+Port.input > #type {
+    -unity-text-align: middle-left;
+}
+
+Port.output > #type {
+    -unity-text-align:middle-right;
+}
+
+/*******************************/
+/* ShaderPorts colors by types */
+/*******************************/
+
+Port.ColorTexture {
+    --port-color:#FFC53D;
+}
+
+Port.ColorBuffer {
+    --port-color:#91D5FF;
+}
+
+Port.DepthBuffer {
+    --port-color:#096DD9;
+}
+
+Port.GraphicsBuffer {
+    --port-color:#87E8DE;
+}
+
+Port.ComputeBuffer {
+    --port-color:#08979C;
+}

@@ -77,8 +77,10 @@
     <Compile Include="Assets\Editor\Scripts\MenuItemCollection.cs" />
     <Compile Include="Assets\Editor\Scripts\PlayerSettingsTools.cs" />
     <Compile Include="Assets\Editor\Scripts\SerializableDictionaryDrawer.cs" />
+    <Compile Include="Assets\Editor\Scripts\TestUnityResSerialization.cs" />
     <Compile Include="Assets\Editor\Scripts\TranslateTextInspector.cs" />
     <None Include="Assets\Editor\Scripts\EditorWindow\Resources\RenderNode.uss" />
+    <None Include="Assets\Editor\Scripts\EditorWindow\Resources\Port.uss" />
     <None Include="Assets\Editor\Scripts\EditorWindow\Resources\RenderGraphGridBackground.uss" />
     <Reference Include="UnityEngine">
       <HintPath>C:/Program Files/Unity 2019.4.18f1c1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>
